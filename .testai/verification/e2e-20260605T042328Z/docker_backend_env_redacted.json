@@ -1,0 +1,6 @@
+{
+  "cmd": "docker compose exec backend python -c \"import os,json; keys=['DEFAULT_MODEL','OPENAI_BASE_URL','OPENAI_API_KEY','OPENCODE_BASE_URL','OPENCODE_MODEL','OPENCODE_API_KEY'<redacted> print(json.dumps({k:('<present-redacted>' if 'KEY' in k and os.getenv(k) else os.getenv(k,'<missing>')) for k in keys},indent=2))\"",
+  "code": 0,
+  "stdout": "{\n  \"DEFAULT_MODEL\": \"deepseek-v4-flash\",\n  \"OPENAI_BASE_URL\": \"https://opencode.ai/zen/go/v1\",\n  \"OPENAI_API_KEY\": \"<redacted>\",\n  \"OPENCODE_BASE_URL\": \"https://opencode.ai/zen/go/v1\",\n  \"OPENCODE_MODEL\": \"deepseek-v4-flash\",\n  \"OPENCODE_API_KEY\": \"<redacted>\"\n}\n",
+  "stderr": ""
+}

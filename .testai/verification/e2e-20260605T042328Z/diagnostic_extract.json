@@ -1,0 +1,199 @@
+{
+  "dir": ".testai/verification/e2e-20260605T034610Z",
+  "session_id": "36fad4b4-1c1d-4e27-ae7d-c07cf97bbbd5",
+  "stream_event_count": 600,
+  "evidenceTerms": {
+    "kg": true,
+    "autoheal": false,
+    "webDocsPkg": true
+  },
+  "summary_matrix": {
+    "preflight_health_routes_provider": "PASS",
+    "pipeline_start": "PASS",
+    "delegate_stream": "PASS",
+    "sandbox_apis": "PASS",
+    "kanban_apis": "PASS",
+    "delegation_ops_apis": "PASS",
+    "knowledge_graph_api_fs": "PASS",
+    "testcase_persistence_fs": "FAIL",
+    "standalone_autoheal": "FAIL",
+    "pipeline_integrated_autoheal": "FAIL",
+    "cost_token_endpoints": "PASS",
+    "ui_route_prefix_api_wiring": "PASS",
+    "web_search_docs_package_evidence": "PASS"
+  },
+  "endpoint_pass_count": 36,
+  "endpoint_fail_count": 5,
+  "defects": [
+    {
+      "id": "E2E-005",
+      "severity": "High",
+      "endpoint_or_artifact": "pipeline stream",
+      "repro": "Run pipeline with autoheal mandatory",
+      "expected": "Pipeline-integrated autoheal evidence appears when failures occur",
+      "actual": "No pipeline-integrated autoheal evidence in stream",
+      "evidence": {
+        "standalone_heal_status": null
+      },
+      "suspected_area": "pipeline autoheal integration",
+      "retest_checklist": [
+        "pipeline invokes autoheal as part of run, not only /api/tests/heal"
+      ]
+    }
+  ],
+  "selected_endpoints": {
+    "testcases_list": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/testcases",
+      "body": "{\"test_cases\":[{\"id\":\"14af62ca-9dfc-438f-b7eb-707b229f481c\",\"name\":\"Knowledge Graph Persistence Failure\",\"test_type\":\"negative\",\"status\":\"pending\",\"priority\":\"high\",\"description\":\"Verifies the system handles failure when writing knowledge graph updates (e.g., database unavailability) and reports error without losing test results.\",\"code\":null,\"code_language\":\"python\",\"duration_ms\":null,\"error_mess"
+    },
+    "testcase_create": {
+      "ok": false,
+      "status": 422,
+      "url": "http://127.0.0.1:8001/api/testcases",
+      "body": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"project_id\"],\"msg\":\"Field required\",\"input\":{\"name\":\"E2E API-created smoke testcase\",\"description\":\"created by validation harness\",\"steps\":[\"open app\",\"call health endpoint\"],\"expected_result\":\"health OK\",\"tags\":[\"e2e-validation\"],\"priority\":\"medium\",\"type\":\"api\"}}]}"
+    },
+    "tests_heal_standalone": {
+      "ok": false,
+      "status": null,
+      "url": "http://127.0.0.1:8001/api/tests/heal",
+      "body": "",
+      "error": "AbortError: This operation was aborted"
+    },
+    "healing_stats": {
+      "ok": false,
+      "status": 500,
+      "url": "http://127.0.0.1:8001/api/healing/stats",
+      "body": "Internal Server Error"
+    },
+    "testing_healing_logs": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/testing/healing/logs",
+      "body": "{\"logs\":[]}"
+    },
+    "kg_recent": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/knowledge-graph/recent",
+      "body": "{\"graphs\":[{\"id\":\"b673c5867dc4a8f9\",\"volume\":\"b673c5867dc4a8f9\",\"node_count\":500,\"repo_url\":\"https://github.com/Ganeshkumar-1508/bank_poc_agentic_ai\",\"language\":\"python\"}]}"
+    },
+    "cost_session": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/cost/session/36fad4b4-1c1d-4e27-ae7d-c07cf97bbbd5",
+      "body": "{\"session_id\":\"36fad4b4-1c1d-4e27-ae7d-c07cf97bbbd5\",\"models\":[{\"model\":\"deepseek-v4-flash\",\"provider\":\"\",\"input_tokens\":0,\"output_tokens\":854,\"cache_read_tokens\":0,\"estimated_cost\":0.0068319994024932384}],\"total_cost\":0.006832,\"currency\":\"USD\"}"
+    },
+    "kanban_list_boards": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/kanban/boards",
+      "body": "{\"boards\":[{\"id\":\"0a628baa-5832-4522-a3a4-35121097e05b\",\"name\":\"Pipeline: End-to-end validation run: inspect sample banking POC like a real user, generate\",\"description\":\"Analyze the repository at https://github.com/Ganeshkumar-1508/bank_poc_agentic_ai and execute the requested work.\\n\\n## Goal\\nEnd-to-end validation run: inspect sample banking POC like a real user, generate tests, execute them, p"
+    },
+    "sandbox_list": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/sandbox/list",
+      "body": "{\"sandboxes\":[{\"session_id\":\"36fad4b4-1c1d-4e27-ae7d-c07cf97bbbd5\",\"container_id\":\"1ad64d64730475ce0d9d3bdc61574b8e05972df9f34857d3dabff4f80e5cffe1\",\"container_name\":\"testai-sandbox-36fad4b4-1c1\",\"uptime_seconds\":110.5168673992157,\"idle_seconds\":110.51685905456543,\"is_running\":true,\"source\":\"docker_executor\"}]}"
+    },
+    "ops_active_subagents": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/ops/swarm/active",
+      "body": "{\"subagents\":[{\"id\":\"sa-0-2764b462\",\"goal\":\"## Role: bug-fixer\\nYou are a debug specialist. When fixing bugs:\\n1. Reproduce the failure first\\n2. Identify the root cau\",\"depth\":1,\"role\":\"leaf\",\"status\":\"running\",\"interrupted\":false,\"started_at\":1780631213.433201,\"tool_count\":0},{\"id\":\"sa-1-e96d3ee3\",\"goal\":\"## Role: code-reviewer\\nYou are a code reviewer. Focus on:\\n1. Security vulnerabilities (XS"
+    },
+    "ops_delegate_events": {
+      "ok": false,
+      "status": 500,
+      "url": "http://127.0.0.1:8001/api/ops/swarm/delegate-events",
+      "body": "Internal Server Error"
+    },
+    "ops_summary": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/ops/swarm/summary",
+      "body": "{\"sessions_total\":56,\"total_tokens\":0,\"total_cost\":0.0,\"delegate_event_counts\":{\"tool:end\":1855,\"llm:end\":889,\"agent:end\":4,\"round:start\":896,\"agent:start\":54,\"tool:start\":1866},\"total_tool_calls\":0}"
+    },
+    "ops_tools": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/ops/tools",
+      "body": "{\"tools\":[{\"name\":\"glob\",\"description\":\"Find files by glob pattern (e.g. 'src/**/*.test.ts', '**/*.py'). Returns matching file paths.\",\"toolset\":\"read\"},{\"name\":\"grep\",\"description\":\"Search file contents by regex or literal string. Returns matching file paths and line numbers.\",\"toolset\":\"read\"},{\"name\":\"memory\",\"description\":\"Manage persistent memory. Add, replace, or remove entries that persist "
+    },
+    "ops_plugins": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/ops/plugins",
+      "body": "{\"plugins\":[],\"total\":0}"
+    }
+  },
+  "filesystem_samples": {
+    "results": [
+      {
+        "path": "agent_workspace/results/b673c5867dc4a8f9/f1812083-9a6/pipeline-output.txt",
+        "size": 703,
+        "mtime": 1780631115351.7766
+      },
+      {
+        "path": "agent_workspace/results/b673c5867dc4a8f9/f1812083-9a6",
+        "size": 0,
+        "mtime": 1780631115343.5894
+      },
+      {
+        "path": "agent_workspace/results/b673c5867dc4a8f9/f1812083-9a6/pipeline-summary.json",
+        "size": 1031,
+        "mtime": 1780631115338.1008
+      },
+      {
+        "path": "agent_workspace/results/b673c5867dc4a8f9",
+        "size": 0,
+        "mtime": 1780631115327.3193
+      },
+      {
+        "path": "agent_workspace/results/b673c5867dc4a8f9/43597ee8-413/pipeline-output.txt",
+        "size": 703,
+        "mtime": 1780630134856.2268
+      }
+    ],
+    "kg": [
+      {
+        "path": "agent_workspace/knowledge-graphs/b673c5867dc4a8f9/knowledge-graph.json",
+        "size": 130643,
+        "mtime": 1780631207152.6963
+      },
+      {
+        "path": "agent_workspace/knowledge-graphs/b673c5867dc4a8f9",
+        "size": 0,
+        "mtime": 1780546191131.2046
+      }
+    ],
+    "testai": [
+      {
+        "path": ".testai/verification",
+        "size": 0,
+        "mtime": 1780631176096.3545
+      },
+      {
+        "path": ".testai/skills/verify-skill",
+        "size": 0,
+        "mtime": 1780552912732.8813
+      },
+      {
+        "path": ".testai/skills",
+        "size": 0,
+        "mtime": 1780552912731.7234
+      },
+      {
+        "path": ".testai/skills/verify-server-api-changes-example-for-verify-skill",
+        "size": 0,
+        "mtime": 1780552912700.3784
+      },
+      {
+        "path": ".testai/skills/verify-cli-changes-example-for-verify-skill",
+        "size": 0,
+        "mtime": 1780552912667.9253
+      }
+    ]
+  }
+}

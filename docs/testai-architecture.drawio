@@ -1,0 +1,709 @@
+<mxfile>
+  <diagram name="TestAI Architecture" id="testai-arch">
+    <mxGraphModel dx="3000" dy="1800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3000" pageHeight="1800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t" value="TestAI Platform — Complete Architecture" style="text;html=1;fontSize=28;fontStyle=1;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#10b981;" vertex="1" parent="1">
+          <mxGeometry x="600" y="10" width="1000" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LEGEND -->
+        <!-- ============================================ -->
+        <mxCell id="legend-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="280" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="50" y="15" width="260" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l-clients" value="  External Clients" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#334155;fontColor=#e2e8f0;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="55" y="40" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="l-api" value="  FastAPI Backend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#6ee7b7;fontColor=#047857;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="55" y="65" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="l-backends" value="  Backend Abstraction" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#fdba74;fontColor=#9a3412;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="55" y="90" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="l-infra" value="  Infrastructure" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;fontColor=#475569;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="55" y="115" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-edge1" value="" style="rounded=0;html=1;strokeColor=#64748b;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="170" y="48" />
+            <mxPoint x="250" y="48" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-edge1-label" value="HTTP / WebSocket" style="text;html=1;fontSize=8;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="178" y="40" width="65" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-edge2" value="" style="rounded=0;html=1;strokeColor=#059669;strokeWidth=1.5;dashed=1;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="170" y="73" />
+            <mxPoint x="250" y="73" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-edge2-label" value="Internal RPC / Events" style="text;html=1;fontSize=8;fillColor=none;strokeColor=none;fontColor=#059669;" vertex="1" parent="1">
+          <mxGeometry x="178" y="65" width="65" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-edge3" value="" style="rounded=0;html=1;strokeColor=#f472b6;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="170" y="98" />
+            <mxPoint x="250" y="98" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-edge3-label" value="Orchestration flow" style="text;html=1;fontSize=8;fillColor=none;strokeColor=none;fontColor=#f472b6;" vertex="1" parent="1">
+          <mxGeometry x="178" y="90" width="65" height="15" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-actor" value="          Component" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=9;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="55" y="145" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-actor-label" value="Module / Actor" style="text;html=1;fontSize=8;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="165" y="147" width="100" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-highlight" value="          Highlight" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=9;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="55" y="170" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-highlight-label" value="Ported from Hermes/OS" style="text;html=1;fontSize=8;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="165" y="172" width="100" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-group" value="          Swimlane" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=9;fontColor=#475569;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="55" y="195" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-group-label" value="Group / Layer" style="text;html=1;fontSize=8;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="165" y="197" width="100" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 1: CLIENTS / EXTERNAL -->
+        <!-- ============================================ -->
+        <mxCell id="l1-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="240" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="l1-label" value="External Clients" style="text;html=1;fontSize=11;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="80" y="245" width="160" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="browser" value="Web Browser" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#334155;fontColor=#e2e8f0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="270" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="browser-sub" value="Next.js 16 + Tailwind + Framer Motion&lt;br&gt;shadcn/ui + lucide icons + React 19" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="browser">
+          <mxGeometry x="10" y="23" width="180" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="api-client" value="API Clients" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#334155;fontColor=#e2e8f0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="340" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="api-client-sub" value="REST + SSE / WebSocket&lt;br&gt;A2A Protocol" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="api-client">
+          <mxGeometry x="10" y="23" width="180" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="webhook" value="Webhooks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#334155;fontColor=#e2e8f0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="410" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="webhook-sub" value="GitHub / Slack / Cron Jobs" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="webhook">
+          <mxGeometry x="10" y="23" width="180" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="chat" value="Chat Interface" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#334155;fontColor=#e2e8f0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="480" width="200" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 2: FASTAPI BACKEND -->
+        <!-- ============================================ -->
+        <mxCell id="l2-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#6ee7b7;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="340" y="240" width="420" height="1040" as="geometry" />
+        </mxCell>
+        <mxCell id="l2-label" value="FastAPI Backend (api/main.py + harness/)" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#059669;" vertex="1" parent="1">
+          <mxGeometry x="380" y="245" width="340" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- API Routers -->
+        <mxCell id="routers" value="API Routers" style="swimlane;startSize=24;horizontal=0;fillColor=#d1fae5;strokeColor=#34d399;html=1;fontSize=11;fontStyle=1;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="360" y="275" width="380" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="router-jobs" value="jobs.py — POST /api/jobs (submit/cancel/resume)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="routers">
+          <mxGeometry x="15" y="35" width="170" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="router-delegate" value="delegate.py — SSE streams / fork" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="routers">
+          <mxGeometry x="195" y="35" width="170" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="router-sandbox" value="sandbox.py — visibility / exec-containers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="routers">
+          <mxGeometry x="15" y="80" width="170" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="router-sandbox-config" value="sandbox_config.py — settings / backend_type" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="routers">
+          <mxGeometry x="195" y="80" width="170" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="router-admin" value="admin.py — GitHub PR/issue webhooks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="routers">
+          <mxGeometry x="15" y="120" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="router-other" value="webhooks / slack / artifacts / pipeline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="routers">
+          <mxGeometry x="195" y="120" width="170" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Agent + Dependencies -->
+        <mxCell id="agent-core" value="Agent Core (agent.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=10;fontColor=#92400e;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="455" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="agent-core-sub" value="tool dispatch / delegation / run_stream / create_subagent" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#b45309;" vertex="1" parent="agent-core">
+          <mxGeometry x="5" y="25" width="160" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="llm-router" value="LLM Router (llm.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=9;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="550" y="455" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="llm-router-sub" value="provider routing / model fallback / cost tracking" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#4338ca;" vertex="1" parent="llm-router">
+          <mxGeometry x="5" y="25" width="160" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="deps" value="Agent Dependencies" style="swimlane;startSize=20;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=9;fontStyle=1;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="360" y="525" width="380" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="deps-tool-registry" value="Tool Registry (80+ tools)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="deps">
+          <mxGeometry x="15" y="30" width="170" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="deps-perm" value="Permission Manager (allow/ask/deny)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="deps">
+          <mxGeometry x="195" y="30" width="170" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="deps-mcp" value="MCP Client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="deps">
+          <mxGeometry x="15" y="75" width="170" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="deps-hooks" value="Hook Pipeline (pre/post tool/llm)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="deps">
+          <mxGeometry x="195" y="75" width="170" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Tool Groups -->
+        <mxCell id="tools" value="Tool Groups — 80+ tools in registry" style="swimlane;startSize=24;horizontal=0;fillColor=#d1fae5;strokeColor=#34d399;html=1;fontSize=11;fontStyle=1;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="360" y="660" width="380" height="270" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-file" value="file_tools: read / write / edit / bash" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="12" y="35" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-process" value="process_tool: spawn / poll / wait / kill" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="195" y="35" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-docker" value="docker_tool: exec / sidecar containers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="12" y="75" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-code" value="execute_code: sandboxed snippets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="195" y="75" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-delegate" value="delegate_task: subagent orchestration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="12" y="115" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-tool-search" value="tool_search: runtime tool discovery" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="195" y="115" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-kanban" value="kanban: task board / agent dispatch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="12" y="155" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-cron" value="cron: scheduled jobs / blueprints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="195" y="155" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-memory" value="memory / agent_memory: cross-run memory" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="12" y="195" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-web" value="web_search / web_fetch / vision_analyze" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="195" y="195" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-submit" value="submit_job: JobSpec handoff to orchestrator" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="12" y="230" width="172" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t-misc" value="codegraph / kg_refresh / skills / todo / LSP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="tools">
+          <mxGeometry x="195" y="230" width="172" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Orchestrator -->
+        <mxCell id="orchestrator" value="OrchestratorEngine (orchestrator.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=10;fontColor=#9d174d;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="945" width="380" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="orchestrator-sub" value="run_job_spec / run_single / run_multi / coordinator / resume_abandoned" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#be185d;" vertex="1" parent="orchestrator">
+          <mxGeometry x="5" y="20" width="370" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Job Spec -->
+        <mxCell id="jobs" value="JobSpec + JobSpecStore (spec.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=9;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="360" y="1010" width="380" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="jobs-sub" value="chat->orchestrator handoff / backend_type / capabilities / tier / resume checkpoint" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#b45309;" vertex="1" parent="jobs">
+          <mxGeometry x="5" y="20" width="370" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Phases -->
+        <mxCell id="phases" value="Run Pipeline Phases" style="swimlane;startSize=24;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=10;fontStyle=1;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="360" y="1070" width="380" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p-sandbox-prepare" value="sandbox_prepare — repo URL extraction" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="phases">
+          <mxGeometry x="12" y="35" width="172" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p-clone-repo" value="clone_repo — git clone + checkout" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="phases">
+          <mxGeometry x="195" y="35" width="172" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p-kg-index" value="kg_index — knowledge graph build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="phases">
+          <mxGeometry x="12" y="70" width="172" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p-memory-load" value="memory_load — cross-run context" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="phases">
+          <mxGeometry x="195" y="70" width="172" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p-explore" value="explore_codebase — AST + code analysis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="phases">
+          <mxGeometry x="12" y="105" width="172" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p-execute" value="execute — coordinator subagent runs job" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="phases">
+          <mxGeometry x="195" y="105" width="172" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p-finalize" value="finalize + commit_and_open_pr / kanban post" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="phases">
+          <mxGeometry x="12" y="140" width="172" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p-postrun" value="post_run_kg_sync — persist KG to disk" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="phases">
+          <mxGeometry x="195" y="140" width="172" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 3: BACKEND ABSTRACTION -->
+        <!-- ============================================ -->
+        <mxCell id="l3-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#fdba74;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="820" y="240" width="620" height="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="l3-label" value="Backend Abstraction Layer (backends/)" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#d97706;" vertex="1" parent="1">
+          <mxGeometry x="870" y="245" width="520" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- BaseEnvironment -->
+        <mxCell id="base-env" value="BaseEnvironment (ABC) — base.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffedd5;strokeColor=#fb923c;fontSize=10;fontColor=#7c2d12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="275" width="255" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="base-features-list" value="execute() / _run_bash() / cleanup() (abstract)&lt;br&gt;init_session — login shell env snapshot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#fdba74;fontSize=8;fontColor=#c2410c;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="275" width="300" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Base features detail -->
+        <mxCell id="base-feat" value="Core Base Features" style="swimlane;startSize=20;horizontal=0;fillColor=#fff7ed;strokeColor=#fdba74;html=1;fontSize=9;fontStyle=1;fontColor=#9a3412;" vertex="1" parent="1">
+          <mxGeometry x="850" y="335" width="570" height="260" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bf-exec" value="execute() — unified command execution" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="12" y="30" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-wrap" value="_wrap_command — source snapshot + cd + eval + CWD marker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="290" y="30" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-before-exec" value="_before_execute — pre-command hook (SSH file sync)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="12" y="70" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-prepare" value="_prepare_command — sudo -S stdin transform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="290" y="70" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-wait" value="_wait_for_process — adaptive poll + activity callback" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="12" y="110" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-popen" value="_popen_bash / _pipe_stdin — shared helpers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="290" y="110" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-cwd" value="_update_cwd / _extract_cwd_from_output — CWD tracking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="12" y="150" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-kill" value="_kill_process / _kill_process_group — process group kill" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="290" y="150" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-async" value="async run() / read_file() / write_file() / file_exists()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="12" y="190" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-embed" value="_embed_stdin_heredoc — for SDK backends" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="290" y="190" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-helpers" value="get_sandbox_dir / get_temp_dir / json store helpers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="12" y="225" width="265" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="bf-execresult" value="ExecResult dataclass — stdout/stderr/exit_code/duration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="base-feat">
+          <mxGeometry x="290" y="225" width="265" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Local Backend -->
+        <mxCell id="local-backend" value="LocalEnvironment (local.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=11;fontColor=#92400e;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="615" width="180" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="local-feat" value="Local Features" style="swimlane;startSize=20;horizontal=0;fillColor=#fef3c7;strokeColor=#f59e0b;html=1;fontSize=8;fontStyle=1;fontColor=#b45309;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="615" width="375" height="145" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lf-blocklist" value="_TESTAI_PROVIDER_ENV_BLOCKLIST — 25+ API keys filtered" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="local-feat">
+          <mxGeometry x="12" y="30" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lf-sanitize" value="_sanitize_env — respects env_passthrough allowlist" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="local-feat">
+          <mxGeometry x="192" y="30" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lf-msys" value="_msys_to_windows_path — MSYS path translation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="local-feat">
+          <mxGeometry x="12" y="62" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lf-compound" value="_rewrite_compound_background — A && B & fix" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="local-feat">
+          <mxGeometry x="192" y="62" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lf-shell-init" value="_resolve_shell_init_files — bashrc/profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="local-feat">
+          <mxGeometry x="12" y="95" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lf-pgid" value="process group kill + safe CWD resolution" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="local-feat">
+          <mxGeometry x="192" y="95" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lf-findbash" value="_find_bash — cross-platform bash locator" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="local-feat">
+          <mxGeometry x="12" y="127" width="170" height="12" as="geometry" />
+        </mxCell>
+
+        <!-- Docker Backend -->
+        <mxCell id="docker-backend" value="DockerEnvironment (docker.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=11;fontColor=#3730a3;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="780" width="180" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="docker-feat" value="Docker Features" style="swimlane;startSize=20;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=8;fontStyle=1;fontColor=#4338ca;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="780" width="375" height="230" as="geometry" />
+        </mxCell>
+
+        <mxCell id="df-s6" value="_image_uses_init_entrypoint — s6-overlay detection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="12" y="30" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-recover" value="_recreate_container — auto-recover when killed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="192" y="30" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-reuse" value="_find_reusable_container — cross-process reuse" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="12" y="62" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-security" value="_build_security_args — 4 privilege modes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="192" y="62" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-env" value="_build_init_env_args — env forwarding for snapshot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="12" y="95" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-orphan" value="reap_orphan_containers — stale container cleanup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="192" y="95" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-storage" value="_storage_opt_supported — disk quota check" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="12" y="127" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-user" value="_resolve_host_user_spec — run as host user" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="192" y="127" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-wait" value="wait_for_cleanup — async cleanup completion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="12" y="160" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-envnorm" value="_normalize_env_dict / _normalize_forward_env" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="192" y="160" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-gone" value="_is_container_gone — detect dead container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="12" y="192" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="df-custom" value="CPU / memory / disk resource limits" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="docker-feat">
+          <mxGeometry x="192" y="192" width="170" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- SSH Backend -->
+        <mxCell id="ssh-backend" value="SSHEnvironment (ssh.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=11;fontColor=#9d174d;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="1030" width="180" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ssh-feat" value="SSH Features" style="swimlane;startSize=20;horizontal=0;fillColor=#fce7f3;strokeColor=#f472b6;html=1;fontSize=8;fontStyle=1;fontColor=#be185d;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="1030" width="375" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sf-ctrl" value="ControlMaster — persistent SSH connection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ssh-feat">
+          <mxGeometry x="12" y="30" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="sf-bulk" value="_ssh_bulk_upload — tar-over-SSH streaming" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ssh-feat">
+          <mxGeometry x="192" y="30" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="sf-bulkdl" value="_ssh_bulk_download — full remote pull" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ssh-feat">
+          <mxGeometry x="12" y="62" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="sf-creds" value="credential + skill file sync via FileSyncManager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ssh-feat">
+          <mxGeometry x="192" y="62" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="sf-before" value="_before_execute — sync before every command" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ssh-feat">
+          <mxGeometry x="12" y="95" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="sf-syncback" value="sync_back — pull remote changes on cleanup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ssh-feat">
+          <mxGeometry x="192" y="95" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="sf-remote" value="_ensure_remote_dirs — dirs on remote host" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ssh-feat">
+          <mxGeometry x="12" y="127" width="170" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="sf-home" value="remote HOME detection + path mapping" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ssh-feat">
+          <mxGeometry x="192" y="127" width="170" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Factory -->
+        <mxCell id="factory" value="BackendFactory (factory.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=11;fontColor=#047857;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="1220" width="180" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="factory-feat" value="Factory Features" style="swimlane;startSize=20;horizontal=0;fillColor=#d1fae5;strokeColor=#34d399;html=1;fontSize=8;fontStyle=1;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="1220" width="375" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ff-get" value="get_backend() — create + cache per session" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="factory-feat">
+          <mxGeometry x="12" y="25" width="170" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="ff-resolve" value="resolve_backend_type — session->config->default" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="factory-feat">
+          <mxGeometry x="192" y="25" width="170" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="ff-callbacks" value="approval + sudo callbacks, task overrides" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="factory-feat">
+          <mxGeometry x="12" y="52" width="170" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="ff-singleton" value="singleton + shutdown_factory lifecycle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="factory-feat">
+          <mxGeometry x="192" y="52" width="170" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- Support Modules -->
+        <mxCell id="support" value="Support &amp; Utility Modules" style="swimlane;startSize=24;horizontal=0;fillColor=#f3e8ff;strokeColor=#c084fc;html=1;fontSize=11;fontStyle=1;fontColor=#6b21a8;" vertex="1" parent="1">
+          <mxGeometry x="850" y="1315" width="570" height="240" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-filesync" value="FileSyncManager — mtime tracking, tar pipe, sync_back, content hash" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="15" y="35" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-cred" value="credential_files — path traversal protection, register/sync files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="290" y="35" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-config" value="backend_configs — get/upsert for session_backend_configs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="15" y="75" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-env" value="env_passthrough — session-scoped env allowlist" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="290" y="75" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-polyfill" value="ansi_strip / binary_extensions / debug_helpers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="15" y="115" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-security" value="path_security (validate_within_dir) / url_safety / interrupt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="290" y="115" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-foreground" value="foreground_background_guidance — detect long-lived commands" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="15" y="155" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-readpwd" value="read_password_thread — cross-platform terminal password reader" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="290" y="155" width="265" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-tool-limits" value="tool_output_limits — configurable truncation (bytes/lines/line length)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="15" y="195" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-schema" value="schema_sanitizer / fuzzy_match / patch_parser" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="support">
+          <mxGeometry x="290" y="195" width="265" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 4: INFRASTRUCTURE -->
+        <!-- ============================================ -->
+        <mxCell id="l4-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="240" width="400" height="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="l4-label" value="Infrastructure / Data Layer" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="245" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="postgres" value="PostgreSQL 16" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#64748b;fontSize=11;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="275" width="340" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="postgres-tables" value="" style="group;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="340" width="340" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tbl-sessions" value="sessions (backend_type)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="345" width="105" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl-messages" value="messages / tasks / stream_events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1645" y="345" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl-artifacts" value="artifacts / token_usage / checkpoints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1765" y="345" width="105" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl-kanban" value="kanban_boards / kanban_tasks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="370" width="105" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl-memory" value="agent_memory + memory_entries" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1645" y="370" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl-jobspec" value="job_specs / job_checkpoints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1765" y="370" width="105" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl-backend" value="session_backend_configs (JSONB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=7;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="395" width="105" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl-settings" value="sandbox_config / settings / budgets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1645" y="395" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl-60" value="60+ tables total" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1765" y="395" width="105" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="codegraph" value="CodeGraph SQLite" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#64748b;fontSize=10;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="435" width="340" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="codegraph-sub" value="Knowledge graph index (244K nodes, 598K edges)" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="codegraph">
+          <mxGeometry x="10" y="25" width="320" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- Docker Host -->
+        <mxCell id="docker-host" value="Docker Host" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#334155;fontSize=11;fontColor=#e2e8f0;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="500" width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="docker-ws" value="Workspace Container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#475569;fontSize=8;fontColor=#cbd5e1;" vertex="1" parent="docker-host">
+          <mxGeometry x="15" y="30" width="145" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="docker-ws-sub" value="python-nodejs image" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="docker-ws">
+          <mxGeometry x="5" y="18" width="135" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="docker-sidecar" value="Sidecar Container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#475569;fontSize=8;fontColor=#cbd5e1;" vertex="1" parent="docker-host">
+          <mxGeometry x="180" y="30" width="145" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="docker-sidecar-sub" value="golang/node/custom images" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="docker-sidecar">
+          <mxGeometry x="5" y="18" width="135" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="docker-sock" value="docker.sock mounted into host container" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="docker-host">
+          <mxGeometry x="10" y="75" width="320" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="docker-reap" value="orphan reaper — stale container cleanup" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="docker-host">
+          <mxGeometry x="10" y="92" width="320" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- File System -->
+        <mxCell id="fs" value="Host Filesystem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#64748b;fontSize=10;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="640" width="340" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fs-sub" value="agent_workspace/  .testai/  skills/  knowledge-graphs/  sandboxes/" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="fs">
+          <mxGeometry x="10" y="25" width="320" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- SSE / Events -->
+        <mxCell id="sse" value="SSE / Event Stream" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=10;fontColor=#3730a3;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="720" width="340" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sse-sub" value="Delegation Tree / Agent Thinking / Logs / ToolProgress" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#4338ca;" vertex="1" parent="sse">
+          <mxGeometry x="10" y="22" width="320" height="23" as="geometry" />
+        </mxCell>
+
+        <!-- Schema -->
+        <mxCell id="schema" value="Schema (schema.sql / migrations.sql)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=9;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="790" width="340" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="schema-sub" value="sessions.backend_type + session_backend_configs (JSONB)&lt;br&gt;6 INSERT sites updated, sandbox_manager.py deleted" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#b45309;" vertex="1" parent="schema">
+          <mxGeometry x="10" y="20" width="320" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Observability -->
+        <mxCell id="otel" value="OpenTelemetry / Tracing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=9;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="865" width="340" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="otel-sub" value="OTLP exporter, 18 span types, provider mapping" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#4338ca;" vertex="1" parent="otel">
+          <mxGeometry x="10" y="20" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Notifications -->
+        <mxCell id="notif" value="Notifications / Audit Trail" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=9;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="930" width="340" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="notif-sub" value="In-app bell, CSV/JSON export, filterable audit log" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#4338ca;" vertex="1" parent="notif">
+          <mxGeometry x="10" y="20" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Cost Tracking -->
+        <mxCell id="cost" value="Cost Tracking / Budgets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=9;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="995" width="340" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="cost-sub" value="4-scope budgets, price caching, auto-throttle ladder" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#4338ca;" vertex="1" parent="cost">
+          <mxGeometry x="10" y="20" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Workflow -->
+        <mxCell id="workflow" value="Workflow Engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=9;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="1060" width="340" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="workflow-sub" value="@xyflow/react visual canvas, DAG executor, retry logic" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#4338ca;" vertex="1" parent="workflow">
+          <mxGeometry x="10" y="20" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- EDGES -->
+        <!-- ============================================ -->
+
+        <mxCell id="e-browser-api" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1.5;" edge="1" parent="1" source="browser" target="routers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-browser-label" value="HTTP / WebSocket" style="edgeLabel;html=1;fontSize=7;fillColor=none;strokeColor=none;fontColor=#64748b;" vertex="1" parent="e-browser-api">
+          <mxGeometry x="0.5" y="-8" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e-api-client-routers" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1.5;" edge="1" parent="1" source="api-client" target="routers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-webhook-admin" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1.5;" edge="1" parent="1" source="webhook" target="router-admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-chat-routers" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1.5;" edge="1" parent="1" source="chat" target="routers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-routers-agent" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="routers" target="agent-core">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-agent-orch" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f472b6;strokeWidth=2;" edge="1" parent="1" source="agent-core" target="orchestrator">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-orch-jobs" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f59e0b;strokeWidth=1;" edge="1" parent="1" source="orchestrator" target="jobs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-jobs-phases" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#818cf8;strokeWidth=1;" edge="1" parent="1" source="jobs" target="phases">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-tools-factory" value="get_backend()" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#34d399;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="tools" target="factory">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="700" y="830" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e-factory-local" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f59e0b;strokeWidth=1.5;" edge="1" parent="1" source="factory" target="local-backend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-factory-docker" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#818cf8;strokeWidth=1.5;" edge="1" parent="1" source="factory" target="docker-backend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-factory-ssh" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f472b6;strokeWidth=1.5;" edge="1" parent="1" source="factory" target="ssh-backend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-docker-dockerhost" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;dashed=1;" edge="1" parent="1" source="docker-backend" target="docker-host">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-factory-db" value="backend_configs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;dashed=1;" edge="1" parent="1" source="factory" target="postgres">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-routers-db" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;dashed=1;" edge="1" parent="1" source="routers" target="postgres">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-api-sse" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#818cf8;strokeWidth=1;dashed=1;" edge="1" parent="1" source="routers" target="sse">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-base-filesync" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#a855f7;strokeWidth=1;dashed=1;" edge="1" parent="1" source="base-env" target="s-filesync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

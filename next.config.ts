@@ -1,12 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://backend:8000/api/:path*",
+      },
+    ];
   },
-  reactStrictMode: false,
 };
 
 export default nextConfig;

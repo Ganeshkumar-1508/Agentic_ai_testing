@@ -1,0 +1,38 @@
+{
+  "artifact_dir": ".testai/verification/e2e-20260605T042328Z",
+  "session_id": "a3aae15c-2b66-401d-9c60-12e6266e80b1",
+  "pass_fail_matrix": {
+    "preflight_health_routes_provider": "PASS",
+    "pipeline_start": "PASS",
+    "delegate_stream": "PASS",
+    "sandbox_apis": "PASS",
+    "kanban_apis": "PASS",
+    "delegation_ops_apis": "PASS",
+    "knowledge_graph_api_fs": "PASS",
+    "testcase_persistence_fs": "PASS",
+    "standalone_autoheal": "PASS",
+    "pipeline_integrated_autoheal": "FAIL",
+    "cost_token_endpoints": "PASS",
+    "ui_route_prefix_api_wiring": "PASS",
+    "web_search_docs_package_evidence": "PASS"
+  },
+  "endpoint_pass_count": 40,
+  "endpoint_fail_count": 1,
+  "defect_count": 1,
+  "defect_ids": [
+    "E2E-005"
+  ],
+  "possible_defect_sources": [
+    "provider env not loaded into backend container",
+    "route prefix mismatch between frontend and backend",
+    "pipeline orchestrator starts but does not emit SSE lifecycle events",
+    "pipeline lacks integrated KG/testcase/autoheal steps",
+    "sandbox Docker APIs fail under mounted docker.sock",
+    "required web/search/docs/package tools are unavailable or unused",
+    "persistence writes DB only but not filesystem artifacts"
+  ],
+  "most_likely_sources": [
+    "pipeline lacks integrated mandatory evidence steps",
+    "route/API wiring or endpoint implementation gaps"
+  ]
+}

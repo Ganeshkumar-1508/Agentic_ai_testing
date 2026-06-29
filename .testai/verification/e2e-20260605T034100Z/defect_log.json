@@ -1,0 +1,37 @@
+[
+  {
+    "id": "E2E-005",
+    "severity": "High",
+    "endpoint_or_artifact": "pipeline stream",
+    "repro": "Run pipeline with autoheal mandatory",
+    "expected": "Pipeline-integrated autoheal evidence appears when failures occur",
+    "actual": "No pipeline-integrated autoheal evidence in stream",
+    "evidence": {
+      "standalone_heal_status": null
+    },
+    "suspected_area": "pipeline autoheal integration",
+    "retest_checklist": [
+      "pipeline invokes autoheal as part of run, not only /api/tests/heal"
+    ]
+  },
+  {
+    "id": "E2E-101",
+    "severity": "Medium",
+    "endpoint_or_artifact": "http://127.0.0.1:8001/api/testcases",
+    "repro": "Call testcases_list",
+    "expected": "Endpoint returns 2xx",
+    "actual": "Endpoint failed",
+    "evidence": {
+      "name": "testcases_list",
+      "ok": false,
+      "status": 422,
+      "ms": 31,
+      "url": "http://127.0.0.1:8001/api/testcases",
+      "body_text": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"project_id\"],\"msg\":\"Field required\",\"input\":null}]}"
+    },
+    "suspected_area": "testcases_list",
+    "retest_checklist": [
+      "endpoint returns 2xx with valid JSON"
+    ]
+  }
+]

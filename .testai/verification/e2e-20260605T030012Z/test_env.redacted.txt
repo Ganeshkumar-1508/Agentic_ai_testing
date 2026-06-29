@@ -1,0 +1,5 @@
+MODEL= deepseek-v4-flash
+
+URL=https://opencode.ai/zen/go/v1
+
+API_KEY=<redacted>

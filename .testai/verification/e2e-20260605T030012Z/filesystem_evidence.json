@@ -1,0 +1,713 @@
+{
+  "agent_workspace/results": [
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/e326126b-dc9/pipeline-output.txt",
+      "size": 1851,
+      "mtime": 1780629677216.3452
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/e326126b-dc9",
+      "size": 0,
+      "mtime": 1780629677203.3665
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/e326126b-dc9/pipeline-summary.json",
+      "size": 2210,
+      "mtime": 1780629677156.5571
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9",
+      "size": 0,
+      "mtime": 1780629677056.6448
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/9a0ff040-f2a/pipeline-output.txt",
+      "size": 2014,
+      "mtime": 1780570492654.3572
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/9a0ff040-f2a",
+      "size": 0,
+      "mtime": 1780570492652.356
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/9a0ff040-f2a/pipeline-summary.json",
+      "size": 2375,
+      "mtime": 1780570492642.8347
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/92326be4-926/pipeline-output.txt",
+      "size": 703,
+      "mtime": 1780569181839.8706
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/92326be4-926",
+      "size": 0,
+      "mtime": 1780569181824.6377
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/92326be4-926/pipeline-summary.json",
+      "size": 1031,
+      "mtime": 1780569181795.6487
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/8097c6db-ec3/pipeline-output.txt",
+      "size": 703,
+      "mtime": 1780567708894.9607
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/8097c6db-ec3",
+      "size": 0,
+      "mtime": 1780567708880.3774
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/8097c6db-ec3/pipeline-summary.json",
+      "size": 1031,
+      "mtime": 1780567708832.1492
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/f5b8ed00-3d5/pipeline-output.txt",
+      "size": 703,
+      "mtime": 1780565203657.8796
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/f5b8ed00-3d5",
+      "size": 0,
+      "mtime": 1780565203650.7314
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/f5b8ed00-3d5/pipeline-summary.json",
+      "size": 1031,
+      "mtime": 1780565203633.552
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/1f3b55a8-3d2/pipeline-output.txt",
+      "size": 47,
+      "mtime": 1780546510463.6428
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/1f3b55a8-3d2",
+      "size": 0,
+      "mtime": 1780546510393.6047
+    },
+    {
+      "path": "agent_workspace/results/b673c5867dc4a8f9/1f3b55a8-3d2/pipeline-summary.json",
+      "size": 330,
+      "mtime": 1780546510304.2432
+    }
+  ],
+  "agent_workspace/knowledge-graphs": [
+    {
+      "path": "agent_workspace/knowledge-graphs/b673c5867dc4a8f9/knowledge-graph.json",
+      "size": 163547,
+      "mtime": 1780629681579.2483
+    },
+    {
+      "path": "agent_workspace/knowledge-graphs/b673c5867dc4a8f9",
+      "size": 0,
+      "mtime": 1780546191131.2046
+    }
+  ],
+  ".testai": [
+    {
+      "path": ".testai/verification",
+      "size": 0,
+      "mtime": 1780628412135.86
+    },
+    {
+      "path": ".testai/skills/verify-skill",
+      "size": 0,
+      "mtime": 1780552912732.8813
+    },
+    {
+      "path": ".testai/skills",
+      "size": 0,
+      "mtime": 1780552912731.7234
+    },
+    {
+      "path": ".testai/skills/verify-server-api-changes-example-for-verify-skill",
+      "size": 0,
+      "mtime": 1780552912700.3784
+    },
+    {
+      "path": ".testai/skills/verify-cli-changes-example-for-verify-skill",
+      "size": 0,
+      "mtime": 1780552912667.9253
+    },
+    {
+      "path": ".testai/skills/update-config-7-step-verification-flow",
+      "size": 0,
+      "mtime": 1780552912637.113
+    },
+    {
+      "path": ".testai/skills/update-claude-code-config",
+      "size": 0,
+      "mtime": 1780552912602.0674
+    },
+    {
+      "path": ".testai/skills/team-onboarding-guide",
+      "size": 0,
+      "mtime": 1780552912570.9314
+    },
+    {
+      "path": ".testai/skills/stuck-slash-command",
+      "size": 0,
+      "mtime": 1780552912538.8938
+    },
+    {
+      "path": ".testai/skills/schedule-recurring-cron-and-run-immediately",
+      "size": 0,
+      "mtime": 1780552912509.2651
+    },
+    {
+      "path": ".testai/skills/schedule-recurring-cron-and-execute-immediately-compact",
+      "size": 0,
+      "mtime": 1780552912480.8633
+    },
+    {
+      "path": ".testai/skills/run-web-server-api-example",
+      "size": 0,
+      "mtime": 1780552912453.7666
+    },
+    {
+      "path": ".testai/skills/run-tui-interactive-terminal-app-example",
+      "size": 0,
+      "mtime": 1780552912427.5864
+    },
+    {
+      "path": ".testai/skills/run-skill-template",
+      "size": 0,
+      "mtime": 1780552912398.8762
+    },
+    {
+      "path": ".testai/skills/run-skill-generator",
+      "size": 0,
+      "mtime": 1780552912368.1775
+    },
+    {
+      "path": ".testai/skills/run-library-sdk-example",
+      "size": 0,
+      "mtime": 1780552912327.7373
+    },
+    {
+      "path": ".testai/skills/run-electron-desktop-gui-app-example",
+      "size": 0,
+      "mtime": 1780552912295.8926
+    },
+    {
+      "path": ".testai/skills/run-cli-tool-example",
+      "size": 0,
+      "mtime": 1780552912251.9146
+    },
+    {
+      "path": ".testai/skills/run-browser-driven-web-app-example",
+      "size": 0,
+      "mtime": 1780552912223.2793
+    },
+    {
+      "path": ".testai/skills/run-app",
+      "size": 0,
+      "mtime": 1780552912188.8647
+    },
+    {
+      "path": ".testai/skills/pre-meeting-checkin-event-brief",
+      "size": 0,
+      "mtime": 1780552912155.4084
+    },
+    {
+      "path": ".testai/skills/morning-checkin-daily-brief",
+      "size": 0,
+      "mtime": 1780552912125.6135
+    },
+    {
+      "path": ".testai/skills/model-migration-guide",
+      "size": 0,
+      "mtime": 1780552912086.511
+    },
+    {
+      "path": ".testai/skills/loop-slash-command/SKILL.md",
+      "size": 3757,
+      "mtime": 1780552912049.7683
+    },
+    {
+      "path": ".testai/skills/loop-slash-command",
+      "size": 0,
+      "mtime": 1780552912048.769
+    },
+    {
+      "path": ".testai/skills/loop-slash-command-dynamic-mode/SKILL.md",
+      "size": 2230,
+      "mtime": 1780552912006.6985
+    },
+    {
+      "path": ".testai/skills/loop-slash-command-dynamic-mode",
+      "size": 0,
+      "mtime": 1780552912005.6882
+    },
+    {
+      "path": ".testai/skills/loop-self-pacing-mode/SKILL.md",
+      "size": 2960,
+      "mtime": 1780552911959.9885
+    },
+    {
+      "path": ".testai/skills/loop-self-pacing-mode",
+      "size": 0,
+      "mtime": 1780552911958.735
+    },
+    {
+      "path": ".testai/skills/loop-cloud-first-scheduling-offer/SKILL.md",
+      "size": 2383,
+      "mtime": 1780552911928.3823
+    },
+    {
+      "path": ".testai/skills/loop-cloud-first-scheduling-offer",
+      "size": 0,
+      "mtime": 1780552911926.25
+    },
+    {
+      "path": ".testai/skills/insights-report-output/SKILL.md",
+      "size": 1183,
+      "mtime": 1780552911897.311
+    },
+    {
+      "path": ".testai/skills/insights-report-output",
+      "size": 0,
+      "mtime": 1780552911895.1665
+    },
+    {
+      "path": ".testai/skills/init-claude-md-and-skill-setup-new-version/SKILL.md",
+      "size": 21760,
+      "mtime": 1780552911867.014
+    },
+    {
+      "path": ".testai/skills/init-claude-md-and-skill-setup-new-version",
+      "size": 0,
+      "mtime": 1780552911866.4827
+    },
+    {
+      "path": ".testai/skills/generate-permission-allowlist-from-transcripts/SKILL.md",
+      "size": 8045,
+      "mtime": 1780552911833.324
+    },
+    {
+      "path": ".testai/skills/generate-permission-allowlist-from-transcripts",
+      "size": 0,
+      "mtime": 1780552911832.8167
+    },
+    {
+      "path": ".testai/skills/dynamic-pacing-loop-execution/SKILL.md",
+      "size": 2753,
+      "mtime": 1780552911795.0168
+    },
+    {
+      "path": ".testai/skills/dynamic-pacing-loop-execution",
+      "size": 0,
+      "mtime": 1780552911792.335
+    },
+    {
+      "path": ".testai/skills/dream-memory-consolidation/SKILL.md",
+      "size": 2574,
+      "mtime": 1780552911733.6316
+    },
+    {
+      "path": ".testai/skills/dream-memory-consolidation",
+      "size": 0,
+      "mtime": 1780552911732.1167
+    },
+    {
+      "path": ".testai/skills/design-sync-slash-command/SKILL.md",
+      "size": 35687,
+      "mtime": 1780552911685.4607
+    },
+    {
+      "path": ".testai/skills/design-sync-slash-command",
+      "size": 0,
+      "mtime": 1780552911684.4626
+    },
+    {
+      "path": ".testai/skills/debugging/SKILL.md",
+      "size": 2160,
+      "mtime": 1780552911625.7126
+    },
+    {
+      "path": ".testai/skills/debugging",
+      "size": 0,
+      "mtime": 1780552911624.7139
+    },
+    {
+      "path": ".testai/skills/create-verifier-skills",
+      "size": 0,
+      "mtime": 1780552911621.7026
+    },
+    {
+      "path": ".testai/skills/create-verifier-skills/SKILL.md",
+      "size": 10583,
+      "mtime": 1780552911621.7026
+    },
+    {
+      "path": ".testai/skills/computer-use-mcp/SKILL.md",
+      "size": 5363,
+      "mtime": 1780552911588.0757
+    },
+    {
+      "path": ".testai/skills/computer-use-mcp",
+      "size": 0,
+      "mtime": 1780552911587.0627
+    },
+    {
+      "path": ".testai/skills/claude-code-configuration-guide/SKILL.md",
+      "size": 4479,
+      "mtime": 1780552911559.1536
+    },
+    {
+      "path": ".testai/skills/claude-code-configuration-guide",
+      "size": 0,
+      "mtime": 1780552911558.646
+    },
+    {
+      "path": ".testai/skills/catch-up-periodic-heartbeat/SKILL.md",
+      "size": 6644,
+      "mtime": 1780552911528.7437
+    },
+    {
+      "path": ".testai/skills/catch-up-periodic-heartbeat",
+      "size": 0,
+      "mtime": 1780552911527.7422
+    },
+    {
+      "path": ".testai/skills/building-llm-powered-applications-with-claude/SKILL.md",
+      "size": 35619,
+      "mtime": 1780552911499.937
+    },
+    {
+      "path": ".testai/skills/building-llm-powered-applications-with-claude",
+      "size": 0,
+      "mtime": 1780552911498.9216
+    },
+    {
+      "path": ".testai/skills/build-with-claude-api-reference-guide/SKILL.md",
+      "size": 2674,
+      "mtime": 1780552911466.9834
+    },
+    {
+      "path": ".testai/skills/build-with-claude-api-reference-guide",
+      "size": 0,
+      "mtime": 1780552911465.9736
+    },
+    {
+      "path": ".testai/skills/agent-design-patterns",
+      "size": 0,
+      "mtime": 1780552911437.5876
+    },
+    {
+      "path": ".testai/skills/agent-design-patterns/SKILL.md",
+      "size": 9191,
+      "mtime": 1780552911437.5876
+    },
+    {
+      "path": ".testai/sandboxes/bind-mount-test",
+      "size": 0,
+      "mtime": 1780389841499.7434
+    },
+    {
+      "path": ".testai/sandboxes/bind-mount-test/source.txt",
+      "size": 0,
+      "mtime": 1780389841499.7434
+    },
+    {
+      "path": ".testai/sandboxes",
+      "size": 0,
+      "mtime": 1780389841266.5957
+    },
+    {
+      "path": ".testai/sandboxes/bind-mount-verify",
+      "size": 0,
+      "mtime": 1780389705391.7148
+    },
+    {
+      "path": ".testai/skills/software-development",
+      "size": 0,
+      "mtime": 1780316491702.5928
+    },
+    {
+      "path": ".testai/skills/research",
+      "size": 0,
+      "mtime": 1780316490573.5696
+    },
+    {
+      "path": ".testai/skills/productivity",
+      "size": 0,
+      "mtime": 1780316490352.8772
+    },
+    {
+      "path": ".testai/skills/mlops/vector-databases",
+      "size": 0,
+      "mtime": 1780316489194.474
+    },
+    {
+      "path": ".testai/skills/mlops",
+      "size": 0,
+      "mtime": 1780316489184.943
+    },
+    {
+      "path": ".testai/skills/mlops/training",
+      "size": 0,
+      "mtime": 1780316489170.3948
+    },
+    {
+      "path": ".testai/skills/mlops/research",
+      "size": 0,
+      "mtime": 1780316489094.985
+    },
+    {
+      "path": ".testai/skills/mlops/models/segment-anything/references",
+      "size": 0,
+      "mtime": 1780316489053.9177
+    },
+    {
+      "path": ".testai/skills/mlops/models/segment-anything",
+      "size": 0,
+      "mtime": 1780316489037.839
+    },
+    {
+      "path": ".testai/skills/mlops/models",
+      "size": 0,
+      "mtime": 1780316489016.1824
+    },
+    {
+      "path": ".testai/skills/mlops/models/audiocraft/references",
+      "size": 0,
+      "mtime": 1780316489000.414
+    },
+    {
+      "path": ".testai/skills/mlops/models/audiocraft",
+      "size": 0,
+      "mtime": 1780316488978.7637
+    },
+    {
+      "path": ".testai/skills/mlops/inference/vllm/references",
+      "size": 0,
+      "mtime": 1780316488923.2317
+    },
+    {
+      "path": ".testai/skills/mlops/inference/vllm",
+      "size": 0,
+      "mtime": 1780316488888.282
+    },
+    {
+      "path": ".testai/skills/mlops/inference",
+      "size": 0,
+      "mtime": 1780316488868.6128
+    },
+    {
+      "path": ".testai/skills/mlops/inference/obliteratus/templates",
+      "size": 0,
+      "mtime": 1780316488854.0078
+    },
+    {
+      "path": ".testai/skills/mlops/inference/obliteratus",
+      "size": 0,
+      "mtime": 1780316488825.7961
+    },
+    {
+      "path": ".testai/skills/mlops/inference/obliteratus/references",
+      "size": 0,
+      "mtime": 1780316488807.2944
+    },
+    {
+      "path": ".testai/skills/mlops/inference/llama-cpp/references",
+      "size": 0,
+      "mtime": 1780316488752.5137
+    },
+    {
+      "path": ".testai/skills/mlops/inference/llama-cpp",
+      "size": 0,
+      "mtime": 1780316488692.5754
+    },
+    {
+      "path": ".testai/skills/mlops/huggingface-hub",
+      "size": 0,
+      "mtime": 1780316488636.7036
+    },
+    {
+      "path": ".testai/skills/mlops/evaluation/weights-and-biases/references",
+      "size": 0,
+      "mtime": 1780316488612.6821
+    },
+    {
+      "path": ".testai/skills/mlops/evaluation/weights-and-biases",
+      "size": 0,
+      "mtime": 1780316488580.5962
+    },
+    {
+      "path": ".testai/skills/mlops/evaluation",
+      "size": 0,
+      "mtime": 1780316488558.444
+    },
+    {
+      "path": ".testai/skills/mlops/evaluation/lm-evaluation-harness/references",
+      "size": 0,
+      "mtime": 1780316488542.7053
+    },
+    {
+      "path": ".testai/skills/mlops/evaluation/lm-evaluation-harness",
+      "size": 0,
+      "mtime": 1780316488501.0525
+    },
+    {
+      "path": ".testai/skills/mcp/native-mcp",
+      "size": 0,
+      "mtime": 1780316488414.937
+    },
+    {
+      "path": ".testai/skills/mcp",
+      "size": 0,
+      "mtime": 1780316488401.2515
+    },
+    {
+      "path": ".testai/skills/github/github-repo-management/references",
+      "size": 0,
+      "mtime": 1780316488367.294
+    },
+    {
+      "path": ".testai/skills/github/github-repo-management",
+      "size": 0,
+      "mtime": 1780316488302.9827
+    },
+    {
+      "path": ".testai/skills/github",
+      "size": 0,
+      "mtime": 1780316488275.9976
+    },
+    {
+      "path": ".testai/skills/github/github-pr-workflow/templates",
+      "size": 0,
+      "mtime": 1780316488260.7817
+    },
+    {
+      "path": ".testai/skills/github/github-pr-workflow",
+      "size": 0,
+      "mtime": 1780316488239.1057
+    },
+    {
+      "path": ".testai/skills/github/github-pr-workflow/references",
+      "size": 0,
+      "mtime": 1780316488224.5303
+    },
+    {
+      "path": ".testai/skills/github/github-issues/templates",
+      "size": 0,
+      "mtime": 1780316488168.949
+    },
+    {
+      "path": ".testai/skills/github/github-issues",
+      "size": 0,
+      "mtime": 1780316488148.663
+    },
+    {
+      "path": ".testai/skills/github/github-code-review/references",
+      "size": 0,
+      "mtime": 1780316488109.713
+    },
+    {
+      "path": ".testai/skills/github/github-code-review",
+      "size": 0,
+      "mtime": 1780316488101.8752
+    },
+    {
+      "path": ".testai/skills/github/github-auth/scripts",
+      "size": 0,
+      "mtime": 1780316488055.6301
+    },
+    {
+      "path": ".testai/skills/github/github-auth",
+      "size": 0,
+      "mtime": 1780316488048.5825
+    },
+    {
+      "path": ".testai/skills/github/codebase-inspection",
+      "size": 0,
+      "mtime": 1780316488013.161
+    },
+    {
+      "path": ".testai/skills/devops/webhook-subscriptions",
+      "size": 0,
+      "mtime": 1780316487968.1016
+    },
+    {
+      "path": ".testai/skills/devops",
+      "size": 0,
+      "mtime": 1780316487959.597
+    },
+    {
+      "path": ".testai/skills/devops/kanban-worker",
+      "size": 0,
+      "mtime": 1780316487945.427
+    },
+    {
+      "path": ".testai/skills/devops/kanban-orchestrator",
+      "size": 0,
+      "mtime": 1780316487921.6238
+    },
+    {
+      "path": ".testai/skills/data-science/jupyter-live-kernel",
+      "size": 0,
+      "mtime": 1780316487886.8755
+    },
+    {
+      "path": ".testai/skills/data-science",
+      "size": 0,
+      "mtime": 1780316487878.3557
+    },
+    {
+      "path": ".testai/skills/creative/touchdesigner-mcp/scripts",
+      "size": 0,
+      "mtime": 1780316487839.534
+    },
+    {
+      "path": ".testai/skills/creative/touchdesigner-mcp",
+      "size": 0,
+      "mtime": 1780316487832.5266
+    },
+    {
+      "path": ".testai/skills/creative/touchdesigner-mcp/references",
+      "size": 0,
+      "mtime": 1780316487813.36
+    },
+    {
+      "path": ".testai/skills/creative",
+      "size": 0,
+      "mtime": 1780316487551.5142
+    },
+    {
+      "path": ".testai/skills/creative/songwriting-and-ai-music",
+      "size": 0,
+      "mtime": 1780316487536.2998
+    },
+    {
+      "path": ".testai/skills/creative/sketch",
+      "size": 0,
+      "mtime": 1780316487509.3677
+    },
+    {
+      "path": ".testai/skills/creative/pretext/templates",
+      "size": 0,
+      "mtime": 1780316487477.5408
+    },
+    {
+      "path": ".testai/skills/creative/pretext",
+      "size": 0,
+      "mtime": 1780316487454.188
+    },
+    {
+      "path": ".testai/skills/creative/pretext/references",
+      "size": 0,
+      "mtime": 1780316487438.9617
+    },
+    {
+      "path": ".testai/skills/creative/popular-web-designs/templates",
+      "size": 0,
+      "mtime": 1780316487385.2844
+    }
+  ]
+}

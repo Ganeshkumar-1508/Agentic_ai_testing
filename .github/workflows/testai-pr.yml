@@ -1,0 +1,59 @@
+name: TestAI — Auto-test on PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: write
+
+jobs:
+  testai:
+    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@testai'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger TestAI pipeline
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: "${{ secrets.TESTAI_API_URL || 'http://localhost:8001' }}/api/webhook/github"
+          method: POST
+          contentType: application/json
+          data: >
+            {
+              "action": "${{ github.event_name == 'pull_request' && 'opened' || 'comment' }}",
+              "repository": {
+                "full_name": "${{ github.repository }}",
+                "clone_url": "${{ github.event.repository?.clone_url || github.server_url }}/${{ github.repository }}.git"
+              },
+              "pull_request": ${{ toJSON(github.event.pull_request) }},
+              "comment": ${{ toJSON(github.event.comment) }}
+            }
+          customHeaders: >
+            {
+              "X-TestAI-Secret": "${{ secrets.TESTAI_WEBHOOK_SECRET }}"
+            }
+
+      - name: Post status check
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const payload = JSON.parse('${{ steps.trigger.outputs.response }}');
+            github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'TestAI',
+              head_sha: context.payload.pull_request?.head?.sha || context.sha,
+              status: 'completed',
+              conclusion: payload?.status === 'ok' ? 'success' : 'neutral',
+              output: {
+                title: 'TestAI Pipeline',
+                summary: payload?.message || 'Pipeline triggered',
+                text: JSON.stringify(payload, null, 2)
+              }
+            });

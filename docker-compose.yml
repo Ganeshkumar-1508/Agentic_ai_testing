@@ -1,90 +1,74 @@
 # TestAI Platform - Docker Compose
-# Production-ready deployment with PostgreSQL, Redis, and both frontend/backend
+# Python Harness (host 8001 → container 8000) + PostgreSQL + Next.js Frontend (host 3001 → container 3000)
 
 services:
-  # ============== Database ==============
   postgres:
     image: postgres:16-alpine
-    container_name: testai-postgres
+    container_name: testai-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-testai}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      POSTGRES_USER: testai
+      POSTGRES_PASSWORD: testai
+      POSTGRES_DB: testai
     ports:
-      - "5433:5432"
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U testai -d testai"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
-  # ============== Redis ==============
-  redis:
-    image: redis:7-alpine
-    container_name: testai-redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-    ports:
-      - "6380:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ============== Backend API ==============
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: testai-backend
     restart: unless-stopped
+    env_file:
+      - ./backend/.env
     environment:
-      - ENVIRONMENT=production
-      - DEBUG=false
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-testai}
-      - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
-      - GROQ_API_KEY=${GROQ_API_KEY:-}
-      - COHERE_API_KEY=${COHERE_API_KEY:-}
+      - DATABASE_URL=postgresql://testai:testai@postgres:5432/testai
+      - TESTAI_HOME=/app/.testai
+      - AGENT_WORKSPACE_MOUNT=/app/agent_workspace
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./.testai:/app/.testai:rw
+      - ./agent_workspace:/app/agent_workspace:rw
+      - ./backend/harness_data.db:/app/backend/harness_data.db:rw
+      - ./backend/test.txt:/app/backend/test.txt:rw
     ports:
       - "8001:8000"
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 15s
 
-  # ============== Frontend ==============
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        BACKEND_URL: ${BACKEND_URL:-http://backend:8000}
     container_name: testai-frontend
     restart: unless-stopped
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8000
-      - NEXT_PUBLIC_WS_URL=ws://backend:8000
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8001
+      - BACKEND_URL=http://backend:8000
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-deepseek-v4-flash}
+      - NEXT_PUBLIC_DEFAULT_MODEL=${DEFAULT_MODEL:-deepseek-v4-flash}
     ports:
       - "3001:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
-  # ============== Nginx Reverse Proxy (Optional) ==============
   nginx:
     image: nginx:alpine
     container_name: testai-nginx
@@ -102,8 +86,7 @@ services:
       - production
 
 volumes:
-  postgres_data:
-  redis_data:
+  pgdata:
 
 networks:
   default:

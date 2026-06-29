@@ -1,0 +1,6 @@
+{
+    "repo_url":  "https://github.com/rails/rails",
+    "prompt":  "Fix the issue https://github.com/rails/rails/issues/54044 - Rails autoloader needs to consider config.skip_autoload when reloading by unsetting autoloaded constants in development. Analyze the issue, understand the codebase, and implement a fix. Create a kanban board with tasks to fix this issue.",
+    "run_in_background":  true,
+    "role":  "orchestrator"
+}

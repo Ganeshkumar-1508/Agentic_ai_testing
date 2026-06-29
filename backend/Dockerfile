@@ -1,31 +1,36 @@
-# TestAI Platform - Python Backend Dockerfile
+# TestAI Harness - Python Backend
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    libpq-dev \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/* \
+    && docker pull alpine:3.19 2>/dev/null || true \
+    && (curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh) || true
 
-# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
 COPY . .
 
-# Create non-root user
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
+# Docker socket on Windows mounts as root:root — run as root for sandbox access.
+# RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+# USER appuser
 
-# Expose port
 EXPOSE 8000
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Run application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# workers=1: FastAPI is async — concurrency is handled via the event loop,
+# not process count. Multi-worker (--workers N) only helps for CPU-bound
+# work. Our bottleneck is I/O (LLM calls, Docker, DB), which async handles
+# perfectly. Additionally, asyncpg connection pools are not fork-safe —
+# pooled connections share TCP file descriptors across processes, causing
+# concurrent access corruption (ConnectionDoesNotExistError).
+# Use workers>1 only with gunicorn + UvicornWorker which handles pre-fork properly.
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

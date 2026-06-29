@@ -1,0 +1,104 @@
+{
+  "dir": ".testai/verification/e2e-20260605T034100Z",
+  "stream_event_count": 602,
+  "evidenceTerms": {
+    "kg": true,
+    "autoheal": false,
+    "webDocsPkg": true
+  },
+  "summary_matrix": {
+    "preflight_health_routes_provider": "PASS",
+    "pipeline_start": "PASS",
+    "delegate_stream": "PASS",
+    "sandbox_apis": "PASS",
+    "kanban_apis": "PASS",
+    "delegation_ops_apis": "PASS",
+    "knowledge_graph_api_fs": "PASS",
+    "testcase_persistence_fs": "FAIL",
+    "standalone_autoheal": "FAIL",
+    "pipeline_integrated_autoheal": "FAIL",
+    "cost_token_endpoints": "PASS",
+    "ui_route_prefix_api_wiring": "PASS",
+    "web_search_docs_package_evidence": "PASS"
+  },
+  "endpoint_fail_count": 6,
+  "defect_ids": [
+    "E2E-005",
+    "E2E-101"
+  ],
+  "selected_endpoints": {
+    "testcases_list": {
+      "ok": false,
+      "status": 422,
+      "url": "http://127.0.0.1:8001/api/testcases",
+      "body": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"project_id\"],\"msg\":\"Field required\",\"input\":null}]}"
+    },
+    "testcase_create": {
+      "ok": false,
+      "status": 422,
+      "url": "http://127.0.0.1:8001/api/testcases",
+      "body": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"project_id\"],\"msg\":\"Field required\",\"input\":{\"name\":\"E2E API-created smoke testcase\",\"description\":\"created by validation harness\",\"steps\":[\"open app\",\"call health endpoint\"],\"expected_result\":\"health OK\",\"tags\":[\"e2e-validation\"],\"priority\":\"medium\",\"type"
+    },
+    "tests_heal_standalone": {
+      "ok": false,
+      "status": null,
+      "url": "http://127.0.0.1:8001/api/tests/heal",
+      "body": "",
+      "error": "AbortError: This operation was aborted"
+    },
+    "kg_recent": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/knowledge-graph/recent",
+      "body": "{\"graphs\":[{\"id\":\"b673c5867dc4a8f9\",\"volume\":\"b673c5867dc4a8f9\",\"node_count\":500,\"repo_url\":\"https://github.com/Ganeshkumar-1508/bank_poc_agentic_ai\",\"language\":\"python\"}]}"
+    },
+    "healing_stats": {
+      "ok": false,
+      "status": 500,
+      "url": "http://127.0.0.1:8001/api/healing/stats",
+      "body": "Internal Server Error"
+    },
+    "testing_healing_logs": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/testing/healing/logs",
+      "body": "{\"logs\":[]}"
+    },
+    "cost_session": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/cost/session/f1812083-9a64-41a4-b0ad-b92e7d1c989f",
+      "body": "{\"session_id\":\"f1812083-9a64-41a4-b0ad-b92e7d1c989f\",\"models\":[{\"model\":\"deepseek-v4-flash\",\"provider\":\"\",\"input_tokens\":0,\"output_tokens\":1021,\"cache_read_tokens\":0,\"estimated_cost\":0.008167998865246773}],\"total_cost\":0.008168,\"currency\":\"USD\"}"
+    },
+    "kanban_list_boards": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/kanban/boards",
+      "body": "{\"boards\":[{\"id\":\"073c9a65-8b92-47d3-b811-1359468c8b5b\",\"name\":\"Pipeline: End-to-end validation run: inspect sample banking POC like a real user, generate\",\"description\":\"Analyze the repository at https://github.com/Ganeshkumar-1508/bank_poc_agentic_ai and execute the requested work.\\n\\n## Goal\\nEnd"
+    },
+    "sandbox_list": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/sandbox/list",
+      "body": "{\"sandboxes\":[{\"session_id\":\"43597ee8-4132-4f5b-8e4c-c0a49c39d077\",\"container_id\":\"133f6bb976e78b439bf4e66a6efe7770aa7ee6a338091a9b6129477d6caeb003\",\"container_name\":\"testai-sandbox-43597ee8-413\",\"uptime_seconds\":1974.4796085357666,\"idle_seconds\":1974.47953748703,\"is_running\":true,\"source\":\"docker_e"
+    },
+    "ops_active_subagents": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/ops/swarm/active",
+      "body": "{\"subagents\":[{\"id\":\"sa-0-3e72403a\",\"goal\":\"## Role: bug-fixer\\nYou are a debug specialist. When fixing bugs:\\n1. Reproduce the failure first\\n2. Identify the root cau\",\"depth\":1,\"role\":\"leaf\",\"status\":\"running\",\"interrupted\":false,\"started_at\":1780630915.7915058,\"tool_count\":0},{\"id\":\"sa-1-04cbff87"
+    },
+    "ops_delegate_events": {
+      "ok": false,
+      "status": 500,
+      "url": "http://127.0.0.1:8001/api/ops/swarm/delegate-events",
+      "body": "Internal Server Error"
+    },
+    "ops_summary": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:8001/api/ops/swarm/summary",
+      "body": "{\"sessions_total\":50,\"total_tokens\":0,\"total_cost\":0.0,\"delegate_event_counts\":{\"tool:end\":1640,\"llm:end\":798,\"agent:end\":4,\"round:start\":803,\"agent:start\":49,\"tool:start\":1653},\"total_tool_calls\":0}"
+    }
+  }
+}

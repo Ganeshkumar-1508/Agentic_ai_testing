@@ -1,0 +1,6 @@
+{
+  "cmd": "docker compose ps",
+  "code": 0,
+  "stdout": "NAME              IMAGE                        COMMAND                  SERVICE    CREATED              STATUS                    PORTS\ntestai-backend    testai-production-backend    \"uvicorn api.main:ap…\"   backend    12 minutes ago       Up 12 minutes (healthy)   0.0.0.0:8001->8000/tcp, [::]:8001->8000/tcp\ntestai-db         postgres:16-alpine           \"docker-entrypoint.s…\"   postgres   18 hours ago         Up 18 hours (healthy)     0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp\ntestai-frontend   testai-production-frontend   \"docker-entrypoint.s…\"   frontend   About a minute ago   Up About a minute         0.0.0.0:3001->3000/tcp, [::]:3001->3000/tcp\n",
+  "stderr": ""
+}

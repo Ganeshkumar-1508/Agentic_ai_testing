@@ -1,0 +1,8 @@
+{
+  "source": "plans/test_env.txt",
+  "mapped_backend_env": {
+    "DEFAULT_MODEL": "deepseek-v4-flash",
+    "OPENAI_BASE_URL": "https://opencode.ai/zen/go/v1",
+    "OPENAI_API_KEY": "<redacted from file>"
+  }
+}

@@ -1,0 +1,19 @@
+[server]
+host = "0.0.0.0"
+port = 8080
+insecure = true
+
+[runtime]
+type = "docker"
+execd_image = "opensandbox/execd:latest"
+
+[sandbox]
+default_image = "ubuntu:latest"
+memory_limit = "512m"
+cpu_limit = 1.0
+timeout_seconds = 300
+
+[docker]
+enabled = true
+network_mode = "testai-network"
+

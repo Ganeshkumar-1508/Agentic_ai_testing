@@ -1,0 +1,6 @@
+{
+  "session_id": "43597ee8-4132-4f5b-8e4c-c0a49c39d077",
+  "event_count": 0,
+  "stream_error": "AbortError: This operation was aborted\n    at new DOMException (node:internal/per_context/domexception:79:18)\n    at AbortController.abort (node:internal/abort_controller:506:18)\n    at Timeout._onTimeout (C:\\Users\\ASWINP~1\\AppData\\Local\\Temp\\.ctx-mode-tQXbMa\\script.js:73:113)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)",
+  "events": []
+}

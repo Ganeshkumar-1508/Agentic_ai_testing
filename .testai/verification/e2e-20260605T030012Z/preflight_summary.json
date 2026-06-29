@@ -1,0 +1,21 @@
+{
+  "artifact_dir": ".testai\\verification\\e2e-20260605T030012Z",
+  "cwd": "c:\\Users\\AswinPremnathChandra\\Documents\\testai-production",
+  "exists": {
+    "package.json": true,
+    "backend/requirements.txt": true,
+    "docker-compose.yml": true,
+    "backend/main.py": true,
+    "plans/test_env.txt": true
+  },
+  "package_scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "cross-env NODE_ENV=production node .next/standalone/server.js",
+    "lint": "eslint .",
+    "generate:api": "openapi-typescript http://localhost:8001/openapi.json -o src/lib/api/schema.d.ts",
+    "test:ts": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  }
+}

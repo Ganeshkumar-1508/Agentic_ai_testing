@@ -1,0 +1,418 @@
+<mxfile>
+  <diagram name="Integration Architecture" id="integration-arch">
+    <mxGraphModel dx="2000" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t" value="TestAI — Integration Layer" style="text;html=1;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#10b981;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="l-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="280" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="l-title" value="Legend" style="text;html=1;fontSize=11;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="50" y="15" width="260" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l-webhook" value="Webhook Inbound" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=8;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="55" y="35" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-delivery" value="Delivery Outbound" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="55" y="57" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-mcp" value="MCP Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=8;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="55" y="79" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-a2a" value="A2A Protocol" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=8;fontColor=#9d174d;" vertex="1" parent="1">
+          <mxGeometry x="55" y="101" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-channel" value="Channel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;fontSize=8;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="55" y="123" width="80" height="18" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l-edge1" value="HTTP callback" style="rounded=0;html=1;strokeColor=#64748b;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="150" y="44" />
+            <mxPoint x="210" y="44" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l-edge2" value="JSON-RPC" style="rounded=0;html=1;strokeColor=#8b5cf6;strokeWidth=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="150" y="66" />
+            <mxPoint x="210" y="66" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- SECTION 1: WEBHOOKS (INBOUND) -->
+        <!-- ============================================ -->
+        <mxCell id="s1" value="1. Webhooks (Inbound)" style="text;html=1;fontSize=13;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="60" y="200" width="400" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="wh-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fefce8;strokeColor=#fde047;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="230" width="520" height="360" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub -->
+        <mxCell id="gh-bg" value="GitHub Webhooks" style="swimlane;startSize=24;horizontal=0;fillColor=#fef3c7;strokeColor=#f59e0b;html=1;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="60" y="250" width="230" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gh-admin" value="admin.py — POST /api/github/webhook" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="gh-bg">
+          <mxGeometry x="12" y="35" width="205" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="gh-pr" value="github_pr_feedback.py — PR comment handler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="gh-bg">
+          <mxGeometry x="12" y="68" width="205" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="gh-discover" value="Auto-discovery loop (cron)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="gh-bg">
+          <mxGeometry x="12" y="100" width="205" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="gh-issue-action" value="Issue labeled bug — tier 1 auto-fix" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="gh-bg">
+          <mxGeometry x="12" y="132" width="205" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Slack -->
+        <mxCell id="sl-bg" value="Slack Webhooks" style="swimlane;startSize=24;horizontal=0;fillColor=#fef3c7;strokeColor=#f59e0b;html=1;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="310" y="250" width="230" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sl-webhook" value="slack_webhooks.py — slash commands" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="sl-bg">
+          <mxGeometry x="12" y="35" width="205" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sl-channel" value="Slack channel (channels/slack.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="sl-bg">
+          <mxGeometry x="12" y="72" width="205" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Cron -->
+        <mxCell id="cr-bg" value="Cron / Scheduled" style="swimlane;startSize=24;horizontal=0;fillColor=#fef3c7;strokeColor=#f59e0b;html=1;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="60" y="445" width="230" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cr-sched" value="Scheduler (scheduler/)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cr-bg">
+          <mxGeometry x="12" y="35" width="205" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="cr-blueprint" value="Blueprint panel / cron jobs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cr-bg">
+          <mxGeometry x="12" y="64" width="205" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="cr-workflow" value="Workflow executor (DAG)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cr-bg">
+          <mxGeometry x="12" y="93" width="205" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- Discovery -->
+        <mxCell id="di-bg" value="Auto-Discovery" style="swimlane;startSize=24;horizontal=0;fillColor=#fef3c7;strokeColor=#f59e0b;html=1;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="310" y="445" width="230" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="di-loop" value="_discovery_loop (15 min)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="di-bg">
+          <mxGeometry x="12" y="35" width="205" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="di-issues" value="Polls GitHub/GitLab for new Issues/PRs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="di-bg">
+          <mxGeometry x="12" y="64" width="205" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="di-integration" value="integration_configs table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="di-bg">
+          <mxGeometry x="12" y="93" width="205" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- SECTION 2: MCP SERVERS -->
+        <!-- ============================================ -->
+        <mxCell id="s2" value="2. MCP Servers (harness/mcp/)" style="text;html=1;fontSize=13;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="620" y="200" width="400" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mcp-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#a5b4fc;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="230" width="500" height="360" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mcp-arch" value="MCP Architecture" style="swimlane;startSize=24;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=10;fontStyle=1;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="640" y="250" width="460" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mcp-client" value="MCPClient (client.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="12" y="35" width="135" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp-client-sub" value="JSON-RPC transport, tool discovery" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="mcp-client">
+          <mxGeometry x="2" y="20" width="131" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mcp-server" value="MCPServer (server.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="160" y="35" width="135" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp-server-sub" value="Hosts MCP tools for agents" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="mcp-server">
+          <mxGeometry x="2" y="20" width="131" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mcp-config" value="ConfigManager (config_manager.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="310" y="35" width="135" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp-config-sub" value="Reads mcp.json, syncs to DB" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="mcp-config">
+          <mxGeometry x="2" y="20" width="131" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mcp-oauth" value="MCP OAuth (oauth.py / oauth_manager.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="12" y="82" width="200" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp-oauth-sub" value="OAuth 2.0 authorization flow for MCP servers" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="2" y="20" width="196" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mcp-stream" value="Stream Transport (stream.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="230" y="82" width="215" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp-stream-sub" value="SSE-based streaming transport layer" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="mcp-stream">
+          <mxGeometry x="2" y="20" width="211" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mcp-tests" value="MCP Tests (tests/)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="12" y="128" width="200" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp-map" value="Mapping (mapping.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="230" y="128" width="215" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mcp-serve-py" value="serve.py / server_mcp.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="12" y="168" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp-types" value="Types (types.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="mcp-arch">
+          <mxGeometry x="230" y="168" width="215" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- MCP Servers table -->
+        <mxCell id="mcp-db" value="mcp_configs / mcp_servers_index DB tables" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;fontSize=8;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="640" y="470" width="460" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp-startup" value="Startup: read mcp.json -> sync to DB -> initialize MCPClient" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="1">
+          <mxGeometry x="640" y="520" width="460" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp-ui" value="MCPServerManager UI (settings)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="640" y="545" width="460" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- SECTION 3: DELIVERY (OUTBOUND) -->
+        <!-- ============================================ -->
+        <mxCell id="s3" value="3. Delivery Router (Outbound)" style="text;html=1;fontSize=13;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="60" y="620" width="400" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dr-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#86efac;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="650" width="560" height="400" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dr-arch" value="Delivery Router Architecture" style="swimlane;startSize=24;horizontal=0;fillColor=#d1fae5;strokeColor=#34d399;html=1;fontSize=10;fontStyle=1;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="60" y="670" width="520" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dr-router" value="DeliveryRouter (router.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-arch">
+          <mxGeometry x="12" y="35" width="150" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="dr-router-sub" value="send_message tool -> platform dispatch" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="dr-router">
+          <mxGeometry x="2" y="20" width="146" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dr-adapter" value="Adapters (adapters/)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-arch">
+          <mxGeometry x="180" y="35" width="150" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="dr-adapter-sub" value="Slack / Telegram / Email / Webhook" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="dr-adapter">
+          <mxGeometry x="2" y="20" width="146" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dr-lifecycle" value="Lifecycle (lifecycle.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-arch">
+          <mxGeometry x="350" y="35" width="155" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="dr-lifecycle-sub" value="delivery_log tracking" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="dr-lifecycle">
+          <mxGeometry x="2" y="20" width="151" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dr-platforms" value="Channel Platforms" style="swimlane;startSize=24;horizontal=0;fillColor=#d1fae5;strokeColor=#34d399;html=1;fontSize=9;fontStyle=1;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="60" y="845" width="520" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ch-telegram" value="TelegramChannel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="12" y="32" width="115" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ch-slack" value="SlackChannel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="140" y="32" width="115" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ch-discord" value="DiscordChannel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="270" y="32" width="115" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ch-email" value="EmailChannel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="395" y="32" width="115" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ch-feishu" value="FeishuChannel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="12" y="75" width="115" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ch-dingtalk" value="DingTalkChannel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="140" y="75" width="115" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ch-wechat" value="WechatChannel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="270" y="75" width="115" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ch-wecom" value="WeComChannel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="395" y="75" width="115" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ch-service" value="Channel Service / Store / MessageBus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="12" y="120" width="240" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ch-configs" value="notification_preferences / delivery_log tables" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dr-platforms">
+          <mxGeometry x="270" y="120" width="240" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- SECTION 4: A2A PROTOCOL -->
+        <!-- ============================================ -->
+        <mxCell id="s4" value="4. A2A Protocol (harness/a2a/)" style="text;html=1;fontSize=13;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="640" y="620" width="400" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2a-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf2f8;strokeColor=#f9a8d4;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="650" width="480" height="400" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2a-arch" value="Agent-to-Agent Communication" style="swimlane;startSize=24;horizontal=0;fillColor=#fce7f3;strokeColor=#f472b6;html=1;fontSize=10;fontStyle=1;fontColor=#9d174d;" vertex="1" parent="1">
+          <mxGeometry x="640" y="670" width="440" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2a-server" value="A2AServer (server.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="a2a-arch">
+          <mxGeometry x="12" y="35" width="195" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="a2a-server-sub" value="Implements A2A v1.0 spec endpoints" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="a2a-server">
+          <mxGeometry x="2" y="20" width="191" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2a-mapping" value="Mapping (mapping.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="a2a-arch">
+          <mxGeometry x="230" y="35" width="195" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="a2a-mapping-sub" value="A2A -> internal session mapping" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="a2a-mapping">
+          <mxGeometry x="2" y="20" width="191" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2a-stream" value="Stream (stream.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="a2a-arch">
+          <mxGeometry x="12" y="82" width="195" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="a2a-stream-sub" value="SSE streaming for A2A task events" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="a2a-stream">
+          <mxGeometry x="2" y="20" width="191" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2a-types" value="Types (types.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="a2a-arch">
+          <mxGeometry x="230" y="82" width="195" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="a2a-types-sub" value="Task/Message/Artifact models" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="a2a-types">
+          <mxGeometry x="2" y="20" width="191" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2a-tests" value="A2A Tests (tests/)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="a2a-arch">
+          <mxGeometry x="12" y="128" width="195" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- A2A Features -->
+        <mxCell id="a2a-wellknown" value="/.well-known/agent.json endpoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="640" y="855" width="440" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="a2a-task" value="task/send + task/stream + task/cancel API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="640" y="895" width="440" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="a2a-future" value="Future: A2A adapter for cross-harness delegation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=7;fontColor=#9d174d;" vertex="1" parent="1">
+          <mxGeometry x="640" y="935" width="440" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- SECTION 5: NOTIFICATIONS -->
+        <!-- ============================================ -->
+        <mxCell id="s5" value="5. Notifications &amp; Audit" style="text;html=1;fontSize=13;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1080" width="400" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notif-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1110" width="1060" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="nt-notif" value="Notification Center (notifications.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1125" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nt-notif-sub" value="In-app bell, mark-read, CSV/JSON export" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="nt-notif">
+          <mxGeometry x="2" y="24" width="216" height="15" as="geometry" />
+        </mxCell>
+
+        <mxCell id="nt-audit" value="Audit Trail (audit.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1125" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nt-audit-sub" value="Paginated, filterable by event/date/agent" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="nt-audit">
+          <mxGeometry x="2" y="24" width="216" height="15" as="geometry" />
+        </mxCell>
+
+        <mxCell id="nt-otel" value="OpenTelemetry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="540" y="1125" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nt-otel-sub" value="OTLP exporter, 18 span types" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="nt-otel">
+          <mxGeometry x="2" y="24" width="216" height="15" as="geometry" />
+        </mxCell>
+
+        <mxCell id="nt-digest" value="Daily Digest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="780" y="1125" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nt-digest-sub" value="Scheduled email/Slack summaries" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="nt-digest">
+          <mxGeometry x="2" y="24" width="216" height="15" as="geometry" />
+        </mxCell>
+
+        <mxCell id="nt-db" value="notifications / audit_logs / digest_configs tables" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;fontSize=8;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1185" width="480" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nt-db-desc" value="Notifications stored in Postgres with TTL-based janitor cleanup" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="nt-db">
+          <mxGeometry x="5" y="20" width="470" height="18" as="geometry" />
+        </mxCell>
+
+        <mxCell id="nt-export" value="CSV / JSON export endpoints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1185" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nt-settings-ui" value="NotificationPreferences UI (settings)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="830" y="1185" width="250" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- EDGES -->
+        <!-- ============================================ -->
+
+        <!-- GitHub -> Orchestrator -->
+        <mxCell id="e-gh-orch" value="submits JobSpec" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f59e0b;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="290" y="340" as="sourcePoint" />
+            <mxPoint x="620" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Delivery -> Channels -->
+        <mxCell id="e-dr-channels" value="dispatches to" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#34d399;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="760" as="sourcePoint" />
+            <mxPoint x="320" y="845" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- MCP Client -> Agent -->
+        <mxCell id="e-mcp-agent" value="tool discovery" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#818cf8;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="800" y="285" as="sourcePoint" />
+            <mxPoint x="620" y="285" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- A2A -> External -->
+        <mxCell id="e-a2a-ext" value="A2A protocol" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f472b6;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1080" y="740" as="sourcePoint" />
+            <mxPoint x="1180" y="740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

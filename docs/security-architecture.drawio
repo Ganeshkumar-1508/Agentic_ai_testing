@@ -1,0 +1,657 @@
+<mxfile>
+  <diagram name="Security Architecture" id="security-arch">
+    <mxGraphModel dx="2000" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t" value="TestAI — Security Architecture" style="text;html=1;fontSize=26;fontStyle=1;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#10b981;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="l-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="280" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="l-title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;fontSize=11;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="50" y="15" width="260" height="18" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l-env" value="Env Security" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#fca5a5;fontSize=8;fontColor=#991b1b;" vertex="1" parent="1">
+          <mxGeometry x="55" y="38" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-path" value="Path Security" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=8;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="55" y="60" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-exec" value="Execution Security" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=8;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="55" y="82" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-perm" value="Permissions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=8;fontColor=#9d174d;" vertex="1" parent="1">
+          <mxGeometry x="55" y="104" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-infra" value="Infra Security" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;fontSize=8;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="55" y="126" width="80" height="18" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l-edge1" value="blocks" style="rounded=0;html=1;strokeColor=#ef4444;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="150" y="48" />
+            <mxPoint x="210" y="48" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l-edge2" value="allows/permits" style="rounded=0;html=1;strokeColor=#10b981;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="150" y="70" />
+            <mxPoint x="210" y="70" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l-edge3" value="monitors/scans" style="rounded=0;html=1;strokeColor=#f59e0b;strokeWidth=1.5;dashed=1;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="150" y="92" />
+            <mxPoint x="210" y="92" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l-edge4" value="HITL (human)" style="rounded=0;html=1;strokeColor=#8b5cf6;strokeWidth=1.5;dashed=1;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="150" y="114" />
+            <mxPoint x="210" y="114" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 1: ENVIRONMENT SECURITY -->
+        <!-- ============================================ -->
+        <mxCell id="l1-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#fca5a5;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="520" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="l1-label" value="Environment Security" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#991b1b;" vertex="1" parent="1">
+          <mxGeometry x="140" y="225" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Env Blocklist -->
+        <mxCell id="bl-bg" value="Provider Env Blocklist (_sanitize_env)" style="swimlane;startSize=24;horizontal=0;fillColor=#fef2f2;strokeColor=#fca5a5;html=1;fontSize=11;fontStyle=1;fontColor=#991b1b;" vertex="1" parent="1">
+          <mxGeometry x="60" y="255" width="230" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bl-openai" value="OPENAI_API_KEY / OPENAI_BASE_URL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="bl-bg">
+          <mxGeometry x="12" y="35" width="200" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bl-anthropic" value="ANTHROPIC_API_KEY / ANTHROPIC_TOKEN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="bl-bg">
+          <mxGeometry x="12" y="56" width="200" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bl-google" value="GOOGLE_API_KEY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="bl-bg">
+          <mxGeometry x="12" y="77" width="200" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bl-deepseek" value="DEEPSEEK_API_KEY / GROQ / MISTRAL / TOGETHER ..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="bl-bg">
+          <mxGeometry x="12" y="98" width="200" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bl-github" value="GH_TOKEN / GITHUB_TOKEN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="bl-bg">
+          <mxGeometry x="12" y="119" width="200" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="bl-other" value="+ 20 more provider / tool API keys" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="bl-bg">
+          <mxGeometry x="12" y="140" width="200" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Env Passthrough -->
+        <mxCell id="ep-bg" value="Env Passthrough Allowlist (env_passthrough.py)" style="swimlane;startSize=24;horizontal=0;fillColor=#fef2f2;strokeColor=#fca5a5;html=1;fontSize=10;fontStyle=1;fontColor=#991b1b;" vertex="1" parent="1">
+          <mxGeometry x="310" y="255" width="230" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ep-add" value="add_env_passthrough(name)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ep-bg">
+          <mxGeometry x="12" y="35" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ep-remove" value="remove_env_passthrough(name)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ep-bg">
+          <mxGeometry x="12" y="60" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ep-is" value="is_env_passthrough(name) -> bool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ep-bg">
+          <mxGeometry x="12" y="85" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ep-mechanism" value="ContextVar — session-scoped allowlist&lt;br&gt;Skills register required_environment_variables" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ep-bg">
+          <mxGeometry x="12" y="115" width="200" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Blocklist → Subprocess flow -->
+        <mxCell id="bl-flow" value="blocked" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#ef4444;strokeWidth=2;" edge="1" parent="1" source="bl-bg">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="600" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ep-flow" value="allowed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#10b981;strokeWidth=2;" edge="1" parent="1" source="ep-bg">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="600" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Subprocess Environment -->
+        <mxCell id="subproc" value="Subprocess Environment&lt;br&gt;(_run_bash / _sanitize_env)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#dc2626;fontSize=10;fontColor=#7f1d1d;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="395" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Credential Files -->
+        <mxCell id="cf-bg" value="Credential Files (credential_files.py)" style="swimlane;startSize=24;horizontal=0;fillColor=#fef2f2;strokeColor=#fca5a5;html=1;fontSize=10;fontStyle=1;fontColor=#991b1b;" vertex="1" parent="1">
+          <mxGeometry x="60" y="455" width="230" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cf-register" value="register_credential_file(relative_path)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cf-bg">
+          <mxGeometry x="12" y="35" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="cf-traversal" value="Rejects absolute paths + path traversal (../)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cf-bg">
+          <mxGeometry x="12" y="60" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="cf-bound" value="Must stay inside ~/.testai/ (containment)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cf-bg">
+          <mxGeometry x="12" y="85" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="cf-sync" value="Synced to remote backends (SSH/Modal)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cf-bg">
+          <mxGeometry x="12" y="115" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="cf-skills" value="Skills + Cache dirs also synced" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cf-bg">
+          <mxGeometry x="12" y="140" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 2: PATH & URL SECURITY -->
+        <!-- ============================================ -->
+        <mxCell id="l2-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="220" width="400" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="l2-label" value="Path &amp; URL Security" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="700" y="225" width="240" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Path Security -->
+        <mxCell id="ps-bg" value="path_security.py" style="swimlane;startSize=24;horizontal=0;fillColor=#fef3c7;strokeColor=#f59e0b;html=1;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="640" y="255" width="170" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ps-validate" value="validate_within_dir(path, root)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ps-bg">
+          <mxGeometry x="12" y="35" width="145" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ps-reject" value="Rejects paths outside root boundary" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ps-bg">
+          <mxGeometry x="12" y="68" width="145" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ps-symlink" value="Symlink-aware resolution" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ps-bg">
+          <mxGeometry x="12" y="98" width="145" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- URL Safety -->
+        <mxCell id="us-bg" value="url_safety.py" style="swimlane;startSize=24;horizontal=0;fillColor=#fef3c7;strokeColor=#f59e0b;html=1;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="830" y="255" width="170" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="us-safe" value="is_safe_url(url) -> bool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="us-bg">
+          <mxGeometry x="12" y="35" width="145" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="us-blocks" value="SSRF protection, IP blacklist" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="us-bg">
+          <mxGeometry x="12" y="68" width="145" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="us-skill" value="Used by skill_tools + vision_analyze" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="us-bg">
+          <mxGeometry x="12" y="98" width="145" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Binary Extensions -->
+        <mxCell id="be-bg" value="binary_extensions.py" style="swimlane;startSize=24;horizontal=0;fillColor=#fef3c7;strokeColor=#f59e0b;html=1;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="640" y="395" width="170" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="be-has" value="has_binary_extension(path)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="be-bg">
+          <mxGeometry x="12" y="35" width="145" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="be-exts" value="60+ binary extensions in set" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="be-bg">
+          <mxGeometry x="12" y="62" width="145" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 3: EXECUTION SECURITY -->
+        <!-- ============================================ -->
+        <mxCell id="l3-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="650" width="490" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="l3-label" value="Execution Security" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="140" y="655" width="290" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Interrupt -->
+        <mxCell id="int-bg" value="Interrupt System (interrupt.py)" style="swimlane;startSize=24;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=10;fontStyle=1;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="60" y="685" width="220" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="int-set" value="_set_interrupt(True/False, thread_id)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="int-bg">
+          <mxGeometry x="12" y="35" width="195" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="int-is" value="is_interrupted() -> bool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="int-bg">
+          <mxGeometry x="12" y="60" width="195" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="int-per-thread" value="Per-thread interrupt state&lt;br&gt;Propagates to child agents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="int-bg">
+          <mxGeometry x="12" y="88" width="195" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Approval -->
+        <mxCell id="ap-bg" value="Approval System" style="swimlane;startSize=24;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=10;fontStyle=1;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="300" y="685" width="210" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ap-set" value="set_approval_callback(cb)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ap-bg">
+          <mxGeometry x="12" y="35" width="185" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ap-get" value="get_approval_callback()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ap-bg">
+          <mxGeometry x="12" y="60" width="185" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ap-hitl" value="HITL — dangerous commands ask user" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ap-bg">
+          <mxGeometry x="12" y="88" width="185" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Sudo -->
+        <mxCell id="su-bg" value="Sudo Password System" style="swimlane;startSize=24;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=10;fontStyle=1;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="60" y="835" width="220" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="su-cb" value="set_sudo_password_callback(cb)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="su-bg">
+          <mxGeometry x="12" y="35" width="195" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="su-reader" value="read_password_thread()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="su-bg">
+          <mxGeometry x="12" y="60" width="195" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="su-transform" value="_prepare_command — sudo -S stdin inject" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="su-bg">
+          <mxGeometry x="12" y="88" width="195" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Compound Background -->
+        <mxCell id="cr-bg" value="Shell Safety" style="swimlane;startSize=24;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=10;fontStyle=1;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="300" y="835" width="210" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cr-compound" value="_rewrite_compound_background" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cr-bg">
+          <mxGeometry x="12" y="35" width="185" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="cr-bg-desc" value="Fixes A &amp;&amp; B &amp; subshell-wait trap" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cr-bg">
+          <mxGeometry x="12" y="68" width="185" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="cr-foreground" value="foreground_background_guidance" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="cr-bg">
+          <mxGeometry x="12" y="98" width="185" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- Activity Callback -->
+        <mxCell id="ac-bg" value="Activity Liveness" style="swimlane;startSize=24;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=10;fontStyle=1;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="60" y="985" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ac-set" value="set_activity_callback(cb)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ac-bg">
+          <mxGeometry x="12" y="35" width="195" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="ac-touch" value="touch_activity_if_due(state, label)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ac-bg">
+          <mxGeometry x="12" y="62" width="195" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ac-desc" value="Prevents gateway timeout on long commands" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ac-bg">
+          <mxGeometry x="12" y="85" width="195" height="12" as="geometry" />
+        </mxCell>
+
+        <!-- Process Group Kill -->
+        <mxCell id="pg-bg" value="Process Group Kill" style="swimlane;startSize=24;horizontal=0;fillColor=#e0e7ff;strokeColor=#818cf8;html=1;fontSize=10;fontStyle=1;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="300" y="985" width="210" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pg-kill" value="_kill_process / _kill_process_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="pg-bg">
+          <mxGeometry x="12" y="35" width="185" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="pg-pgid" value="SIGTERM → wait → SIGKILL escalation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="pg-bg">
+          <mxGeometry x="12" y="62" width="185" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 4: PERMISSIONS -->
+        <!-- ============================================ -->
+        <mxCell id="l4-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="510" width="420" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="l4-label" value="Permissions &amp; Authorization" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#9d174d;" vertex="1" parent="1">
+          <mxGeometry x="700" y="515" width="220" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Permission Manager -->
+        <mxCell id="pm-bg" value="Permission Manager (permissions/)" style="swimlane;startSize=24;horizontal=0;fillColor=#fce7f3;strokeColor=#f472b6;html=1;fontSize=10;fontStyle=1;fontColor=#9d174d;" vertex="1" parent="1">
+          <mxGeometry x="620" y="545" width="380" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pm-manager" value="PermissionManager (manager.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="pm-bg">
+          <mxGeometry x="12" y="35" width="170" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="pm-manager-sub" value="mode: auto / strict / permissive&lt;br&gt;resolve_level(name, args)" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="pm-manager">
+          <mxGeometry x="2" y="15" width="166" height="18" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pm-allow" value="allow (default)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=none;fontSize=7;fontColor=#ffffff;" vertex="1" parent="pm-bg">
+          <mxGeometry x="195" y="35" width="85" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="pm-ask" value="ask (HITL approval)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#8b5cf6;strokeColor=none;fontSize=7;fontColor=#ffffff;" vertex="1" parent="pm-bg">
+          <mxGeometry x="290" y="35" width="78" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="pm-deny" value="deny" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ef4444;strokeColor=none;fontSize=7;fontColor=#ffffff;" vertex="1" parent="pm-bg">
+          <mxGeometry x="195" y="62" width="85" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pm-file-state" value="FileState (file_state.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="pm-bg">
+          <mxGeometry x="12" y="82" width="170" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="pm-file-state-sub" value="tracks reads/writes/staleness&lt;br&gt;prevents stale file access" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="pm-file-state">
+          <mxGeometry x="2" y="15" width="166" height="18" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pm-glob" value="GlobRules (glob_rules.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="pm-bg">
+          <mxGeometry x="195" y="92" width="170" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pm-tool-perms" value="Tool Permissions (tool_permissions DB table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="pm-bg">
+          <mxGeometry x="12" y="127" width="355" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="pm-tool-perms-sub" value="level: allow | ask | deny — per tool, stored in DB" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="pm-tool-perms">
+          <mxGeometry x="2" y="14" width="351" height="12" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 5: INFRASTRUCTURE SECURITY -->
+        <!-- ============================================ -->
+        <mxCell id="l5-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="220" width="520" height="980" as="geometry" />
+        </mxCell>
+        <mxCell id="l5-label" value="Infrastructure Security" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="225" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Docker Security -->
+        <mxCell id="ds-bg" value="Docker Container Security" style="swimlane;startSize=24;horizontal=0;fillColor=#f1f5f9;strokeColor=#94a3b8;html=1;fontSize=10;fontStyle=1;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="260" width="480" height="260" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-cap-drop" value="--cap-drop ALL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="12" y="35" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-cap-drop-desc" value="Drops all Linux capabilities" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-cap-drop">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-no-new" value="--security-opt no-new-privileges" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="170" y="35" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-no-new-desc" value="Blocks privilege escalation" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-no-new">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-pids" value="--pids-limit 256" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="325" y="35" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-pids-desc" value="Prevents fork bombs" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-pids">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-tmpfs" value="tmpfs for /tmp /var/tmp /run" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="12" y="75" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-tmpfs-desc" value="Size-limited, nosuid, noexec" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-tmpfs">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-privdrop" value="SETUID/SETGID caps on demand" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="170" y="75" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-privdrop-desc" value="Only when running as non-root" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-privdrop">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-readonly" value="Read-only root filesystem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="325" y="75" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-readonly-desc" value="Only /workspace and /root writable" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-readonly">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-s6" value="s6-overlay Detection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="12" y="115" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-s6-desc" value="Skips --init, enables /run exec" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-s6">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-host-user" value="Host User Run (--user)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="170" y="115" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-host-user-desc" value="Maps host UID:GID into container" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-host-user">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-storage-opt" value="Disk Quota (--storage-opt)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="325" y="115" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-storage-opt-desc" value="overlay2 + XFS pquota only" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-storage-opt">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-isolation" value="Full container isolation&lt;br&gt;Network none/bridge/host" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="12" y="155" width="220" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-cap-add" value="DAC_OVERRIDE + CHOWN + FOWNER" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="245" y="155" width="225" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-cap-add-desc" value="Minimal caps for pip/npm/apt to work" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-cap-add">
+          <mxGeometry x="2" y="20" width="221" height="14" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ds-orphan" value="Orphan Container Reaper" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="12" y="200" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-orphan-desc" value="reap_orphan_containers()" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-orphan">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-recovery" value="Container Auto-Recovery" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="170" y="200" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-recovery-desc" value="_recreate_container()" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-recovery">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-cleanup" value="Async Cleanup Thread" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ds-bg">
+          <mxGeometry x="325" y="200" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-cleanup-desc" value="wait_for_cleanup()" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ds-cleanup">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <!-- SSH Security -->
+        <mxCell id="ss-bg" value="SSH Remote Security" style="swimlane;startSize=24;horizontal=0;fillColor=#f1f5f9;strokeColor=#94a3b8;html=1;fontSize=10;fontStyle=1;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="545" width="480" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ss-ctrl" value="ControlMaster — persistent connection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ss-bg">
+          <mxGeometry x="12" y="35" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ss-ctrl-desc" value="BatchMode, key-based auth only" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ss-ctrl">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ss-strict" value="StrictHostKeyChecking=accept-new" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ss-bg">
+          <mxGeometry x="170" y="35" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ss-strict-desc" value="SSRF protection" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ss-strict">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ss-cred" value="Credential Sync" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ss-bg">
+          <mxGeometry x="325" y="35" width="145" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ss-cred-desc" value="Files synced via FileSyncManager" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ss-cred">
+          <mxGeometry x="2" y="15" width="141" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ss-timeout" value="ConnectTimeout=10, ControlPersist=300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ss-bg">
+          <mxGeometry x="12" y="73" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ss-socket" value="Control socket cleanup on shutdown" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="ss-bg">
+          <mxGeometry x="245" y="73" width="225" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- Database Security -->
+        <mxCell id="dbs-bg" value="Database &amp; Schema Security" style="swimlane;startSize=24;horizontal=0;fillColor=#f1f5f9;strokeColor=#94a3b8;html=1;fontSize=10;fontStyle=1;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="690" width="480" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dbs-backend-type" value="sessions.backend_type — execution context" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dbs-bg">
+          <mxGeometry x="12" y="35" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="dbs-backend-type-desc" value="Controls which env runs commands" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="dbs-backend-type">
+          <mxGeometry x="2" y="15" width="216" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dbs-config" value="session_backend_configs (JSONB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dbs-bg">
+          <mxGeometry x="245" y="35" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="dbs-config-desc" value="SSH keys, host, port — per session" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="dbs-config">
+          <mxGeometry x="2" y="15" width="216" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dbs-sandbox-config" value="sandbox_config — default_backend_type" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dbs-bg">
+          <mxGeometry x="12" y="73" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="dbs-sandbox-config-desc" value="Fallback if session has no backend_type" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="dbs-sandbox-config">
+          <mxGeometry x="2" y="15" width="216" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dbs-tool-perms" value="tool_permissions table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dbs-bg">
+          <mxGeometry x="245" y="73" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="dbs-tool-perms-desc" value="allow/ask/deny per tool name" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="dbs-tool-perms">
+          <mxGeometry x="2" y="15" width="216" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dbs-api-keys" value="api_keys table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dbs-bg">
+          <mxGeometry x="12" y="111" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="dbs-api-keys-desc" value="Stored API keys for provider auth" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="dbs-api-keys">
+          <mxGeometry x="2" y="15" width="216" height="12" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dbs-env-vars" value="env_vars table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="dbs-bg">
+          <mxGeometry x="245" y="111" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="dbs-env-vars-desc" value="Scoped env vars (project-level)" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="dbs-env-vars">
+          <mxGeometry x="2" y="15" width="216" height="12" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LAYER 6: AUDIT & COMPLIANCE -->
+        <!-- ============================================ -->
+        <mxCell id="l6-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="880" width="500" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="l6-label" value="Audit &amp; Compliance" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="885" width="300" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="au-audit" value="Audit Trail (audit.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="915" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="au-audit-sub" value="Paginated, filterable, CSV/JSON export" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="au-audit">
+          <mxGeometry x="2" y="22" width="216" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="au-trace" value="Trace Events (trace_events table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="915" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="au-trace-sub" value="OTel spans + retention policy (30d/7d)" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="au-trace">
+          <mxGeometry x="2" y="22" width="216" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="au-stream" value="Stream Events (stream_events table)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="970" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="au-stream-sub" value="All agent actions + tool calls logged" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="au-stream">
+          <mxGeometry x="2" y="22" width="216" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="au-notif" value="Notification Center" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="970" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="au-notif-sub" value="In-app alerts + history" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="au-notif">
+          <mxGeometry x="2" y="22" width="216" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="au-otel" value="OpenTelemetry Tracing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="1025" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="au-otel-sub" value="OTLP exporter, 18 span types" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="au-otel">
+          <mxGeometry x="2" y="22" width="216" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="au-pr" value="PR Merge Strategy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="1025" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="au-pr-sub" value="Tier 2 (supervised) requires human review" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="au-pr">
+          <mxGeometry x="2" y="22" width="216" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="au-janitor" value="Artifact Janitor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="1080" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="au-janitor-sub" value="TTL-based cleanup (trajectories 30d, transcripts 7d)" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="au-janitor">
+          <mxGeometry x="2" y="22" width="216" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="au-budget" value="Cost Budgets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="1080" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="au-budget-sub" value="4 scopes: subagent/phase/run/user_day" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="au-budget">
+          <mxGeometry x="2" y="22" width="216" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- EDGES -->
+        <!-- ============================================ -->
+
+        <!-- Blocklist → Subprocess -->
+        <mxCell id="e-bl-sub" value="strips blocked vars" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#ef4444;strokeWidth=2;" edge="1" parent="1" source="bl-bg" target="subproc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Passthrough → Subprocess -->
+        <mxCell id="e-ep-sub" value="allows registered vars" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#10b981;strokeWidth=2;" edge="1" parent="1" source="ep-bg" target="subproc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Path Security → Credential Files -->
+        <mxCell id="e-ps-cf" value="validates containment" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f59e0b;strokeWidth=1.5;" edge="1" parent="1" source="ps-bg" target="cf-bg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Permissions → Agent -->
+        <mxCell id="e-pm-agent" value="Agent.tool_dispatch checks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f472b6;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="620" y="700" as="sourcePoint" />
+            <mxPoint x="530" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Docker Security → Docker Host -->
+        <mxCell id="e-ds-host" value="Docker host" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1280" y="520" as="sourcePoint" />
+            <mxPoint x="1280" y="545" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Interrupt → Execution -->
+        <mxCell id="e-int-exec" value="kills timed-out processes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#818cf8;strokeWidth=1;" edge="1" parent="1" source="int-bg">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="530" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Approval → HITL -->
+        <mxCell id="e-ap-hitl" value="user approves/denies" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8b5cf6;strokeWidth=1.5;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="510" y="745" as="sourcePoint" />
+            <mxPoint x="600" y="745" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

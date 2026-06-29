@@ -1,0 +1,37 @@
+{
+  "artifact_dir": ".testai/verification/e2e-20260605T042328Z",
+  "session_id": "a3aae15c-2b66-401d-9c60-12e6266e80b1",
+  "exact_stream_events": {
+    "pipeline_autoheal_started": false,
+    "pipeline_autoheal_completed": false,
+    "pipeline_kg_fix_updated": false
+  },
+  "endpoint_strict": {
+    "post_api_tests_heal": true,
+    "get_api_healing_stats": true,
+    "get_api_ops_swarm_delegate_events": true,
+    "post_api_testcases": true
+  },
+  "core_strict": {
+    "pipeline_start": true,
+    "delegate_stream": true,
+    "sandbox_apis": true,
+    "kanban_apis": true,
+    "delegation_ops_apis": true,
+    "knowledge_graph_api_fs": true,
+    "testcase_persistence_fs": true,
+    "standalone_autoheal": true,
+    "pipeline_integrated_autoheal": false,
+    "cost_token_endpoints": true,
+    "ui_route_prefix_api_wiring": true,
+    "web_search_docs_package_evidence": true
+  },
+  "final_verdict": "FAIL",
+  "remaining_defects": [
+    "E2E-005",
+    "pipeline_autoheal_started",
+    "pipeline_autoheal_completed",
+    "pipeline_kg_fix_updated",
+    "pipeline_integrated_autoheal"
+  ]
+}

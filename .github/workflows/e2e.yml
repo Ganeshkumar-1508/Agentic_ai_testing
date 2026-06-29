@@ -1,0 +1,107 @@
+name: E2E — Full Stack Pipeline Test
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Every Monday at 6am UTC
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "backend/**"
+      - "src/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: E2E (Backend + Frontend)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: testai_test
+          POSTGRES_USER: testai
+          POSTGRES_PASSWORD: testai
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend deps
+        run: pip install -r backend/requirements.txt
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install frontend deps
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Start backend
+        run: |
+          cd backend
+          DATABASE_URL="postgresql+asyncpg://testai:testai@localhost:5432/testai_test" \
+          python -m uvicorn api.main:app --host 127.0.0.1 --port 8001 &
+          sleep 3
+          curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/health
+        env:
+          TESTAI_ENV: test
+
+      - name: Start frontend
+        run: |
+          npm run start -- -p 3000 &
+          sleep 3
+          curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000
+
+      - name: Run e2e smoke test
+        run: |
+          python -c "
+          import httpx
+          import asyncio
+
+          async def smoke():
+              async with httpx.AsyncClient() as client:
+                  # Backend health
+                  r = await client.get('http://127.0.0.1:8001/health')
+                  assert r.status_code == 200, f'Backend health: {r.status_code}'
+                  print(f'Backend health: {r.status_code}')
+
+                  # List agents
+                  r = await client.get('http://127.0.0.1:8001/api/agents')
+                  print(f'Agents: {r.status_code} {len(r.json().get(\"agents\", []))} agents')
+
+                  # Frontend
+                  r = await client.get('http://127.0.0.1:3000')
+                  assert r.status_code == 200, f'Frontend: {r.status_code}'
+                  print(f'Frontend: {r.status_code}')
+
+              print('E2E smoke test passed!')
+
+          asyncio.run(smoke())
+          "
