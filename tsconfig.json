@@ -37,6 +37,11 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "frontend-dashboard",
+    "reference",
+    "docs",
+    "plans",
+    "docs/ECC/skills/remotion-video-creation"
   ]
 }

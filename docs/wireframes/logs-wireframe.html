@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logs Panel — Wireframe Options</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; color: #e4e4e7; font-family: 'Segoe UI', system-ui, sans-serif; padding: 40px; }
+  h1 { font-size: 20px; font-weight: 500; letter-spacing: -0.3px; margin-bottom: 6px; }
+  h2 { font-size: 13px; font-weight: 400; color: #71717a; margin-bottom: 24px; }
+  .grid { display: flex; gap: 40px; flex-wrap: wrap; }
+  .option { flex: 1; min-width: 480px; max-width: 640px; }
+  .option h3 { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #a1a1aa; }
+  .frame {
+    background: #18181b; border: 1px solid #27272a; border-radius: 16px; padding: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .frame .bar { display: flex; gap: 6px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #27272a; }
+  .frame .bar .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .frame .bar .dot.r { background: #ef4444; }
+  .frame .bar .dot.y { background: #eab308; }
+  .frame .bar .dot.g { background: #22c55e; }
+  .frame .bar .label { font-size: 11px; color: #52525b; margin-left: auto; }
+
+  .layout { display: flex; gap: 8px; min-height: 360px; }
+  .panel { background: #27272a; border-radius: 10px; padding: 12px; }
+  .panel.light { background: #1f1f23; border: 1px solid #323232; }
+  .panel.highlight { border: 1px solid #10b981; }
+  .panel h4 { font-size: 10px; font-weight: 600; color: #52525b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+  .panel .item { height: 28px; background: #1f1f23; border-radius: 6px; margin-bottom: 4px; }
+  .panel .item.sel { background: #10b98120; border: 1px solid #10b98140; }
+  .panel .item.wide { height: 40px; }
+  .panel .item.half { width: 60%; }
+  .panel .row { display: flex; gap: 6px; margin-bottom: 4px; }
+  .panel .row .tag { height: 22px; padding: 0 8px; background: #1f1f23; border-radius: 12px; font-size: 9px; display: flex; align-items: center; color: #71717a; }
+  .panel .row .tag.sel { background: #10b98120; color: #34d399; border: 1px solid #10b98140; }
+  .evt { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid #1f1f23; }
+  .evt .dot-ind { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; }
+  .evt .dot-ind.blue { background: #60a5fa; }
+  .evt .dot-ind.green { background: #34d399; }
+  .evt .dot-ind.amber { background: #fbbf24; }
+  .evt .dot-ind.red { background: #f87171; }
+  .evt .content { flex: 1; }
+  .evt .content .title { font-size: 11px; color: #a1a1aa; }
+  .evt .content .preview { font-size: 10px; color: #52525b; margin-top: 2px; }
+  .evt .time { font-size: 9px; color: #52525b; white-space: nowrap; margin-top: 2px; }
+
+  .detail-pane { background: #1f1f23; border: 1px solid #323232; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; }
+  .detail-pane h4 { font-size: 10px; font-weight: 600; color: #52525b; text-transform: uppercase; letter-spacing: 0.6px; }
+  .detail-pane .json { font-family: monospace; font-size: 10px; color: #71717a; line-height: 1.6; margin-top: 8px; background: #18181b; padding: 10px; border-radius: 8px; flex: 1; }
+
+  .labels { display: flex; gap: 8px; margin-top: 12px; }
+  .label-tag { font-size: 10px; padding: 3px 8px; border-radius: 6px; background: #1f1f23; color: #52525b; }
+
+  .footer-note { margin-top: 32px; font-size: 12px; color: #52525b; max-width: 800px; line-height: 1.6; }
+
+  .badge { display: inline-block; font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: #10b98120; color: #34d399; margin-left: 8px; }
+</style>
+</head>
+<body>
+
+<h1>Logs Panel — Wireframe</h1>
+<h2>Three layout options for the redesigned Logs panel used in both /settings and /settings/project</h2>
+
+<div class="grid">
+
+<!-- Option A -->
+<div class="option">
+  <h3>A — Asymmetric Split + Detail Drawer</h3>
+  <div class="frame">
+    <div class="bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <div class="label">recommended for DESIGN_VARIANCE=8</div>
+    </div>
+    <div class="layout" style="gap: 8px;">
+      <div class="panel light" style="width: 240px; flex-shrink: 0;">
+        <h4>Sessions</h4>
+        <div style="position:relative;">
+          <div style="background:#1a1a1e; border:1px solid #323232; border-radius:6px; padding:6px 10px; font-size:10px; color:#52525b; margin-bottom:10px;">🔍 Search sessions...</div>
+        </div>
+        <div class="item" style="width:80%;"></div>
+        <div class="item sel" style="width:95%;"></div>
+        <div class="item" style="width:70%;"></div>
+        <div class="item" style="width:85%;"></div>
+        <div class="item" style="width:60%;"></div>
+        <div class="item" style="width:75%;"></div>
+      </div>
+      <div class="panel light" style="flex: 1;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+          <h4 style="margin-bottom:0;">Events</h4>
+          <div class="row" style="margin-bottom:0;">
+            <div class="tag sel">All</div>
+            <div class="tag">tool_call</div>
+            <div class="tag">tool_result</div>
+            <div class="tag">reasoning</div>
+          </div>
+          <div style="margin-left:auto; font-size:9px; color:#52525b;">auto-refresh</div>
+        </div>
+        <div class="evt"><div class="dot-ind blue"></div><div class="content"><div class="title">tool_call</div><div class="preview">{ "tool": "read_file", "path": "src/..." }</div></div><div class="time">12:34:56</div></div>
+        <div class="evt"><div class="dot-ind amber"></div><div class="content"><div class="title">reasoning</div><div class="preview">I need to analyze the test output first before...</div></div><div class="time">12:34:55</div></div>
+        <div class="evt" style="background:#10b98108; border-radius:4px; margin:0 -4px; padding:6px 4px;"><div class="dot-ind green"></div><div class="content"><div class="title">tool_result</div><div class="preview">File read successful: 284 bytes returned</div></div><div class="time">12:34:56</div></div>
+        <div class="evt"><div class="dot-ind red"></div><div class="content"><div class="title">error</div><div class="preview">ModuleNotFoundError: No module named 'requests'</div></div><div class="time">12:34:50</div></div>
+        <div style="text-align:center; font-size:9px; color:#52525b; padding:8px;">Load more ↓</div>
+      </div>
+      <!-- Detail drawer (slides in on event click) -->
+      <div class="detail-pane" style="width: 280px; flex-shrink: 0; display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h4>Event Detail</h4>
+          <span style="font-size:10px; color:#52525b; cursor:pointer;">✕</span>
+        </div>
+        <div style="display:flex; gap:6px; margin:8px 0;">
+          <span class="label-tag">tool_result</span>
+          <span class="label-tag">12:34:56</span>
+        </div>
+        <div class="json">{
+  "tool": "read_file",
+  "path": "src/components/settings/project/panels/LogsPanel.tsx",
+  "result": "success",
+  "bytes": 284,
+  "truncated": false
+}</div>
+      </div>
+    </div>
+    <div class="labels">
+      <span class="label-tag">narrow session list (240px)</span>
+      <span class="label-tag">events with timestamps</span>
+      <span class="label-tag">slide-in detail drawer</span>
+      <span class="label-tag">real search input</span>
+      <span class="label-tag">load-more pagination</span>
+    </div>
+  </div>
+</div>
+
+<!-- Option B -->
+<div class="option">
+  <h3>B — Three-Pane Bento <span class="badge">BENTO GRID</span></h3>
+  <div class="frame">
+    <div class="bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <div class="label">more visual real estate per pane</div>
+    </div>
+    <div class="layout" style="flex-direction: column; min-height: 360px;">
+      <div style="display:flex; gap: 8px; flex: 1;">
+        <div class="panel light" style="flex: 1;">
+          <h4>Sessions</h4>
+          <div class="item" style="width:75%;"></div>
+          <div class="item sel" style="width:90%;"></div>
+          <div class="item" style="width:65%;"></div>
+          <div class="item" style="width:80%;"></div>
+        </div>
+        <div class="panel light" style="width: 200px;">
+          <h4>Filters</h4>
+          <div class="tag" style="display:inline-flex; margin-bottom:4px;">All</div>
+          <div class="tag" style="display:inline-flex; margin-bottom:4px;">tool_call</div>
+          <div class="tag" style="display:inline-flex; margin-bottom:4px;">error</div>
+          <div class="tag" style="display:inline-flex;">reasoning</div>
+        </div>
+      </div>
+      <div style="display:flex; gap: 8px; flex: 1;">
+        <div class="panel light" style="flex: 1;">
+          <h4>Event Stream</h4>
+          <div class="evt"><div class="dot-ind blue"></div><div class="content"><div class="title">tool_call</div><div class="preview">{ "tool": "read_file" }</div></div></div>
+          <div class="evt"><div class="dot-ind amber"></div><div class="content"><div class="title">reasoning</div><div class="preview">Analyzing test output...</div></div></div>
+          <div class="evt"><div class="dot-ind green"></div><div class="content"><div class="title">tool_result</div><div class="preview">284 bytes returned</div></div></div>
+        </div>
+        <div class="detail-pane" style="flex: 1;">
+          <h4>Detail</h4>
+          <div class="json">{
+  "tool": "read_file",
+  "path": "src/...LogsPanel.tsx",
+  "result": "success"
+}</div>
+        </div>
+      </div>
+    </div>
+    <div class="labels">
+      <span class="label-tag">4 bento panes</span>
+      <span class="label-tag">dedicated filter panel</span>
+      <span class="label-tag">persistent detail view</span>
+      <span class="label-tag">no overlap</span>
+    </div>
+  </div>
+</div>
+
+<!-- Option C -->
+<div class="option">
+  <h3>C — Full-Height Sidebar + Split Detail</h3>
+  <div class="frame">
+    <div class="bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <div class="label">best for /settings/project sidebar context</div>
+    </div>
+    <div class="layout" style="gap: 0; min-height: 360px;">
+      <div class="panel light" style="width: 200px; flex-shrink: 0; border-radius: 10px 0 0 10px;">
+        <h4>Sessions</h4>
+        <div class="item" style="width:80%;"></div>
+        <div class="item sel" style="width:95%;"></div>
+        <div class="item" style="width:70%;"></div>
+        <div class="item" style="width:85%;"></div>
+        <div class="item" style="width:60%;"></div>
+        <div class="item" style="width:75%;"></div>
+        <div style="margin-top:8px; font-size:9px; color:#52525b;">20 sessions</div>
+      </div>
+      <div class="panel light" style="flex: 1; border-radius: 0; border-left: 1px solid #323232;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+          <h4 style="margin-bottom:0;">Event Stream</h4>
+          <div style="margin-left:auto; display:flex; gap:4px;">
+            <div class="tag sel">All</div>
+            <div class="tag">tool_call</div>
+            <div class="tag">error</div>
+          </div>
+        </div>
+        <div style="max-height:180px; overflow-y:auto;">
+          <div class="evt"><div class="dot-ind blue"></div><div class="content"><div class="title">tool_call</div><div class="preview">{ "tool": "read_file" }</div></div><div class="time">12:34:56</div></div>
+          <div class="evt"><div class="dot-ind amber"></div><div class="content"><div class="title">reasoning</div><div class="preview">I need to analyze...</div></div><div class="time">12:34:55</div></div>
+          <div class="evt"><div class="dot-ind green"></div><div class="content"><div class="title">tool_result</div><div class="preview">284 bytes returned</div></div><div class="time">12:34:56</div></div>
+          <div class="evt"><div class="dot-ind red"></div><div class="content"><div class="title">error</div><div class="preview">ModuleNotFoundError</div></div><div class="time">12:34:50</div></div>
+        </div>
+        <div style="border-top:1px solid #27272a; margin-top:8px; padding-top:8px;">
+          <h4 style="margin-bottom:6px;">Detail</h4>
+          <div class="json" style="min-height:80px;">{
+  "tool": "read_file",
+  "path": "src/components/...",
+  "result": "success",
+  "bytes": 284
+}</div>
+        </div>
+      </div>
+    </div>
+    <div class="labels">
+      <span class="label-tag">sidebar + stacked event/detail</span>
+      <span class="label-tag">best vertical space use</span>
+      <span class="label-tag">event list always visible</span>
+      <span class="label-tag">detail pane below</span>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer-note">
+  <strong>All options share:</strong> dedicated backend endpoint, real search input, working session selection, event timestamps, click-to-expand detail view, liquid glass styling, spring animations, staggered entrance.<br><br>
+  <strong>Key difference:</strong> Options A/B work well in both /settings (tabbed) and /settings/project (sidebar) contexts. Option C is optimized for project settings where vertical space is constrained by the existing sidebar.
+</div>
+
+</body>
+</html>

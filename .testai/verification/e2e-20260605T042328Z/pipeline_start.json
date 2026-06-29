@@ -1,0 +1,8 @@
+{
+  "name": "pipeline_start",
+  "ok": true,
+  "status": 200,
+  "ms": 228,
+  "url": "http://127.0.0.1:8001/api/pipeline/from-requirements",
+  "body_text": "{\"session_id\":\"a3aae15c-2b66-401d-9c60-12e6266e80b1\",\"status\":\"started\",\"stream_endpoint\":\"/api/delegate/a3aae15c-2b66-401d-9c60-12e6266e80b1/stream\",\"artifacts_endpoint\":\"/api/artifacts/a3aae15c-2b66-401d-9c60-12e6266e80b1\"}"
+}

@@ -1,0 +1,1 @@
+export { PatternRecognizer } from './recognizer';

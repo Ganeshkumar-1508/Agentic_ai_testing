@@ -1,0 +1,17 @@
+[
+  {
+    "id": "E2E-005",
+    "severity": "High",
+    "endpoint_or_artifact": "pipeline stream",
+    "repro": "Run pipeline with autoheal mandatory",
+    "expected": "Pipeline-integrated autoheal evidence appears when failures occur",
+    "actual": "No pipeline-integrated autoheal evidence in stream",
+    "evidence": {
+      "standalone_heal_status": null
+    },
+    "suspected_area": "pipeline autoheal integration",
+    "retest_checklist": [
+      "pipeline invokes autoheal as part of run, not only /api/tests/heal"
+    ]
+  }
+]

@@ -1,0 +1,383 @@
+<mxfile>
+  <diagram name="Agent Delegation Architecture" id="delegation-arch">
+    <mxGraphModel dx="2000" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t" value="TestAI — Agent Delegation &amp; Orchestration" style="text;html=1;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#10b981;" vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="1000" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="l-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="240" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="l-title" value="Legend" style="text;html=1;fontSize=11;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="50" y="15" width="220" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="l-root" value="Root / Orchestrator" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=8;fontColor=#9d174d;" vertex="1" parent="1">
+          <mxGeometry x="55" y="35" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-coord" value="Coordinator" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=8;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="55" y="57" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-worker" value="Leaf Worker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="55" y="79" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l-sync" value="Sync (blocking)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f59e0b;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="150" y="44" />
+            <mxPoint x="210" y="44" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l-fanout" value="Fan-Out (parallel)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8b5cf6;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="150" y="66" />
+            <mxPoint x="210" y="66" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l-bg" value="Background" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#94a3b8;strokeWidth=2;dashed=1;" edge="1" parent="1">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="150" y="88" />
+            <mxPoint x="210" y="88" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- FLOW: OVERVIEW -->
+        <!-- ============================================ -->
+        <mxCell id="section-overview" value="Delegation Tree — Three Modes" style="text;html=1;fontSize=13;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="60" y="190" width="380" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- MODE 1: Sync (blocking) -->
+        <mxCell id="m1-bg" value="MODE 1: Sync (blocking inline call)" style="swimlane;startSize=24;horizontal=0;fillColor=#fef3c7;strokeColor=#f59e0b;html=1;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="60" y="220" width="380" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m1-root" value="Root Agent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=9;fontColor=#9d174d;fontStyle=1;" vertex="1" parent="m1-bg">
+          <mxGeometry x="20" y="35" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-delegate" value="delegate_task(goal)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="m1-bg">
+          <mxGeometry x="20" y="75" width="100" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-child" value="Subagent (leaf)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=9;fontColor=#047857;" vertex="1" parent="m1-bg">
+          <mxGeometry x="240" y="35" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-child-desc" value="Isolated conversation&lt;br&gt;Restricted tools" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="m1-bg">
+          <mxGeometry x="240" y="70" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-child2" value="..." style="text;html=1;fontSize=9;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="m1-bg">
+          <mxGeometry x="135" y="35" width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-return" value="Returns summary" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="m1-bg">
+          <mxGeometry x="240" y="105" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-parent-resumes" value="Parent resumes loop" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="m1-bg">
+          <mxGeometry x="20" y="110" width="100" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-note" value="Parent blocks until child finishes" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#92400e;" vertex="1" parent="m1-bg">
+          <mxGeometry x="20" y="145" width="340" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- MODE 2: Fan-Out (parallel) -->
+        <mxCell id="m2-bg" value="MODE 2: Fan-Out (parallel spawn + collect_results)" style="swimlane;startSize=24;horizontal=0;fillColor=#f3e8ff;strokeColor=#c084fc;html=1;fontSize=10;fontStyle=1;fontColor=#6b21a8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="440" width="600" height="240" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m2-root" value="Root Agent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=9;fontColor=#9d174d;fontStyle=1;" vertex="1" parent="m2-bg">
+          <mxGeometry x="20" y="35" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-delegate" value="delegate_task(tasks=[...])" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="m2-bg">
+          <mxGeometry x="20" y="75" width="100" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m2-c1" value="Worker 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="m2-bg">
+          <mxGeometry x="200" y="35" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-c2" value="Worker 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="m2-bg">
+          <mxGeometry x="330" y="35" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-c3" value="Worker N" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="m2-bg">
+          <mxGeometry x="460" y="35" width="100" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m2-c1-desc" value="ThreadPoolExecutor&lt;br&gt;concurrent.futures" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="m2-bg">
+          <mxGeometry x="200" y="70" width="100" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-c2-desc" value="Parallel execution" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="m2-bg">
+          <mxGeometry x="330" y="70" width="100" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-c3-desc" value="Max=3 concurrent" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="m2-bg">
+          <mxGeometry x="460" y="70" width="100" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m2-collect" value="collect_results()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="m2-bg">
+          <mxGeometry x="20" y="115" width="100" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-agg" value="Aggregates results array" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="m2-bg">
+          <mxGeometry x="280" y="115" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-note" value="Waits for all children, collects results sorted by task_index" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#6b21a8;" vertex="1" parent="m2-bg">
+          <mxGeometry x="20" y="155" width="560" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- MODE 3: Background -->
+        <mxCell id="m3-bg" value="MODE 3: Background (fire-and-steer with subagent_id)" style="swimlane;startSize=24;horizontal=0;fillColor=#f1f5f9;strokeColor=#94a3b8;html=1;fontSize=10;fontStyle=1;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="60" y="700" width="600" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m3-root" value="Root Agent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=9;fontColor=#9d174d;fontStyle=1;" vertex="1" parent="m3-bg">
+          <mxGeometry x="20" y="35" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m3-delegate" value="delegate_task(background=True)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="m3-bg">
+          <mxGeometry x="20" y="75" width="100" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="m3-returns" value="Returns subagent_id immediately" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=7;fontColor=#374151;" vertex="1" parent="m3-bg">
+          <mxGeometry x="20" y="110" width="100" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m3-bg-worker" value="Background Worker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="m3-bg">
+          <mxGeometry x="300" y="35" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m3-bg-desc" value="Runs on daemon executor&lt;br&gt;Re-enters via completion queue" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="m3-bg">
+          <mxGeometry x="300" y="70" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m3-note" value="Parent does NOT wait — child result re-enters conversation asynchronously" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#475569;" vertex="1" parent="m3-bg">
+          <mxGeometry x="20" y="150" width="560" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- SECTION: DEPTH & ROLE CONTROL -->
+        <!-- ============================================ -->
+        <mxCell id="section-depth" value="Depth Control &amp; Role System" style="text;html=1;fontSize=13;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="720" y="190" width="500" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="220" width="500" height="440" as="geometry" />
+        </mxCell>
+
+        <!-- Tree structure -->
+        <mxCell id="d-root" value="Root Agent (depth=0)&lt;br&gt;Full toolset" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=8;fontColor=#9d174d;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="880" y="235" width="160" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d-coord" value="Coordinator (depth=1)&lt;br&gt;role=orchestrator" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=8;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="880" y="300" width="160" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="d-coord-desc" value="Has delegate_task tool&lt;br&gt;Can spawn sub-coordinators" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="1">
+          <mxGeometry x="880" y="340" width="160" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d-w1" value="Worker A (depth=2)&lt;br&gt;role=leaf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="750" y="400" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="d-w2" value="Worker B (depth=2)&lt;br&gt;role=leaf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="900" y="400" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="d-w3" value="Worker C (depth=2)&lt;br&gt;role=leaf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="400" width="130" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d-leaf-desc" value="No delegate_task&lt;br&gt;No clarify, memory, send_message&lt;br&gt;Restricted toolset" style="text;html=1;fontSize=6;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="1">
+          <mxGeometry x="750" y="440" width="430" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d-limit" value="max_spawn_depth = 2 (default)&lt;br&gt;Depth 3+ is rejected" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=8;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="750" y="500" width="430" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="d-limit-desc" value="Configurable via delegation.max_spawn_depth.&lt;br&gt;N levels multiply API cost — default 2 is safe." style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#92400e;" vertex="1" parent="d-limit">
+          <mxGeometry x="5" y="16" width="420" height="18" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d-max-children" value="max_concurrent_children = 3 (default)&lt;br&gt;Batch with 4+ tasks is rejected" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=8;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="750" y="555" width="430" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- SECTION: TOOL ACCESS MODEL -->
+        <!-- ============================================ -->
+        <mxCell id="section-tools" value="Tool Access Model (6-Layer Isolation)" style="text;html=1;fontSize=13;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="60" y="930" width="600" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ta-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="960" width="1160" height="320" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ta-l1" value="L1: Child tools = requested &amp;cap; parent tools" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=8;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="80" y="975" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ta-l1-desc" value="A child cannot use a tool the parent doesn't have" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ta-l1">
+          <mxGeometry x="5" y="16" width="330" height="13" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ta-l2" value="L2: Always-blocked set for leaf workers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=8;fontColor=#9d174d;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1015" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ta-l2-desc" value="delegate_task, clarify, memory, send_message — blocked" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ta-l2">
+          <mxGeometry x="5" y="16" width="330" height="13" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ta-l3" value="L3: Orchestrator exception — retains delegate_task" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=8;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1055" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ta-l3-desc" value="Coordinator/orchestrator role keeps the spawn capability" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ta-l3">
+          <mxGeometry x="5" y="16" width="330" height="13" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ta-l4" value="L4: MCP allow-list per subagent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=8;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="480" y="975" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ta-l4-desc" value="Each subagent gets only the MCP servers it needs" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ta-l4">
+          <mxGeometry x="5" y="16" width="330" height="13" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ta-l5" value="L5: Skills scoped to subagent goal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#34d399;fontSize=8;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="480" y="1015" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ta-l5-desc" value="Only skills matching the task are loaded" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ta-l5">
+          <mxGeometry x="5" y="16" width="330" height="13" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ta-l6" value="L6: Credentials injected per-task at spawn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#f472b6;fontSize=8;fontColor=#9d174d;" vertex="1" parent="1">
+          <mxGeometry x="480" y="1055" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ta-l6-desc" value="Provider:model resolved per delegation" style="text;html=1;fontSize=7;align=center;fillColor=none;strokeColor=none;fontColor=#94a3b8;" vertex="1" parent="ta-l6">
+          <mxGeometry x="5" y="16" width="330" height="13" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- SECTION: LIFECYCLE -->
+        <!-- ============================================ -->
+        <mxCell id="section-lifecycle" value="Subagent Lifecycle" style="text;html=1;fontSize=13;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="720" y="700" width="400" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lc-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="730" width="500" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lc-1" value="1. Parent calls delegate_task" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="750" y="745" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lc-2" value="2. Resolve delegation credentials" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="750" y="780" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lc-3" value="3. Build child agent (isolated)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="750" y="815" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lc-4" value="4. Execute (sync/fan-out/bg)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="750" y="850" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lc-5" value="5. Collect results + cost rollup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="960" y="745" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lc-6" value="6. Fire subagent_stop hooks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="960" y="780" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lc-7" value="7. Aggregate child cost to parent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="960" y="815" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lc-8" value="8. Notify memory provider" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d1d5db;fontSize=8;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="960" y="850" width="220" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- EDGES -->
+        <!-- ============================================ -->
+
+        <!-- Mode 1 edges -->
+        <mxCell id="e-m1-root-delegate" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="m1-bg" source="m1-root" target="m1-delegate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m1-delegate-child" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f59e0b;strokeWidth=2;" edge="1" parent="m1-bg" source="m1-delegate" target="m1-child">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m1-child-return" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f59e0b;strokeWidth=2;" edge="1" parent="m1-bg" source="m1-child" target="m1-return">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m1-return-parent" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="m1-bg" source="m1-return" target="m1-parent-resumes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Mode 2 edges -->
+        <mxCell id="e-m2-root-delegate" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="m2-bg" source="m2-root" target="m2-delegate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m2-delegate-c1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8b5cf6;strokeWidth=2;" edge="1" parent="m2-bg" source="m2-delegate" target="m2-c1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m2-delegate-c2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8b5cf6;strokeWidth=2;" edge="1" parent="m2-bg" source="m2-delegate" target="m2-c2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m2-delegate-c3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8b5cf6;strokeWidth=2;" edge="1" parent="m2-bg" source="m2-delegate" target="m2-c3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m2-c1-collect" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8b5cf6;strokeWidth=1;dashed=1;" edge="1" parent="m2-bg" source="m2-c1" target="m2-collect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m2-c2-collect" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8b5cf6;strokeWidth=1;dashed=1;" edge="1" parent="m2-bg" source="m2-c2" target="m2-collect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m2-c3-collect" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8b5cf6;strokeWidth=1;dashed=1;" edge="1" parent="m2-bg" source="m2-c3" target="m2-collect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m2-collect-agg" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="m2-bg" source="m2-collect" target="m2-agg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Mode 3 edges -->
+        <mxCell id="e-m3-root-delegate" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="m3-bg" source="m3-root" target="m3-delegate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m3-delegate-returns" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="m3-bg" source="m3-delegate" target="m3-returns">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m3-delegate-worker" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#94a3b8;strokeWidth=2;dashed=1;" edge="1" parent="m3-bg" source="m3-delegate" target="m3-bg-worker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Depth edges -->
+        <mxCell id="e-d-root-coord" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#f472b6;strokeWidth=2;" edge="1" parent="1" source="d-root" target="d-coord">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-d-coord-w1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#818cf8;strokeWidth=2;" edge="1" parent="1" source="d-coord" target="d-w1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-d-coord-w2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#818cf8;strokeWidth=2;" edge="1" parent="1" source="d-coord" target="d-w2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-d-coord-w3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#818cf8;strokeWidth=2;" edge="1" parent="1" source="d-coord" target="d-w3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lifecycle edges -->
+        <mxCell id="e-lc-1-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="1" source="lc-1" target="lc-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lc-2-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="1" source="lc-2" target="lc-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lc-3-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="1" source="lc-3" target="lc-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lc-4-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="1" source="lc-4" target="lc-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lc-5-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="1" source="lc-5" target="lc-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lc-6-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="1" source="lc-6" target="lc-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lc-7-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#64748b;strokeWidth=1;" edge="1" parent="1" source="lc-7" target="lc-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

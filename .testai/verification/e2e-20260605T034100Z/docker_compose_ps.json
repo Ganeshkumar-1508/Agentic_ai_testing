@@ -1,0 +1,6 @@
+{
+  "cmd": "docker compose ps",
+  "code": 0,
+  "stdout": "NAME              IMAGE                                                                     COMMAND                  SERVICE    CREATED          STATUS                    PORTS\ntestai-backend    sha256:ba4546d82ecf84ff13cffb60d6dcc2ec6adbde1e5b94504a3b2fc47d3f1eb551   \"uvicorn api.main:ap…\"   backend    37 minutes ago   Up 37 minutes (healthy)   0.0.0.0:8001->8000/tcp, [::]:8001->8000/tcp\ntestai-db         postgres:16-alpine                                                        \"docker-entrypoint.s…\"   postgres   19 hours ago     Up 19 hours (healthy)     0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp\ntestai-frontend   testai-production-frontend                                                \"docker-entrypoint.s…\"   frontend   26 minutes ago   Up 26 minutes             0.0.0.0:3001->3000/tcp, [::]:3001->3000/tcp\n",
+  "stderr": ""
+}

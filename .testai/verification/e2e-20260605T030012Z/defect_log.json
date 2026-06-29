@@ -1,0 +1,83 @@
+[
+  {
+    "id": "E2E-003",
+    "severity": "Critical",
+    "endpoint_or_artifact": "GET /api/delegate/43597ee8-4132-4f5b-8e4c-c0a49c39d077/stream",
+    "repro": "Open SSE stream after pipeline start",
+    "expected": "Lifecycle events stream",
+    "actual": "No stream events captured",
+    "evidence": {
+      "stream_error": "AbortError: This operation was aborted\n    at new DOMException (node:internal/per_context/domexception:79:18)\n    at AbortController.abort (node:internal/abort_controller:506:18)\n    at Timeout._onTimeout (C:\\Users\\ASWINP~1\\AppData\\Local\\Temp\\.ctx-mode-tQXbMa\\script.js:73:113)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)"
+    },
+    "suspected_area": "delegate SSE / pipeline event emission",
+    "retest_checklist": [
+      "stream emits started/progress/completed events"
+    ]
+  },
+  {
+    "id": "E2E-004",
+    "severity": "High",
+    "endpoint_or_artifact": "delegate stream + agent_workspace/knowledge-graphs",
+    "repro": "Run pipeline and inspect stream/files",
+    "expected": "Per-test and per-fix KG updates during run",
+    "actual": "No direct KG update evidence in stream",
+    "evidence": {
+      "stream_event_count": 0
+    },
+    "suspected_area": "pipeline KG integration",
+    "retest_checklist": [
+      "stream shows KG updates per test/fix",
+      "filesystem graph updated during run"
+    ]
+  },
+  {
+    "id": "E2E-005",
+    "severity": "High",
+    "endpoint_or_artifact": "pipeline stream",
+    "repro": "Run pipeline with autoheal mandatory",
+    "expected": "Pipeline-integrated autoheal evidence appears when failures occur",
+    "actual": "No pipeline-integrated autoheal evidence in stream",
+    "evidence": {
+      "standalone_heal_status": null
+    },
+    "suspected_area": "pipeline autoheal integration",
+    "retest_checklist": [
+      "pipeline invokes autoheal as part of run, not only /api/tests/heal"
+    ]
+  },
+  {
+    "id": "E2E-006",
+    "severity": "High",
+    "endpoint_or_artifact": "pipeline stream/artifacts",
+    "repro": "Run pipeline requiring web/search/docs/package evidence",
+    "expected": "Direct usage evidence captured",
+    "actual": "No direct web/search/docs/package installation evidence in stream",
+    "evidence": {
+      "stream_event_count": 0
+    },
+    "suspected_area": "tool usage observability / orchestrator instructions",
+    "retest_checklist": [
+      "artifacts show web/search/docs usage and package install logs"
+    ]
+  },
+  {
+    "id": "E2E-104",
+    "severity": "Medium",
+    "endpoint_or_artifact": "http://127.0.0.1:8001/api/testcases",
+    "repro": "Call testcases_list",
+    "expected": "Endpoint returns 2xx",
+    "actual": "Endpoint failed",
+    "evidence": {
+      "name": "testcases_list",
+      "ok": false,
+      "status": 422,
+      "ms": 181,
+      "url": "http://127.0.0.1:8001/api/testcases",
+      "body_text": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"project_id\"],\"msg\":\"Field required\",\"input\":null}]}"
+    },
+    "suspected_area": "testcases_list",
+    "retest_checklist": [
+      "endpoint returns 2xx with valid JSON"
+    ]
+  }
+]

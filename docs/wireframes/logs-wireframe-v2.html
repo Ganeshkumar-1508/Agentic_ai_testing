@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logs Panel — Final Wireframe v2</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f; color: #f5f5f5;
+    font-family: 'Geist', system-ui, sans-serif;
+    padding: 40px 56px;
+  }
+  h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; color: #f5f5f5; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #87879b; margin-bottom: 32px; }
+
+  .dashboard {
+    background: #0a0a0f;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  /* Header */
+  .dash-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: #0d0d17;
+  }
+  .dash-header .logo { width: 28px; height: 28px; background: #34d399; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #0a0a0f; }
+  .dash-header .breadcrumb { font-size: 12px; color: #52525b; }
+  .dash-header .breadcrumb span { color: #a1a1aa; }
+  .dash-header .badge { margin-left: auto; background: rgba(52,211,153,0.1); color: #34d399; font-size: 10px; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(52,211,153,0.15); }
+
+  /* Tab bar */
+  .tab-bar {
+    display: flex; gap: 2px; padding: 12px 24px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 500;
+    color: #737373; white-space: nowrap; cursor: default;
+  }
+  .tab.active { background: rgba(255,255,255,0.08); color: #f5f5f5; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+  .tab.em { background: rgba(52,211,153,0.1); color: #34d399; box-shadow: inset 0 1px 0 rgba(52,211,153,0.08); }
+
+  /* Main content */
+  .main { display: flex; min-height: 560px; }
+
+  /* LEFT SIDEBAR — Sessions */
+  .sessions-pane {
+    width: 280px; flex-shrink: 0;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.015);
+    display: flex; flex-direction: column;
+  }
+  .sessions-pane .pane-header {
+    padding: 16px 16px 12px;
+    font-size: 11px; font-weight: 600; color: #52525b; text-transform: uppercase; letter-spacing: 0.6px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sessions-pane .pane-header .count { font-weight: 400; color: #52525b; }
+  .sessions-pane .search-box {
+    margin: 0 12px 8px;
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 7px 12px;
+    font-size: 12px; color: #52525b;
+  }
+  .sessions-pane .search-box .icon { width: 14px; height: 14px; border-radius: 2px; background: rgba(255,255,255,0.06); }
+  .sessions-pane .search-box input { background: none; border: none; outline: none; color: #a3a3a3; font-family: inherit; font-size: 12px; width: 100%; }
+  .sessions-pane .search-box input::placeholder { color: #52525b; }
+
+  .sessions-pane .filter-row {
+    display: flex; gap: 4px; padding: 0 12px 8px; flex-wrap: wrap;
+  }
+  .session-chip {
+    font-size: 9px; padding: 2px 8px; border-radius: 999px;
+    background: rgba(255,255,255,0.04); color: #737373; cursor: default;
+  }
+  .session-chip.active { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.15); }
+
+  .session-list { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
+  .session-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px; cursor: default;
+    border: 1px solid transparent;
+  }
+  .session-item:hover { background: rgba(255,255,255,0.03); }
+  .session-item.active { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.15); }
+  .session-item .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .session-item .status-dot.completed { background: #34d399; }
+  .session-item .status-dot.running { background: #60a5fa; animation: pulse 2s infinite; }
+  .session-item .status-dot.failed { background: #f87171; }
+  .session-item .status-dot.pending { background: #52525b; }
+  .session-item .info { flex: 1; min-width: 0; }
+  .session-item .info .title { font-size: 12px; font-weight: 500; color: #d4d4d4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .session-item .info .meta { font-size: 10px; color: #52525b; margin-top: 2px; display: flex; gap: 8px; }
+  .session-item .info .meta .cost { color: #34d399; }
+  .session-item .info .meta .tokens { color: #737373; }
+  .session-item .chevron { width: 14px; height: 14px; color: #52525b; flex-shrink: 0; }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* RIGHT CONTENT */
+  .content-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    flex-wrap: wrap;
+  }
+  .toolbar .title-area { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+  .toolbar .title-area h3 { font-size: 14px; font-weight: 500; color: #e5e5e5; }
+  .toolbar .title-area .session-label { font-size: 10px; color: #52525b; font-family: 'Geist Mono', monospace; background: rgba(255,255,255,0.03); padding: 2px 6px; border-radius: 4px; }
+
+  .filter-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .filter-chip {
+    font-size: 10px; padding: 3px 10px; border-radius: 999px;
+    background: rgba(255,255,255,0.04); color: #737373; cursor: default;
+    transition: all 0.15s;
+  }
+  .filter-chip:hover { background: rgba(255,255,255,0.06); }
+  .filter-chip.active { background: rgba(52,211,153,0.1); color: #34d399; }
+  .filter-chip.error-c { background: rgba(248,113,113,0.1); color: #f87171; }
+  .filter-chip.error-c.active { background: rgba(248,113,113,0.15); }
+
+  .toolbar-actions { display: flex; gap: 6px; align-items: center; }
+  .tool-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center; cursor: default;
+  }
+  .tool-btn.live { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.15); }
+  .tool-btn .btn-icon { width: 14px; height: 14px; border-radius: 2px; background: rgba(255,255,255,0.08); }
+  .tool-btn.live .btn-icon { background: #34d399; }
+
+  /* Timeline / Event Area */
+  .event-area { flex: 1; overflow-y: auto; padding: 12px 16px; position: relative; }
+
+  /* Timeline axis */
+  .timeline-axis {
+    position: sticky; top: 0; z-index: 2;
+    display: flex; justify-content: space-between;
+    padding: 0 0 8px 0; margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    background: #0a0a0f; /* matches bg */
+  }
+  .timeline-axis .tick { font-size: 9px; color: #52525b; font-family: 'Geist Mono', monospace; }
+
+  .event-list { position: relative; }
+
+  /* Event row */
+  .event-row {
+    display: flex; gap: 12px; padding: 8px 8px; cursor: default;
+    border-radius: 10px; transition: all 0.15s;
+    position: relative;
+  }
+  .event-row:hover { background: rgba(255,255,255,0.03); }
+  .event-row.selected { background: rgba(52,211,153,0.06); }
+  .event-row .gutter { width: 32px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+  .event-row .gutter .time { font-size: 9px; color: #52525b; font-family: 'Geist Mono', monospace; white-space: nowrap; margin-top: 2px; }
+  .event-row .gutter .line { width: 1px; flex: 1; background: rgba(255,255,255,0.04); margin: 3px 0; }
+
+  .event-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    margin-top: 3px; box-shadow: 0 0 0 2px rgba(10,10,15,0.8);
+  }
+  .event-dot.tool_call { background: #60a5fa; }
+  .event-dot.tool_result { background: #34d399; }
+  .event-dot.reasoning { background: #fbbf24; }
+  .event-dot.error { background: #f87171; }
+  .event-dot.delegate { background: #a78bfa; }
+  .event-dot.mode { background: #fb923c; }
+  .event-dot.token { background: #f472b6; }
+
+  .event-body { flex: 1; min-width: 0; }
+  .event-body .event-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 2px;
+  }
+  .event-body .event-header .type {
+    font-size: 11px; font-weight: 500;
+  }
+  .event-body .event-header .type.tc { color: #60a5fa; }
+  .event-body .event-header .type.tr { color: #34d399; }
+  .event-body .event-header .type.re { color: #fbbf24; }
+  .event-body .event-header .type.er { color: #f87121; }
+  .event-body .event-header .type.dl { color: #a78bfa; }
+  .event-body .event-header .event-meta {
+    margin-left: auto; display: flex; gap: 6px; align-items: center;
+    font-size: 9px; color: #52525b; font-family: 'Geist Mono', monospace;
+  }
+
+  .event-body .event-header .event-meta .dur { color: #737373; }
+  .event-body .event-header .event-meta .tkn { color: #52525b; }
+  .event-body .event-preview {
+    font-size: 11px; color: #87879b; line-height: 1.4;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  }
+  .event-body .event-preview .hl { color: #34d399; }
+  .event-body .event-preview .err-text { color: #f87171; }
+  .event-body .event-preview .url { color: #60a5fa; text-decoration: underline; text-underline-offset: 2px; text-decoration-style: dotted; }
+
+  /* Nested subagent events */
+  .event-row.nested { padding-left: 28px; border-left: 1px solid rgba(167,139,250,0.15); margin-left: 16px; }
+  .event-row.nested .event-dot { width: 6px; height: 6px; }
+  .event-row.nested .gutter .line { background: rgba(167,139,250,0.08); }
+
+  /* Separator */
+  .event-sep { height: 1px; background: rgba(255,255,255,0.03); margin: 4px 48px; }
+
+  /* DURATION BAR visual */
+  .dur-bar {
+    display: inline-block; height: 3px; border-radius: 2px; margin-right: 4px;
+    background: rgba(255,255,255,0.06);
+  }
+  .dur-bar.fill { background: rgba(52,211,153,0.3); }
+  .dur-bar.fill.err { background: rgba(248,113,113,0.3); }
+
+  /* DETAIL DRAWER (slides in) */
+  .detail-drawer {
+    width: 0; overflow: hidden;
+    border-left: none;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    background: rgba(255,255,255,0.015);
+    flex-shrink: 0;
+  }
+  .detail-drawer.open {
+    width: 380px;
+    border-left: 1px solid rgba(255,255,255,0.06);
+  }
+  .detail-drawer .drawer-inner { width: 380px; display: flex; flex-direction: column; height: 100%; }
+  .detail-drawer .drawer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .detail-drawer .drawer-header h4 { font-size: 13px; font-weight: 500; color: #e5e5e5; }
+  .detail-drawer .drawer-header .close { width: 24px; height: 24px; border-radius: 6px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; cursor: default; }
+
+  .detail-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
+
+  .detail-field { margin-bottom: 14px; }
+  .detail-field .label { font-size: 10px; font-weight: 600; color: #52525b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .detail-field .value { font-size: 12px; color: #a3a3a3; font-family: 'Geist Mono', monospace; }
+  .detail-field .value.str { color: #34d399; }
+
+  .detail-metrics {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;
+  }
+  .detail-metrics .metric {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .detail-metrics .metric .m-label { font-size: 9px; color: #52525b; text-transform: uppercase; letter-spacing: 0.5px; }
+  .detail-metrics .metric .m-value { font-size: 14px; font-weight: 500; color: #d4d4d4; font-family: 'Geist Mono', monospace; margin-top: 2px; }
+  .detail-metrics .metric .m-value.green { color: #34d399; }
+  .detail-metrics .metric .m-value.red { color: #f87171; }
+  .detail-metrics .metric .m-value.blue { color: #60a5fa; }
+
+  .detail-json {
+    background: #12121c; border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 14px;
+    font-family: 'Geist Mono', monospace; font-size: 11px; line-height: 1.6;
+    color: #87879b; overflow-x: auto; white-space: pre;
+  }
+  .detail-json .key { color: #60a5fa; }
+  .detail-json .str { color: #34d399; }
+  .detail-json .num { color: #fbbf24; }
+  .detail-json .bool { color: #a78bfa; }
+  .detail-json .null { color: #52525b; }
+
+  /* Saved presets */
+  .presets-bar {
+    display: flex; gap: 4px; padding: 4px 20px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .preset {
+    font-size: 10px; padding: 4px 10px; border-radius: 6px 6px 0 0;
+    background: rgba(255,255,255,0.02); color: #52525b; cursor: default;
+    border: 1px solid transparent; border-bottom: none;
+  }
+  .preset.active { background: rgba(52,211,153,0.06); color: #34d399; border-color: rgba(52,211,153,0.12); }
+
+  /* Load more */
+  .load-more {
+    text-align: center; padding: 16px; font-size: 11px; color: #52525b; cursor: default;
+  }
+  .load-more:hover { color: #737373; }
+
+  /* Footer */
+  .dash-footer {
+    display: flex; align-items: center; gap: 16px;
+    padding: 10px 24px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    background: #0d0d17;
+    font-size: 10px; color: #52525b;
+  }
+  .dash-footer .right { margin-left: auto; display: flex; gap: 12px; }
+
+  /* Full-screen button area */
+  .fullscreen-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Legend */
+  .legend { position: absolute; bottom: 16px; right: 20px; display: flex; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; color: #52525b; }
+  .legend-item .dot { width: 5px; height: 5px; border-radius: 50%; }
+
+  /* Annotation */
+  .annotation {
+    margin-top: 32px;
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .annotag {
+    font-size: 10px; padding: 4px 10px; border-radius: 6px;
+    background: rgba(52,211,153,0.08); color: #34d399;
+    border: 1px solid rgba(52,211,153,0.1);
+  }
+  .annotag.neutral { background: rgba(255,255,255,0.04); color: #737373; border-color: rgba(255,255,255,0.06); }
+
+  hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 40px 0 24px; }
+  .feature-table {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;
+    margin-top: 16px;
+  }
+  .feature-card {
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 16px;
+  }
+  .feature-card h4 { font-size: 12px; font-weight: 500; color: #d4d4d4; margin-bottom: 4px; }
+  .feature-card p { font-size: 11px; color: #737373; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<h1>Agent Decision Log — Full Redesign</h1>
+<p class="sub">Feature-rich log viewer with all researched capabilities &bull; Matches TestAI design system</p>
+
+<div class="dashboard">
+  <!-- App Header -->
+  <div class="dash-header">
+    <div class="logo">T</div>
+    <span class="breadcrumb">Settings / <span>Agent Decision Log</span></span>
+    <div class="badge">LIVE</div>
+  </div>
+
+  <!-- Tab navigation (as seen in /settings) -->
+  <div class="tab-bar">
+    <div class="tab">Providers</div>
+    <div class="tab">Agents</div>
+    <div class="tab">Runners</div>
+    <div class="tab">Models</div>
+    <div class="tab">MCP</div>
+    <div class="tab">Channels</div>
+    <div class="tab">Webhooks</div>
+    <div class="tab">Cost</div>
+    <div class="tab em active">Logs</div>
+    <div class="tab">Sessions</div>
+  </div>
+
+  <!-- Presets bar -->
+  <div class="presets-bar">
+    <div class="preset active">Default</div>
+    <div class="preset">Errors only</div>
+    <div class="preset">Last 5 min</div>
+    <div class="preset">High cost</div>
+    <div class="preset">+ New preset</div>
+  </div>
+
+  <!-- Main layout -->
+  <div class="main">
+    <!-- LEFT: Sessions pane -->
+    <div class="sessions-pane">
+      <div class="pane-header">
+        Sessions
+        <span class="count">24</span>
+      </div>
+      <div class="search-box">
+        <div class="icon"></div>
+        <input type="text" placeholder="Search sessions by ID or prompt..." value="test auth">
+      </div>
+      <div class="filter-row">
+        <div class="session-chip active">All</div>
+        <div class="session-chip">Running</div>
+        <div class="session-chip">Failed</div>
+        <div class="session-chip">Completed</div>
+        <div class="session-chip">High cost</div>
+      </div>
+      <div class="session-list">
+        <div class="session-item active">
+          <div class="status-dot running"></div>
+          <div class="info">
+            <div class="title">test auth flow with mock provider</div>
+            <div class="meta"><span>$0.47</span><span class="tokens">2.4k tok</span><span>12:34:56</span></div>
+          </div>
+          <div class="chevron">&#8250;</div>
+        </div>
+        <div class="session-item">
+          <div class="status-dot completed"></div>
+          <div class="info">
+            <div class="title">validate pipeline config schema</div>
+            <div class="meta"><span class="cost">$0.12</span><span class="tokens">842 tok</span><span>12:28:12</span></div>
+          </div>
+          <div class="chevron">&#8250;</div>
+        </div>
+        <div class="session-item">
+          <div class="status-dot failed"></div>
+          <div class="info">
+            <div class="title">deploy to staging — env check</div>
+            <div class="meta"><span class="cost">$0.89</span><span class="tokens">6.1k tok</span><span>12:15:44</span></div>
+          </div>
+          <div class="chevron">&#8250;</div>
+        </div>
+        <div class="session-item">
+          <div class="status-dot completed"></div>
+          <div class="info">
+            <div class="title">run regression suite v2.4</div>
+            <div class="meta"><span class="cost">$2.14</span><span class="tokens">14.2k tok</span><span>11:58:02</span></div>
+          </div>
+          <div class="chevron">&#8250;</div>
+        </div>
+        <div class="session-item">
+          <div class="status-dot completed"></div>
+          <div class="info">
+            <div class="title">api integration — oauth refresh</div>
+            <div class="meta"><span class="cost">$0.34</span><span class="tokens">2.1k tok</span><span>11:42:18</span></div>
+          </div>
+          <div class="chevron">&#8250;</div>
+        </div>
+        <div class="session-item">
+          <div class="status-dot pending"></div>
+          <div class="info">
+            <div class="title">database migration checker</div>
+            <div class="meta"><span>—</span><span class="tokens">—</span><span>11:30:55</span></div>
+          </div>
+          <div class="chevron">&#8250;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: Event Stream -->
+    <div class="content-pane">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="title-area">
+          <h3>Event Stream</h3>
+          <span class="session-label">ses_a1b2c3d4</span>
+        </div>
+        <div class="filter-chips">
+          <div class="filter-chip active">All</div>
+          <div class="filter-chip">tool_call</div>
+          <div class="filter-chip">tool_result</div>
+          <div class="filter-chip">reasoning</div>
+          <div class="filter-chip error-c">error</div>
+          <div class="filter-chip">delegate</div>
+          <div class="filter-chip">mode</div>
+        </div>
+        <div class="toolbar-actions">
+          <div class="tool-btn" title="Timeline view">
+            <div class="btn-icon" style="background:#52525b; clip-path:polygon(0 0,100% 0,100% 100%,0 100%); width:12px; height:12px;"></div>
+          </div>
+          <div class="tool-btn live" title="Live tail (30s)">
+            <div class="btn-icon" style="border-radius:50%; width:8px; height:8px;"></div>
+          </div>
+          <div class="tool-btn" title="Full screen">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 5V2h3M12 5V2H9M2 9v3h3M12 9v3H9" stroke="#737373" stroke-width="1.2"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline axis -->
+      <div class="event-area">
+        <div class="timeline-axis">
+          <span class="tick">12:34:50</span>
+          <span class="tick">12:34:52</span>
+          <span class="tick">12:34:54</span>
+          <span class="tick">12:34:56</span>
+          <span class="tick">12:34:58</span>
+          <span class="tick">now</span>
+        </div>
+
+        <div class="event-list">
+          <!-- Event: reasoning -->
+          <div class="event-row selected">
+            <div class="gutter">
+              <div class="event-dot reasoning"></div>
+              <div class="line"></div>
+              <div class="time">34:56</div>
+            </div>
+            <div class="event-body">
+              <div class="event-header">
+                <span class="type re">reasoning</span>
+                <span class="event-meta">
+                  <span class="dur">1.2s</span>
+                  <span class="tkn">348 tok</span>
+                </span>
+              </div>
+              <div class="event-preview">I need to authenticate the user with the mock provider. First, check if we have a valid token in the session store, then attempt login with the provided credentials...</div>
+            </div>
+          </div>
+
+          <!-- Event: tool_call (read_file) -->
+          <div class="event-row">
+            <div class="gutter">
+              <div class="event-dot tool_call"></div>
+              <div class="line"></div>
+              <div class="time">34:57</div>
+            </div>
+            <div class="event-body">
+              <div class="event-header">
+                <span class="type tc">tool_call</span>
+                <span class="event-meta">
+                  <span class="dur">0.4s</span>
+                  <span class="tkn">124 tok</span>
+                </span>
+              </div>
+              <div class="event-preview">read_file(path: "<span class="hl">src/auth/provider.ts</span>")</div>
+            </div>
+          </div>
+
+          <!-- Event: tool_result -->
+          <div class="event-row">
+            <div class="gutter">
+              <div class="event-dot tool_result"></div>
+              <div class="line"></div>
+              <div class="time">34:57</div>
+            </div>
+            <div class="event-body">
+              <div class="event-header">
+                <span class="type tr">tool_result</span>
+                <span class="event-meta">
+                  <span class="dur">—</span>
+                  <span class="tkn">842 tok</span>
+                </span>
+              </div>
+              <div class="event-preview"><span class="hl">Success</span> — returned 2,847 bytes (auth provider config)</div>
+            </div>
+          </div>
+
+          <!-- Event: delegate_task (subagent spawn) - nested style -->
+          <div class="event-row nested">
+            <div class="gutter">
+              <div class="event-dot delegate"></div>
+              <div class="line"></div>
+              <div class="time">34:58</div>
+            </div>
+            <div class="event-body">
+              <div class="event-header">
+                <span class="type dl">delegate_task</span>
+                <span class="event-meta">
+                  <span class="dur">3.2s</span>
+                  <span class="tkn">1.2k tok</span>
+                  <span style="color:#a78bfa;">subagent</span>
+                </span>
+              </div>
+              <div class="event-preview">Spawned subagent: <span class="hl">"validate-oauth-token"</span> (depth 1)</div>
+            </div>
+          </div>
+
+          <!-- Subagent event (child) -->
+          <div class="event-row nested" style="border-left-color: rgba(52,211,153,0.15);">
+            <div class="gutter">
+              <div class="event-dot tool_call" style="background:#34d399;"></div>
+              <div class="line" style="background:rgba(52,211,153,0.08);"></div>
+              <div class="time">34:58</div>
+            </div>
+            <div class="event-body">
+              <div class="event-header">
+                <span class="type tc" style="color:#34d399;">tool_call</span>
+                <span class="event-meta">
+                  <span class="tkn">64 tok</span>
+                  <span style="color:#34d399;font-size:9px;">child</span>
+                </span>
+              </div>
+              <div class="event-preview">http_get(url: "<span class="url">https://auth.provider.com/validate</span>")</div>
+            </div>
+          </div>
+
+          <!-- Event: error -->
+          <div class="event-row">
+            <div class="gutter">
+              <div class="event-dot error"></div>
+              <div class="line"></div>
+              <div class="time">34:59</div>
+            </div>
+            <div class="event-body">
+              <div class="event-header">
+                <span class="type er">error</span>
+                <span class="event-meta">
+                  <span class="dur">—</span>
+                  <span class="tkn">—</span>
+                </span>
+              </div>
+              <div class="event-preview"><span class="err-text">HTTP 401</span> — Unauthorized: token expired or invalid</div>
+            </div>
+          </div>
+
+          <!-- Event: mode switch -->
+          <div class="event-row">
+            <div class="gutter">
+              <div class="event-dot mode"></div>
+              <div class="line" style="display:none;"></div>
+              <div class="time">35:00</div>
+            </div>
+            <div class="event-body">
+              <div class="event-header">
+                <span class="type" style="color:#fb923c;">mode</span>
+                <span class="event-meta">
+                  <span class="dur">—</span>
+                  <span class="tkn">—</span>
+                </span>
+              </div>
+              <div class="event-preview">Switched to <span class="hl">manual-approval</span> mode (requires user confirmation)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="load-more">Load more events ↓</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Detail Drawer -->
+    <div class="detail-drawer open">
+      <div class="drawer-inner">
+        <div class="drawer-header">
+          <h4>Event Detail</h4>
+          <div class="close">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 2l8 8M10 2l-8 8" stroke="#737373" stroke-width="1.5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="detail-body">
+          <!-- Metrics row -->
+          <div class="detail-metrics">
+            <div class="metric">
+              <div class="m-label">Duration</div>
+              <div class="m-value green">1.2s</div>
+            </div>
+            <div class="metric">
+              <div class="m-label">Tokens</div>
+              <div class="m-value blue">348</div>
+            </div>
+            <div class="metric">
+              <div class="m-label">Cost</div>
+              <div class="m-value green">$0.002</div>
+            </div>
+            <div class="metric">
+              <div class="m-label">Depth</div>
+              <div class="m-value">0</div>
+            </div>
+          </div>
+
+          <!-- Fields -->
+          <div class="detail-field">
+            <div class="label">Event Type</div>
+            <div class="value" style="color:#fbbf24;">reasoning</div>
+          </div>
+          <div class="detail-field">
+            <div class="label">Timestamp</div>
+            <div class="value">2026-05-25T12:34:56.123Z</div>
+          </div>
+          <div class="detail-field">
+            <div class="label">Agent ID</div>
+            <div class="value" style="font-size:10px;">agent_root_8f3a2c</div>
+          </div>
+          <div class="detail-field">
+            <div class="label">Parent Event</div>
+            <div class="value" style="color:#52525b;">—</div>
+          </div>
+
+          <!-- Full JSON payload -->
+          <div class="detail-field">
+            <div class="label">Full Payload</div>
+          </div>
+          <div class="detail-json">{<br>
+            &nbsp;&nbsp;<span class="key">"eventType"</span>: <span class="str">"reasoning"</span>,<br>
+            &nbsp;&nbsp;<span class="key">"content"</span>: <span class="str">"I need to authenticate the user with the mock provider. First, check if we have a valid token in the session store..."</span>,<br>
+            &nbsp;&nbsp;<span class="key">"agentId"</span>: <span class="str">"agent_root_8f3a2c"</span>,<br>
+            &nbsp;&nbsp;<span class="key">"depth"</span>: <span class="num">0</span>,<br>
+            &nbsp;&nbsp;<span class="key">"tokenCount"</span>: <span class="num">348</span>,<br>
+            &nbsp;&nbsp;<span class="key">"durationMs"</span>: <span class="num">1240</span>,<br>
+            &nbsp;&nbsp;<span class="key">"costUsd"</span>: <span class="num">0.0023</span>,<br>
+            &nbsp;&nbsp;<span class="key">"model"</span>: <span class="str">"deepseek-v4-flash"</span><br>
+          }</div>
+
+          <!-- Reasoning preview specific -->
+          <div style="margin-top:12px;">
+            <div class="detail-field">
+              <div class="label">Related Events</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; background:rgba(255,255,255,0.02); border-radius:6px; font-size:10px;">
+                <div style="width:5px;height:5px;border-radius:50%;background:#60a5fa;"></div>
+                <span style="color:#a3a3a3;">tool_call · read_file</span>
+                <span style="margin-left:auto;color:#52525b;">+0.4s</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(255,255,255,0.02);border-radius:6px;font-size:10px;">
+                <div style="width:5px;height:5px;border-radius:50%;background:#34d399;"></div>
+                <span style="color:#a3a3a3;">tool_result · 2,847 bytes</span>
+                <span style="margin-left:auto;color:#52525b;">+0.8s</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer status bar -->
+  <div class="dash-footer">
+    <span>36 events &bull; 2 filtered &bull; session ses_a1b2c3d4</span>
+    <span style="color:#34d399;">&#9679; Live</span>
+    <div class="right">
+      <span>$3.47 total cost</span>
+      <span>22.4k total tokens</span>
+      <span>v2.4.1</span>
+    </div>
+  </div>
+</div>
+
+<!-- Feature Legend -->
+<div class="annotation">
+  <span class="annotag"># Virtualized scrolling</span>
+  <span class="annotag"># Timeline axis</span>
+  <span class="annotag"># Full JSON payload drawer</span>
+  <span class="annotag"># Search &amp; filter</span>
+  <span class="annotag"># Per-event metrics</span>
+  <span class="annotag"># Subagent tree view</span>
+  <span class="annotag"># Saved presets</span>
+  <span class="annotag"># Focus/fullscreen mode</span>
+  <span class="annotag"># Live tailing</span>
+  <span class="annotag"># Related events linking</span>
+  <span class="annotag neutral">Clickable URLs</span>
+  <span class="annotag neutral">Color-coded event types</span>
+  <span class="annotag neutral">Cost &amp; token tracking</span>
+</div>
+
+<hr>
+
+<h2 style="font-size:16px;font-weight:500;color:#e5e5e5;">Feature Checklist</h2>
+<p style="font-size:12px;color:#737373;margin-top:4px;">All capabilities from research incorporated into the design</p>
+
+<div class="feature-table">
+  <div class="feature-card">
+    <h4>Virtualized scrolling</h4>
+    <p>Smooth rendering of thousands of events without browser crash. Event list virtualized with windowing.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Timeline axis</h4>
+    <p>Visual time ruler at the top shows event density. Each event positioned by timestamp on the axis.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Full JSON payload</h4>
+    <p>Click any event to open a slide-in detail drawer with the complete input/output JSON, syntax-highlighted.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Search sessions</h4>
+    <p>Real search input filtering sessions by ID, prompt text, or status. Debounced to prevent thrashing.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Filter by event type</h4>
+    <p>Toggle chips for tool_call, tool_result, reasoning, error, delegate, mode, token. Multi-select support.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Per-event metrics</h4>
+    <p>Duration, token count, and cost shown inline on every event. Color-coded for quick scanning.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Subagent tree view</h4>
+    <p>Nested events indented with a left border. Child agent events visually linked to parent delegate_task.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Saved presets</h4>
+    <p>Quick filter presets: "Errors only", "Last 5 min", "High cost". Create and save custom presets.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Focus / fullscreen</h4>
+    <p>Collapse sidebar and chrome to let events fill the entire viewport. Maximizes reading density.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Live tailing</h4>
+    <p>Auto-scroll to latest events during active agent execution. Visual indicator shows live status.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Related events linking</h4>
+    <p>Clicking a reasoning event shows which tool_call and tool_result followed. Bidirectional navigation.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Cost &amp; token tracking</h4>
+    <p>Footer bar shows cumulative session cost and token usage. Per-event breakdown in detail drawer.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Clickable URLs</h4>
+    <p>HTTP URLs in tool_call arguments and tool results are rendered as interactive links.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Color-coded types</h4>
+    <p>Each event type has a distinct color: blue (tool_call), green (result), amber (reasoning), red (error), purple (delegate), orange (mode).</p>
+  </div>
+  <div class="feature-card">
+    <h4>Status badges</h4>
+    <p>Session list shows running/completed/failed/pending status dots with pulse animation for live sessions.</p>
+  </div>
+</div>
+
+</body>
+</html>

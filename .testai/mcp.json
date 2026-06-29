@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "context-mode": {
+      "command": "context-mode",
+      "alwaysAllow": ["ctx_execute","ctx_execute_file","ctx_index","ctx_search","ctx_fetch_and_index","ctx_batch_execute","ctx_stats","ctx_doctor","ctx_upgrade","ctx_purge","ctx_insight"],
+      "disabled": true
+    }
+  }
+}
