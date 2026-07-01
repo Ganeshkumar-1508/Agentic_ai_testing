@@ -758,7 +758,17 @@ async def get_regression(request: Request):
 
 @router.get("/settings/provider-events")
 async def get_provider_events(request: Request, limit: int = 100):
-    svc = SettingsService(get_db(request))
+    db = get_db(request)
+    await db.execute(
+        "CREATE TABLE IF NOT EXISTS provider_events ("
+        "  id SERIAL PRIMARY KEY,"
+        "  provider TEXT NOT NULL,"
+        "  event_type TEXT NOT NULL,"
+        "  message TEXT,"
+        "  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        ")"
+    )
+    svc = SettingsService(db)
     return {"events": await svc.get_provider_events(limit)}
 
 

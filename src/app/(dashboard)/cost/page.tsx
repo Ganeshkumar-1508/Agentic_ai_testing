@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { type ElementType } from "react";
 import { DollarSign, TrendingUp, BarChart3, PieChart, Wallet, CalendarDays } from "lucide-react";
 import { api } from "@/lib/api/api-client";
 import { CostByModelCard } from "@/components/dashboard/CostByModelCard";
@@ -10,7 +11,7 @@ import { CostBreakdownCard } from "@/components/dashboard/CostBreakdownCard";
 
 const SPRING = { type: "spring" as const, stiffness: 100, damping: 20 };
 
-function StatCard({ title, value, subtitle, icon: Icon, loading }: { title: string; value: string; subtitle?: string; icon: any; loading?: boolean }) {
+function StatCard({ title, value, subtitle, icon: Icon, loading }: { title: string; value: string; subtitle?: string; icon: ElementType; loading?: boolean }) {
   return (
     <motion.div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/40 p-5 space-y-2" {...{initial:{opacity:0,y:12},animate:{opacity:1,y:0},transition:{type:"spring",stiffness:100,damping:20}}}>
       <div className="flex items-center justify-between">

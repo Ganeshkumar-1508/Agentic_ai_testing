@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import { type ElementType } from "react";
 import { api } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
 import {
@@ -44,7 +45,7 @@ const STATUS_FILTERS = ["", "completed", "failed", "running", "cancelled"];
 
 const ACTOR_FILTERS = ["", "agent", "human"];
 
-const EVENT_TYPE_ICONS: Record<string, any> = {
+const EVENT_TYPE_ICONS: Record<string, ElementType> = {
   ToolExecutionStarted: Wrench,
   ToolExecutionCompleted: Wrench,
   LLMCallStarted: Cpu,

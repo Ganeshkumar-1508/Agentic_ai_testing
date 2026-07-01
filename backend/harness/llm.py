@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import logging
 import os
 import time
@@ -251,8 +252,8 @@ class LLMRouter:
             import asyncio
             try:
                 asyncio.create_task(self._db_provider.execute(
-                    "INSERT INTO provider_events (provider, event_type, message) VALUES ($1, $2, $3)",
-                    provider, event_type, message,
+                    "INSERT INTO provider_events (provider, event_type, message, created_at) VALUES ($1, $2, $3, $4)",
+                    provider, event_type, message, datetime.datetime.now(),
                 ))
             except Exception:
                 pass

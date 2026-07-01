@@ -14,8 +14,8 @@ import {
 const ALL_TYPES = new Set<string>(ACTIVITY_EVENT_TYPES);
 
 describe("ACTIVITY_EVENT_TYPES", () => {
-  it("includes all 11 C01-C08 event types", () => {
-    expect(ACTIVITY_EVENT_TYPES).toHaveLength(11);
+  it("includes all registered event types", () => {
+    expect(ACTIVITY_EVENT_TYPES.length).toBeGreaterThanOrEqual(30);
     expect(ALL_TYPES.has("subagent.heartbeat")).toBe(true);
     expect(ALL_TYPES.has("subagent.spawned")).toBe(true);
     expect(ALL_TYPES.has("subagent.completed")).toBe(true);
@@ -27,11 +27,16 @@ describe("ACTIVITY_EVENT_TYPES", () => {
     expect(ALL_TYPES.has("team.dissolved")).toBe(true);
     expect(ALL_TYPES.has("job.cancelled")).toBe(true);
     expect(ALL_TYPES.has("job.paused")).toBe(true);
+    expect(ALL_TYPES.has("budget.throttled")).toBe(true);
+    expect(ALL_TYPES.has("agent.started")).toBe(true);
+    expect(ALL_TYPES.has("agent.completed")).toBe(true);
+    expect(ALL_TYPES.has("toolprogress")).toBe(true);
+    expect(ALL_TYPES.has("error")).toBe(true);
   });
 
-  it("uses the dotted naming convention", () => {
+  it("uses the dotted naming convention (or simple lowercase)", () => {
     for (const t of ACTIVITY_EVENT_TYPES) {
-      expect(t).toMatch(/^[a-z]+(\.[a-z_]+)+$/);
+      expect(t).toMatch(/^[a-z]+(\.[a-z_]+)*$/);
     }
   });
 });

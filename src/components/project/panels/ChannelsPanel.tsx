@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ElementType } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe, Webhook, TerminalIcon, Plus, Check, X, Edit3, Trash2 } from "lucide-react";
 import { api } from "@/lib/api/api-client";
 
-const API = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8001" : "http://localhost:8001";
 
 export function ChannelsPanel() {
   const queryClient = useQueryClient();
@@ -22,7 +21,7 @@ export function ChannelsPanel() {
 
   const webhooks = data ?? [];
 
-  const channelIcons: Record<string, any> = { webhook: Webhook, webui: Globe, cli: TerminalIcon };
+  const channelIcons: Record<string, ElementType> = { webhook: Webhook, webui: Globe, cli: TerminalIcon };
 
   return (
     <div className="space-y-6">

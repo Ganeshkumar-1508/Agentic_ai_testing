@@ -7,7 +7,6 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import { TrendingUp, DollarSign, Play, Cpu } from "lucide-react";
 import { api } from "@/lib/api/api-client";
 
-const API = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8001" : "http://localhost:8001";
 
 type DailyEntry = { day: string; input_tokens: number; output_tokens: number; estimated_cost: number; sessions: number };
 type ModelEntry = { model: string; input_tokens: number; output_tokens: number; estimated_cost: number; api_calls: number };

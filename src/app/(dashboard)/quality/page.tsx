@@ -5,13 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api/api-client";
 import { toast } from "sonner";
+import { type ElementType } from "react";
 import {
   Gauge, Shield, Bug, Plus, Trash2, ToggleLeft, ToggleRight, BarChart3, ClipboardList,
 } from "lucide-react";
 
 type QualityTab = "score" | "trends" | "gates" | "triage" | "defects";
 
-const TABS: { id: QualityTab; label: string; icon: any }[] = [
+const TABS: { id: QualityTab; label: string; icon: ElementType }[] = [
   { id: "score", label: "Score", icon: Gauge },
   { id: "trends", label: "Trends", icon: BarChart3 },
   { id: "gates", label: "Gates", icon: Shield },

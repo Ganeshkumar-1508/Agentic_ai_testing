@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-import { api } from "@/lib/api/api-client";
 import { DashboardProvider, useDashboard } from "@/components/dashboard/DashboardProvider";
 import { KpiCardSparkline } from "@/components/dashboard/KpiCardSparkline";
 import { Beaker, CheckCircle2, XCircle, TrendingUp, TriangleAlert, Newspaper, LayoutDashboard, Activity, Bug, ShieldCheck, LayoutGrid, User2 } from "lucide-react";
@@ -134,7 +133,7 @@ function DashboardContent() {
     return () => clearInterval(t);
   }, []);
 
-  const updatedAt = (overview as any)?.timestamp ? new Date((overview as any).timestamp) : null;
+  const updatedAt = overview?.timestamp ? new Date(overview.timestamp) : null;
   const updatedAgo = (() => {
     if (!updatedAt || !now || isNaN(updatedAt.getTime())) return null;
     const sec = Math.max(0, Math.floor((now.getTime() - updatedAt.getTime()) / 1000));
@@ -148,9 +147,9 @@ function DashboardContent() {
 
   const isOverviewEmpty = useMemo(() => {
     if (!overview) return false;
-    const tests = (overview as any).tests_24h?.total ?? 0;
-    const runs = (overview as any).pipeline_runs_24h ?? 0;
-    const failures = Array.isArray((overview as any).recent_failures) ? (overview as any).recent_failures.length : 0;
+    const tests = overview?.tests_24h?.total ?? 0;
+    const runs = overview?.pipeline_runs_24h ?? 0;
+    const failures = Array.isArray(overview?.recent_failures) ? overview.recent_failures!.length : 0;
     return tests === 0 && runs === 0 && failures === 0;
   }, [overview]);
   const showEmptyState = !isLoading && isOverviewEmpty;

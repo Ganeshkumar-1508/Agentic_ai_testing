@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ElementType } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -36,11 +36,11 @@ interface WorkflowSummary {
   key: string;
   title: string;
   description: string;
-  steps: number;
+  steps_count: number;
   tags: string[];
 }
 
-const STEP_TYPE_ICONS: Record<string, any> = {
+const STEP_TYPE_ICONS: Record<string, ElementType> = {
   agent: Cpu,
   human_input: UserRound,
   router: GitFork,
@@ -267,7 +267,7 @@ function WorkflowList({ workflows, onNavigate }: { workflows: WorkflowSummary[];
             <p className="text-[11px] text-zinc-600 line-clamp-2">{wf.description}</p>
           )}
           <div className="flex items-center gap-2 text-[10px] text-zinc-600">
-            <span>{wf.steps || 0} steps</span>
+            <span>{wf.steps_count ?? 0} steps</span>
             {wf.tags?.map((t) => (
               <span key={t} className="px-1.5 py-0.5 rounded bg-zinc-800/60 text-zinc-500">{t}</span>
             ))}

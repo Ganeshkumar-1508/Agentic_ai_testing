@@ -20,23 +20,55 @@ class ReapRequest(BaseModel):
     max_age_hours: float = 2
 
 
+class _SandboxManager:
+    """Lightweight wrapper around backend_factory for legacy sandbox router endpoints.
+
+    Provides the ``list_sandboxes``, ``get_env``, ``destroy_env``, ``snapshot``,
+    ``restore``, and ``list_snapshots`` interface that the rest of this module
+    expects.  In the current architecture all session-level state lives on the
+    per-session backend, so several of these methods are stubs or no-ops.
+    """
+
+    def __init__(self, factory):
+        self._factory = factory
+
+    def list_sandboxes(self):
+        return []
+
+    def get_env(self, session_id: str):
+        return self._factory(session_id)
+
+    def destroy_env(self, session_id: str):
+        from harness.tools.docker_executor import destroy_container
+        destroy_container(session_id)
+
+    def snapshot(self, session_id: str, label: str = ""):
+        return ""
+
+    def restore(self, snapshot_id: str, session_id: str | None = None):
+        return session_id or ""
+
+    def list_snapshots(self, session_id: str | None = None):
+        return []
+
+
 def _manager(request: Request):
-    mgr = getattr(request.app.state, "backend_factory", None)
-    if not mgr:
-        raise RuntimeError("Backend factory not initialized")
-    return mgr
+    factory = getattr(request.app.state, "backend_factory", None)
+    if not factory:
+        raise RuntimeError("Backend factory not initialised")
+    return _SandboxManager(factory)
 
 
 def _db(request: Request):
     db = getattr(request.app.state, "db", None)
     if not db:
-        raise RuntimeError("DB not initialized")
+        raise RuntimeError("DB not initialised")
     return db
 
 
 async def _env(request: Request, session_id: str):
     mgr = _manager(request)
-    env = await mgr.get_env(session_id)
+    env = mgr.get_env(session_id)
     if not env:
         raise RuntimeError(f"Sandbox {session_id} not found")
     return env
@@ -45,14 +77,8 @@ async def _env(request: Request, session_id: str):
 @router.get("/sandbox/exec-containers")
 async def list_exec_containers(request: Request):
     try:
-        mgr = _manager(request)
-        if mgr is None:
-            return JSONResponse(
-                status_code=503,
-                content={"error": "backend factory not configured"},
-            )
-        sandboxes = mgr.list_sandboxes()
-        return {"containers": sandboxes}
+        _manager(request)
+        return {"containers": []}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
@@ -238,6 +264,7 @@ async def aggregate_sandbox_metrics(request: Request):
     """Aggregate CPU, memory, disk across all running sandboxes. Used by KPI strip."""
     try:
         sandboxes = _manager(request).list_sandboxes()
+        _ = sandboxes  # keep reference (currently always empty, migrated to per-session backends)
         total_cpu = 0.0
         total_mem_used = 0
         total_mem_cap = 0
@@ -811,7 +838,7 @@ async def pty_websocket(ws: WebSocket, session_id: str):
     await ws.accept()
     try:
         mgr = _manager_from_ws(ws)
-        env = await _env_from_manager(mgr, session_id)
+        env = mgr.get_env(session_id)
         container_id = env.container_id
     except Exception as e:
         await ws.send_text(f"\r\n\x1b[31mSandbox error: {e}\x1b[0m\r\n")
@@ -885,6 +912,9 @@ async def pty_websocket(ws: WebSocket, session_id: str):
 
 
 def _manager_from_ws(ws: WebSocket):
-    """Get backend factory from WebSocket app state."""
-    return ws.app.state.backend_factory
+    """Get sandbox manager from WebSocket app state."""
+    factory = getattr(ws.app.state, "backend_factory", None)
+    if not factory:
+        raise RuntimeError("Backend factory not initialised")
+    return _SandboxManager(factory)
 

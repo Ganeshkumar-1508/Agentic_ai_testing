@@ -185,6 +185,15 @@ class DashboardWidgetService:
         open_providers = []
         last_failover = None
         try:
+            await self._db.execute(
+                "CREATE TABLE IF NOT EXISTS provider_events ("
+                "  id SERIAL PRIMARY KEY,"
+                "  provider TEXT NOT NULL,"
+                "  event_type TEXT NOT NULL,"
+                "  message TEXT,"
+                "  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+                ")"
+            )
             ev_rows = await self._db.fetch(
                 "SELECT provider, event_type, message, created_at FROM provider_events "
                 "WHERE created_at >= $1 ORDER BY created_at DESC LIMIT 50",

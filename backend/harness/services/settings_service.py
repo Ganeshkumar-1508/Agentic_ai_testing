@@ -408,7 +408,7 @@ class SettingsService:
 
     async def get_provider_events(self, limit: int = 100) -> list[dict[str, Any]]:
         rows = await self.db.fetch(
-            "SELECT * FROM provider_events ORDER BY timestamp DESC LIMIT $1", limit,
+            "SELECT * FROM provider_events ORDER BY created_at DESC LIMIT $1", limit,
         )
         return [dict(r) for r in rows]
 

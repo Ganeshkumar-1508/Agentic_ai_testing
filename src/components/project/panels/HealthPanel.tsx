@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { HeartPulse, Cpu, Plug, Activity, CheckCircle2, XCircle } from "lucide-react";
 import { api } from "@/lib/api/api-client";
 
-const API = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8001" : "http://localhost:8001";
 
 function PulseDot({ active }: { active: boolean }) {
   return (

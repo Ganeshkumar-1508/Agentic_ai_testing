@@ -71,6 +71,7 @@ interface RunDetail {
   logDirPath?: string | null;
   costUsd?: number;
   budgetCap?: number;
+  budget_cap?: number;
   tokenCount?: number;
   repos?: string[];
   multiRepo?: boolean;
@@ -190,7 +191,7 @@ export default function RunDetailPage() {
   const derivedStages = useMemo(() => {
     if (liveStages.length > 0) return liveStages;
 
-    const apiPhases = (run as any)?.phases;
+    const apiPhases = run?.phases;
     if (apiPhases && Array.isArray(apiPhases) && apiPhases.length > 0) {
       return stageOrder.map((name) => {
         const found = apiPhases.find((p: any) => p.name === name);
@@ -269,7 +270,7 @@ export default function RunDetailPage() {
       setRun(runRes?.run ?? null);
       setTests(testsRes?.tests ?? []);
       setPipelineEvents(eventsData?.events ?? []);
-      const reports = ((covRes as any)?.reports ?? []).filter((r: any) => r.runId === runId);
+      const reports = (covRes?.reports ?? []).filter((r: any) => r.runId === runId);
       setCoverageReports(reports);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
@@ -297,9 +298,9 @@ export default function RunDetailPage() {
         api.get<{ tests?: any[] }>(`/api/runs/${runId}/test-results`),
       ]);
       const html = generatePipelineReport(
-        run as any,
+        run!,
         eventsData?.events ?? [],
-        (testsRes?.tests ?? []) as any[],
+        testsRes?.tests ?? [],
       );
       const blob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
@@ -522,10 +523,10 @@ export default function RunDetailPage() {
           )}
         </div>
         <div>
-          {(liveCost > 0 || (run as any)?.costUsd > 0) && (
+          {(liveCost > 0 || (run?.costUsd ?? 0) > 0) && (
             <CostMeter
-              currentCost={liveCost || ((run as any)?.costUsd ?? 0)}
-              budgetCap={(run as any)?.budgetCap ?? (run as any)?.budget_cap ?? 5.00}
+              currentCost={liveCost || (run?.costUsd ?? 0)}
+              budgetCap={run?.budgetCap ?? run?.budget_cap ?? 5.00}
               breakdown={Object.values(liveBreakdown).some(v => v > 0) ? liveBreakdown : undefined}
               tokens={liveTokens.total > 0 ? liveTokens : undefined}
               isLive={isRunLive}
@@ -649,7 +650,7 @@ export default function RunDetailPage() {
             durationMs: t.durationMs,
             error: t.error,
           }))}
-          requirements={(run as any)?.requirements}
+          requirements={run?.requirements ?? undefined}
         />
       )}
 

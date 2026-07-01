@@ -252,7 +252,7 @@ function ConfigTab({
   );
 }
 
-function SummaryCard({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+function SummaryCard({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
   return (
     <div className="rounded-xl border border-zinc-800/40 bg-zinc-900/20 p-3 space-y-1">
       <div className="flex items-center gap-1.5 text-[10px] text-zinc-600">

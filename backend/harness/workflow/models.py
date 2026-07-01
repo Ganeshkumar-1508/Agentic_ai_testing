@@ -154,6 +154,7 @@ class WorkflowDefinition:
             "description": self.description,
             "category": self.category,
             "steps": [s.to_dict() for s in self.steps],
+            "steps_count": len(self.steps),
             "tags": list(self.tags),
             "schedule_template": self.schedule_template,
         }

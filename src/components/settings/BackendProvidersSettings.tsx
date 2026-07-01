@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type ElementType } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StyledSelect } from "@/components/ui/styled-select";
 import { Button } from "@/components/ui/button";
@@ -107,7 +107,7 @@ function TagInput({ values, onChange, placeholder }: {
 }
 
 function CollapsibleSection({ title, icon: Icon, defaultOpen = false, children }: {
-  title: string; icon: any; defaultOpen?: boolean; children: React.ReactNode;
+  title: string; icon: ElementType; defaultOpen?: boolean; children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (

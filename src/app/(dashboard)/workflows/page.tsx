@@ -13,7 +13,8 @@ interface WorkflowSummary {
   title: string;
   description: string;
   category: string;
-  steps: number;
+  steps_count: number;
+  steps: unknown[];
   tags: string[];
   schedule_template: string;
 }
@@ -161,10 +162,10 @@ export default function WorkflowsPage() {
                 <p className="text-[11px] text-zinc-600 line-clamp-2">{wf.description}</p>
               )}
               <div className="flex items-center gap-2 text-[10px] text-zinc-600">
-                <span className="flex items-center gap-1">
-                  <FileText size={10} strokeWidth={1.5} />
-                  {wf.steps || 0} steps
-                </span>
+                  <span className="flex items-center gap-1">
+                    <FileText size={10} strokeWidth={1.5} />
+                    {wf.steps_count ?? 0} steps
+                  </span>
                 {wf.schedule_template && (
                   <span className="flex items-center gap-1">
                     <Clock size={10} strokeWidth={1.5} />

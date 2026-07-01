@@ -39,6 +39,7 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 };
 
 function workflowToNodesAndEdges(wf: any): { nodes: Node[]; edges: Edge[] } {
+  const VALID_TYPES = new Set(["agent", "human_input", "router"]);
   const nodes: Node[] = [];
   const edges: Edge[] = [];
   const steps = wf?.steps ?? [];
@@ -62,9 +63,10 @@ function workflowToNodesAndEdges(wf: any): { nodes: Node[]; edges: Edge[] } {
   steps.forEach((step: any, i: number) => {
     const x = 200 + (i % 2) * 180;
     const y = 100 + Math.floor(i / 2) * 140;
+    const nodeType = VALID_TYPES.has(step.type) ? step.type : "agent";
     nodes.push({
       id: step.id,
-      type: step.type === "human_input" ? "human_input" : step.type === "router" ? "router" : "agent",
+      type: nodeType,
       position: { x, y },
       data: {
         label: step.label || step.id,
@@ -119,7 +121,7 @@ function workflowToNodesAndEdges(wf: any): { nodes: Node[]; edges: Edge[] } {
   return { nodes, edges };
 }
 
-function nodesAndEdgesToWorkflow(key: string, title: string, nodes: Node[], edges: Edge[]): any {
+function nodesAndEdgesToWorkflow(key: string, title: string, nodes: Node[], edges: Edge[]) {
   const stepNodes = nodes.filter((n) => n.id !== "start" && n.id !== "end");
   const steps = stepNodes.map((node) => {
     const incomingEdges = edges.filter((e) => e.target === node.id);

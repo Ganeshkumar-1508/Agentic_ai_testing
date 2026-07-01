@@ -141,7 +141,16 @@ const PANEL_MAP: Record<string, React.FC> = {
   permissions: () => <AllowlistManager />,
   environment: EnvVarsManager,
   notifications: NotificationPreferences,
-  runner: React.lazy(() => import("@/components/settings/RunnerConfigSettings").then(m => ({ default: m.RunnerConfigSettings }))),
+  runner: () => {
+    const RunnerComp = React.lazy(() => import("@/components/settings/RunnerConfigSettings").then(m => ({ default: m.RunnerConfigSettings })));
+    return (
+      <ErrorBoundary fallback={<div className="text-sm text-red-400 p-6 border border-red-400/20 rounded-xl">Failed to load</div>}>
+        <React.Suspense fallback={<div className="text-sm text-zinc-500 p-6 animate-pulse">Loading...</div>}>
+          <RunnerComp />
+        </React.Suspense>
+      </ErrorBoundary>
+    );
+  },
   flags: FeatureFlags,
   escalation: EscalationPolicySettings,
   routing: () => {

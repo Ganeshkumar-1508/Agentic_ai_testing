@@ -7,7 +7,6 @@ import { FlaskConical, Beaker, Trophy, Plus, Trash2, X, Check, BarChart3 } from 
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api/api-client";
 
-const API = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8001" : "http://localhost:8001";
 
 export function ExperimentsPanel() {
   const queryClient = useQueryClient();

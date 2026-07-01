@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useMemo } from "react";
+import { Suspense, useState, useMemo, type ElementType } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -35,7 +35,7 @@ interface ExecutionRecord {
   retry_of: string;
 }
 
-const TYPE_ICONS: Record<string, any> = {
+const TYPE_ICONS: Record<string, ElementType> = {
   agent: Cpu,
   human_input: UserRound,
   router: GitFork,
