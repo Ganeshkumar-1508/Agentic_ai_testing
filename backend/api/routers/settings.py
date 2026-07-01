@@ -72,9 +72,9 @@ async def get_providers(request: Request):
 
     for s in stored:
         provider_name = s["provider"]
+        # has_key reflects whether a key exists (DB or env), checked BEFORE stripping
+        s["has_key"] = bool(s.get("api_key")) or bool(os.environ.get(get_provider_env_key(provider_name)))
         s.pop("api_key", None)
-        from harness.env_loader import get_provider_env_key
-        s["has_key"] = bool(os.environ.get(get_provider_env_key(provider_name)))
         if meta := defs.get(provider_name):
             s["display_name"] = meta.get("display_name", provider_name)
             s["description"] = meta.get("description", "")

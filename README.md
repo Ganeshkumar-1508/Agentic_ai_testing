@@ -511,76 +511,65 @@ The latest architecture sprint (C0-series) added:
 
 | Dependency | Version | Required for |
 |---|---|---|
-| **Docker & Docker Compose** | Latest | Running all services (recommended path) |
-| **Node.js** | 20+ | Local frontend development |
-| **Python** | 3.11+ | Local backend development |
+| **Docker & Docker Compose** | Latest | Running the database (PostgreSQL) |
+| **Node.js** | 20+ | Frontend development |
+| **Python** | 3.11+ | Backend development |
 | **OpenAI-compatible API key** | — | LLM provider access (OpenCode, OpenAI, etc.) |
-| **Make** | — | Using convenience commands (optional) |
+| **Make** | — | Convenience commands (optional) |
 
-### Quick Start (Docker — Recommended)
+### Quick Start (Local Development)
 
 ```bash
-# 1. Clone the repository
+# 1. Clone and enter the project
 git clone <repo-url> && cd testai
 
-# 2. Create environment files from templates
+# 2. Create environment files
 cp .env.example .env
 cp backend/.env.example backend/.env
 
-# 3. Edit .env with your API key
-#    OPENAI_API_KEY=sk-your-api-key-here
+# 3. Install frontend dependencies
+npm install
 
-# 4. Start all services (first run will build images)
-make up
-#    Or manually: docker compose up -d
+# 4. Install backend dependencies
+cd backend
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # macOS/Linux
+pip install -r requirements.txt
+cd ..
 
-# 5. Verify everything is healthy
-make health
-#    Or manually check:
-#    - Backend:  http://localhost:8001/health
-#    - Frontend: http://localhost:3001
-#    - API Docs: http://localhost:8001/openapi.json
-#    - DB:       docker compose exec db pg_isready -U postgres
+# 5. Start the database (only Docker dependency)
+docker compose up -d db
+
+# 6. Start backend and frontend in separate terminals
+npm run dev:backend             # http://localhost:8000
+npm run dev                     # http://localhost:3000
 ```
 
-Open **http://localhost:3001** to access the TestAI dashboard.
+Or with Make (if installed):
 
-### What the Docker Compose Environment Provides
+```bash
+make dev-backend                # http://localhost:8000
+make dev-frontend               # http://localhost:3000
+```
+
+Open **http://localhost:3000** to access the TestAI dashboard. Configure your LLM provider at **Settings → Backend Providers** in the UI.
+
+### Docker (Full Stack)
+
+If you prefer everything in Docker:
+
+```bash
+make up          # postgres + backend + frontend in containers
+make health      # verify all services
+```
 
 | Service | Port | Description |
 |---|---|---|
 | **Postgres** | 5432 | Database for sessions, messages, kanban, artifacts, jobs |
 | **Backend (FastAPI)** | 8000 | Agent orchestration engine + REST API |
 | **Frontend (Next.js)** | 3000 | Dashboard UI |
-| **Nginx** (production only) | 80 | Reverse proxy routing `/api/` to backend, everything else to frontend |
-
-### Local Development Setup
-
-For active development on frontend or backend independently:
-
-```bash
-# ── Frontend (port 3000) ──
-npm install
-npm run dev
-
-# ── Backend (port 8000) ──
-cd backend
-python -m venv .venv
-
-# Windows:
-.venv\Scripts\activate
-# macOS/Linux:
-# source .venv/bin/activate
-
-pip install -r requirements.txt
-# Copy env and set your API key in the UI at Settings → Backend Providers
-cp .env.example .env
-uvicorn api.main:app --reload --port 8000
-
-# ── Database ──
-# Either run Postgres locally or via Docker:
-docker compose up -d db
-```
+| **Nginx** (production only) | 80 | Reverse proxy (use `docker compose --profile production up`) |
 
 ## Project Structure
 
@@ -849,36 +838,37 @@ JSON configuration file for Model Context Protocol servers. Each entry specifies
 
 ### Available Commands
 
-#### Makefile Targets
+#### Local Development (npm)
+
+| Script | Description |
+|---|---|
+| `npm run dev` | Start frontend on http://localhost:3000 |
+| `npm run dev:backend` | Start backend on http://localhost:8000 (hot-reload) |
+| `npm run dev:db` | Start PostgreSQL in Docker |
+| `npm run dev:all` | Start database + backend |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm run test:ts` | TypeScript type check |
+| `npm run test` | Vitest |
+| `npm run generate:api` | Generate TypeScript types from OpenAPI spec |
+
+#### Docker
 
 | Command | Description |
 |---|---|
-| `make up` | Start all services via Docker Compose |
-| `make down` | Stop all services |
+| `make up` / `docker compose up -d` | Start all services in Docker |
+| `make down` / `docker compose down` | Stop all Docker services |
 | `make build` | Build all Docker images |
-| `make backend` | Hot-reload Python changes (copy files + restart container) |
+| `make backend` | Hot-reload Python changes (copy + restart) |
 | `make frontend` | Rebuild and restart frontend container |
 | `make logs` | Tail logs from all services |
-| `make health` | Check health of all services (backend, frontend, database, API docs) |
+| `make health` | Check health of all services |
 | `make test` | Run full Python integration test suite |
 | `make test-quick` | Run quick health/endpoint test subset |
 | `make db-shell` | Open interactive psql shell |
-| `make db-reset` | Reset database (drop all data, recreate on next backend start) |
-| `make clean` | Remove all stopped containers and unused Docker images |
-| `make setup` | First-time setup — copy .env.example files if they do not exist |
-
-#### NPM Scripts
-
-| Script | Command | Description |
-|---|---|---|
-| `npm run dev` | `next dev -p 3000` | Start Next.js dev server on port 3000 |
-| `npm run build` | `next build` | Production build |
-| `npm run start` | `cross-env NODE_ENV=production node .next/standalone/server.js` | Production server start |
-| `npm run lint` | `eslint .` | Run ESLint across all frontend files |
-| `npm run generate:api` | `openapi-typescript http://localhost:8001/openapi.json -o src/lib/api/schema.d.ts` | Generate TypeScript types from OpenAPI spec |
-| `npm run test:ts` | `tsc --noEmit` | TypeScript type checking |
-| `npm run test` | `vitest run` | Run Vitest unit tests |
-| `npm run test:watch` | `vitest` | Run Vitest in watch mode |
+| `make db-reset` | Reset database |
+| `make clean` | Remove all stopped containers and unused images |
+| `make setup` | First-time setup — copy .env.example files |
 
 ### Workflow: Adding a New Route
 
