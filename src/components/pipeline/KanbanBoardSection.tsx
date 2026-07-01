@@ -19,7 +19,7 @@ const COL_COLORS: Record<string, string> = {
   review: "text-amber-400", done: "text-zinc-500", blocked: "text-red-400",
 };
 
-export default function KanbanBoardSection({ boardId, sessionId }: { boardId: string | null; sessionId: string | null }) {
+export function KanbanBoardSection({ boardId, sessionId }: { boardId: string | null; sessionId: string | null }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

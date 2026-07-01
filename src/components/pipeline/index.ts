@@ -45,7 +45,7 @@ export { ApprovalPanel } from "./ApprovalPanel";
 export { SubAgentPanel } from "./SubAgentPanel";
 export { HealHistoryPanel } from "./HealHistoryPanel";
 export { SkillsPanel } from "./SkillsPanel";
-export { default as KanbanBoardSection } from "./KanbanBoardSection";
+export { KanbanBoardSection } from "./KanbanBoardSection";
 export { RunArtifactBrowser } from "./RunArtifactBrowser";
 export { RunHeader } from "./RunHeader";
 export { ReleaseTracking } from "./ReleaseTracking";

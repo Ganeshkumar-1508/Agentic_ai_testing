@@ -8,7 +8,7 @@ import {
   Play, Square, History, Settings2, Code2, Activity, FileText,
   CheckCircle2, XCircle, Zap, Shield, BarChart3, Bug, Globe, Layers,
 } from "lucide-react";
-import KanbanBoardSection from "@/components/pipeline/KanbanBoardSection";
+import { KanbanBoardSection } from "@/components/pipeline/KanbanBoardSection";
 import { SkillsPanel } from "@/components/pipeline/SkillsPanel";
 import { EventStream } from "@/components/pipeline/EventStream";
 import { usePipelineStore } from "@/stores/pipeline-store";

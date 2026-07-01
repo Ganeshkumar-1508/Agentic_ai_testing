@@ -17,6 +17,7 @@ interface DashboardData {
   recent_failures?: Array<{ name: string; count: number }>;
   quality_score?: number;
   quality_components?: Record<string, { label: string; raw: number; weighted: number; weight: number }>;
+  timestamp?: string;
   [key: string]: unknown;
 }
 

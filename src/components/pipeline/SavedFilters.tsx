@@ -11,11 +11,13 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api/api-client";
 
-const ICON_MAP: Record<string, typeof Filter> = {
+const ICON_MAP = {
   Filter, AlertCircle, Clock, TrendingUp, Bug, DollarSign, Beaker, Star,
-};
+} as const;
 
-const PRESET_FILTERS = [
+type IconName = keyof typeof ICON_MAP;
+
+const PRESET_FILTERS: { name: string; icon: IconName; filterData: Record<string, unknown>; description: string }[] = [
   { name: "Failed Runs", icon: "AlertCircle", filterData: { status: "failed" }, description: "All failed runs" },
   { name: "Last 7 Days", icon: "Clock", filterData: { since: "7d" }, description: "Runs from the past week" },
   { name: "Expensive", icon: "DollarSign", filterData: { minCost: 2.0 }, description: "Runs over $2.00" },
@@ -27,7 +29,7 @@ interface SavedFilter {
   id: string;
   name: string;
   description?: string;
-  icon: string;
+  icon: IconName;
   filterData: Record<string, unknown>;
 }
 
@@ -49,7 +51,7 @@ export function SavedFilters({ onApplyFilter, activeFilter }: SavedFiltersProps)
   });
 
   const saveMut = useMutation({
-    mutationFn: async (body: { name: string; description: string; filter_data: Record<string, unknown>; icon: string }) => {
+    mutationFn: async (body: { name: string; description: string; filter_data: Record<string, unknown>; icon: IconName }) => {
       await api.post(`/api/settings/saved-filters`, body);
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["saved-filters"] }); toast.success("Filter saved"); },

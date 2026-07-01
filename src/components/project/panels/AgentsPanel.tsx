@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { type ElementType } from "react";
 import { Bot, Cpu, Shield, Search, PenTool, Settings2 } from "lucide-react";
 import { api } from "@/lib/api/api-client";
 
-const API = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8001" : "http://localhost:8001";
 
-const MODE_ICONS: Record<string, any> = {
+const MODE_ICONS: Record<string, ElementType> = {
   auto: Cpu,
   ask: Search,
   architect: PenTool,

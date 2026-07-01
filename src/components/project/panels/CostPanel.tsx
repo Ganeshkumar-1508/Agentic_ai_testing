@@ -5,7 +5,6 @@ import { DollarSign, Coins, Cpu, TrendingUp, Wallet } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { api } from "@/lib/api/api-client";
 
-const API = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8001" : "http://localhost:8001";
 
 export function CostPanel() {
   const { data, isLoading } = useQuery({

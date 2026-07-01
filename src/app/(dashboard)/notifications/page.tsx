@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { api } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
+import { type ElementType } from "react";
 import {
   Bell, CheckCheck, Mail, Slack, Globe,
   Loader2, Clock, CheckCircle2, XCircle, AlertTriangle,
@@ -23,7 +24,7 @@ interface Notification {
   delivered_at: string;
 }
 
-const CHANNEL_ICONS: Record<string, any> = { email: Mail, slack: Slack, webhook: Globe };
+const CHANNEL_ICONS: Record<string, ElementType> = { email: Mail, slack: Slack, webhook: Globe };
 
 function formatTime(iso: string): string {
   if (!iso) return "—";

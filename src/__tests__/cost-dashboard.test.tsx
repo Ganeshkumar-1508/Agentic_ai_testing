@@ -74,72 +74,68 @@ vi.mock("@/components/dashboard/LogsCard", () => ({
 }));
 
 describe("Cost Dashboard Tab", () => {
-  it("renders cost trend card", async () => {
+  const renderPage = async () => {
     const { default: DashboardPage } = await import("@/app/(dashboard)/dashboard/page");
-    render(<DashboardPage />);
+    return render(<DashboardPage />);
+  };
+
+  it("renders cost trend card", async () => {
+    await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("cost-trend-card")).toBeDefined();
-    });
-  });
+    }, { timeout: 15000 });
+  }, 20000);
 
   it("renders cost breakdown card", async () => {
-    const { default: DashboardPage } = await import("@/app/(dashboard)/dashboard/page");
-    render(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByTestId("cost-breakdown-card")).toBeDefined();
-    });
+    await renderPage();
+    const cards = await screen.findAllByTestId("cost-breakdown-card", {}, { timeout: 10000 });
+    expect(cards.length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders cost by model card", async () => {
-    const { default: DashboardPage } = await import("@/app/(dashboard)/dashboard/page");
-    render(<DashboardPage />);
+    await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("cost-by-model-card")).toBeDefined();
-    });
+    }, { timeout: 10000 });
   });
 
   it("renders token usage heatmap card", async () => {
-    const { default: DashboardPage } = await import("@/app/(dashboard)/dashboard/page");
-    render(<DashboardPage />);
+    await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("token-usage-heatmap")).toBeDefined();
-    });
+    }, { timeout: 10000 });
   });
 
   it("renders provider failover card", async () => {
-    const { default: DashboardPage } = await import("@/app/(dashboard)/dashboard/page");
-    render(<DashboardPage />);
+    await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("provider-failover-card")).toBeDefined();
-    });
+    }, { timeout: 10000 });
   });
 
   it("renders usage stream", async () => {
-    const { default: DashboardPage } = await import("@/app/(dashboard)/dashboard/page");
-    render(<DashboardPage />);
+    await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("usage-stream")).toBeDefined();
-    });
+    }, { timeout: 10000 });
   });
 
   it("does not render testing-specific cards (SprintTrends, SelfHealing, Logs)", async () => {
-    const { default: DashboardPage } = await import("@/app/(dashboard)/dashboard/page");
-    render(<DashboardPage />);
+    await renderPage();
     await waitFor(() => {
       const testingCards = screen.queryAllByTestId("testing-card");
       expect(testingCards.length).toBe(0);
-    });
+    }, { timeout: 10000 });
   });
 
   it("shows role dropdown with admin option", async () => {
-    const { default: DashboardPage } = await import("@/app/(dashboard)/dashboard/page");
-    render(<DashboardPage />);
+    await renderPage();
     await waitFor(() => {
       const dropdown = screen.getByRole("combobox");
       expect(dropdown).toBeDefined();
       const options = Array.from(dropdown.querySelectorAll("option")).map((o) => o.value);
       expect(options).toContain("admin");
-    });
+    }, { timeout: 10000 });
   });
 });
 

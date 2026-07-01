@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
+import { type ElementType } from "react";
 import { Search, Loader2, CheckCircle2, XCircle, LayoutDashboard, MessageSquare, Clock, Timer, Activity, FileText, Beaker, AlertTriangle, History, GitCompare, GitBranch, Container, Cpu, Server, Settings, SlidersHorizontal, Wrench, BookOpen, Radio, Briefcase } from "lucide-react";
 import { usePipelineStore } from "@/stores/pipeline-store";
 import { cn } from "@/lib/utils";
 
-const BREADCRUMB_LABELS: Record<string, { icon: any; label: string }> = {
+const BREADCRUMB_LABELS: Record<string, { icon: ElementType; label: string }> = {
   "/dashboard": { icon: LayoutDashboard, label: "Dashboard" },
   "/chat": { icon: MessageSquare, label: "Chat" },
   "/sessions": { icon: Clock, label: "Sessions" },

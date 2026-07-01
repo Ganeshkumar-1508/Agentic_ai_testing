@@ -5,7 +5,6 @@ import { TrendingDown, AlertTriangle, CheckCircle2, Activity } from "lucide-reac
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
 import { api } from "@/lib/api/api-client";
 
-const API = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8001" : "http://localhost:8001";
 
 export function RegressionPanel() {
   const { data, isLoading } = useQuery({

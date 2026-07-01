@@ -23,7 +23,7 @@ interface AgentBreakdown {
 }
 
 function StatCard({ title, value, subtitle, icon: Icon, color, trend, loading }: {
-  title: string; value: string; subtitle?: string; icon: any; color: string;
+  title: string; value: string; subtitle?: string; icon: React.ElementType; color: string;
   trend?: { dir: "up" | "down"; label: string }; loading?: boolean;
 }) {
   return (
