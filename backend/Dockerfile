@@ -8,12 +8,16 @@ RUN apt-get update && apt-get install -y \
     curl \
     libpq-dev \
     docker.io \
+    libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
+    libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 \
+    libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2 \
     && rm -rf /var/lib/apt/lists/* \
     && docker pull alpine:3.19 2>/dev/null || true \
     && (curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh) || true
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=300 --retries=5 -r requirements.txt \
+    && playwright install chromium
 
 COPY . .
 

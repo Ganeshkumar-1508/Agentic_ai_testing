@@ -169,7 +169,7 @@ async def post_message_endpoint(
     thread = await get_thread(thread_id, db=db)
     if thread is None:
         raise HTTPException(status_code=404, detail="thread not found")
-    if thread.archived:
+    if thread.is_archived:
         raise HTTPException(status_code=410, detail="thread is archived")
     agent = request.app.state.agent
     max_run = body.max_run_seconds or DEFAULT_MAX_RUN_SECONDS
