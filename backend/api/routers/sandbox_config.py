@@ -21,7 +21,7 @@ from harness.sandbox_scope import SANDBOX_SIZES, apply_size_preset
 router = APIRouter(prefix="/api/settings/sandbox", tags=["sandbox"])
 
 BACKEND_TYPES = ("local", "docker", "ssh")
-NETWORK_MODES = ("bridge", "none", "host")
+NETWORK_MODES = ("bridge", "none", "host", "testai-network")
 
 DEFAULTS = {
     "size": "auto",

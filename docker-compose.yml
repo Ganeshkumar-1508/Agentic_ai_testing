@@ -32,6 +32,11 @@ services:
       - DATABASE_URL=postgresql://testai:testai@postgres:5432/testai
       - TESTAI_HOME=/app/.testai
       - AGENT_WORKSPACE_MOUNT=/app/agent_workspace
+      - ALLOW_PRIVATE_URLS=true
+      - TESTAI_ALLOW_PRIVATE_URLS=true
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-deepseek-v4-flash}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - ./.testai:/app/.testai:rw
@@ -44,7 +49,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -63,6 +68,8 @@ services:
       - BACKEND_URL=http://backend:8000
       - DEFAULT_MODEL=${DEFAULT_MODEL:-deepseek-v4-flash}
       - NEXT_PUBLIC_DEFAULT_MODEL=${DEFAULT_MODEL:-deepseek-v4-flash}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
     ports:
       - "3001:3000"
     depends_on:

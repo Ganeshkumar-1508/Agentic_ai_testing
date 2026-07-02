@@ -100,15 +100,16 @@ async def save_providers(request: Request, providers: list[ProviderSettingsReque
     db = get_db(request)
     for p in providers:
         provider_name = p.provider
-        # Store API key in the database config — no .env files for web apps
+        # Preserve existing API key if not provided in the request
+        existing = await settings_store.get_provider(provider_name)
+        existing_key = (existing or {}).get("api_key", "")
         config = {
             "base_url": p.base_url,
             "model": p.model,
             "enabled": p.enabled,
             "options": p.options,
+            "api_key": p.api_key or existing_key or "",
         }
-        if p.api_key:
-            config["api_key"] = p.api_key
         await settings_store.upsert_provider(provider_name, config)
         # Auto-create provider_definition for custom providers
         try:
@@ -127,8 +128,8 @@ async def save_providers(request: Request, providers: list[ProviderSettingsReque
             "model": p.model,
             "enabled": p.enabled,
             "options": p.options,
-            "api_key": p.api_key or "",
-            "has_key": bool(p.api_key),
+            "api_key": p.api_key or existing_key or "",
+            "has_key": bool(p.api_key or existing_key),
         }
     stored = await settings_store.get_all_providers()
     merged = {s["provider"]: s for s in stored}

@@ -303,7 +303,6 @@ async def delete_skill(request: Request, name: str):
 @router.post("/api/ci/run")
 async def ci_run(request: Request, req: CIRunRequest):
     from harness.ci.git_providers import get_provider_from_url, get_provider
-    from harness.tools.tech_stack import LANGUAGE_EXTENSIONS
 
     db = get_db(request)
     agent = get_agent(request)
@@ -343,15 +342,21 @@ async def ci_run(request: Request, req: CIRunRequest):
     if not diff:
         return {"status": "skipped", "message": "No diff to analyze", "repo": repo_path, "pr": req.pr_number}
 
+    _EXT_MAP = {
+        ".py": "python", ".js": "javascript", ".ts": "typescript", ".tsx": "typescript",
+        ".jsx": "javascript", ".go": "go", ".rs": "rust", ".rb": "ruby",
+        ".java": "java", ".kt": "kotlin", ".swift": "swift", ".cpp": "cpp",
+        ".c": "c", ".h": "c", ".cs": "csharp", ".php": "php",
+        ".vue": "vue", ".svelte": "svelte", ".css": "css", ".scss": "scss",
+    }
     diff_extensions = set(re.findall(r'\.(\w+)', diff))
-    detected_lang = ""
+    language = "python"
     for diff_ext in diff_extensions:
-        lang = LANGUAGE_EXTENSIONS.get("." + diff_ext)
+        lang = _EXT_MAP.get("." + diff_ext)
         if lang:
-            detected_lang = lang
+            language = lang
             break
 
-    language = detected_lang or "python"
     framework = "auto"
 
     if not agent:
