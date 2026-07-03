@@ -63,7 +63,7 @@ venv/
 env/
 backend/venv/
 backend/.venv/
-.pytest_cache/
+.pytest_cache/ package-lock.json  
 *.so
 
 # === Test & Coverage Output ===
