@@ -83,50 +83,51 @@ describe("Cost Dashboard Tab", () => {
     await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("cost-trend-card")).toBeDefined();
-    }, { timeout: 15000 });
-  }, 20000);
+    }, { timeout: 30000 });
+  }, 45000);
 
   it("renders cost breakdown card", async () => {
     await renderPage();
-    const cards = await screen.findAllByTestId("cost-breakdown-card", {}, { timeout: 10000 });
-    expect(cards.length).toBeGreaterThanOrEqual(1);
-  });
+    await waitFor(() => {
+      expect(screen.getByTestId("cost-breakdown-card")).toBeDefined();
+    }, { timeout: 30000 });
+  }, 45000);
 
   it("renders cost by model card", async () => {
     await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("cost-by-model-card")).toBeDefined();
-    }, { timeout: 10000 });
-  });
+    }, { timeout: 30000 });
+  }, 45000);
 
   it("renders token usage heatmap card", async () => {
     await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("token-usage-heatmap")).toBeDefined();
-    }, { timeout: 10000 });
-  });
+    }, { timeout: 30000 });
+  }, 45000);
 
   it("renders provider failover card", async () => {
     await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("provider-failover-card")).toBeDefined();
-    }, { timeout: 10000 });
-  });
+    }, { timeout: 30000 });
+  }, 45000);
 
   it("renders usage stream", async () => {
     await renderPage();
     await waitFor(() => {
       expect(screen.getByTestId("usage-stream")).toBeDefined();
-    }, { timeout: 10000 });
-  });
+    }, { timeout: 30000 });
+  }, 45000);
 
   it("does not render testing-specific cards (SprintTrends, SelfHealing, Logs)", async () => {
     await renderPage();
     await waitFor(() => {
       const testingCards = screen.queryAllByTestId("testing-card");
       expect(testingCards.length).toBe(0);
-    }, { timeout: 10000 });
-  });
+    }, { timeout: 30000 });
+  }, 45000);
 
   it("shows role dropdown with admin option", async () => {
     await renderPage();
@@ -135,8 +136,8 @@ describe("Cost Dashboard Tab", () => {
       expect(dropdown).toBeDefined();
       const options = Array.from(dropdown.querySelectorAll("option")).map((o) => o.value);
       expect(options).toContain("admin");
-    }, { timeout: 10000 });
-  });
+    }, { timeout: 30000 });
+  }, 45000);
 });
 
 

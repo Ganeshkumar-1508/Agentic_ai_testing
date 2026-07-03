@@ -61,6 +61,7 @@ services:
       dockerfile: Dockerfile.frontend
       args:
         BACKEND_URL: ${BACKEND_URL:-http://backend:8000}
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:8001}
     container_name: testai-frontend
     restart: unless-stopped
     environment:
