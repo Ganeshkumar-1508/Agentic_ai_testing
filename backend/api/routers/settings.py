@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from ..deps import get_db, get_llm, get_agent, get_mcp_client
 from harness.db_helpers import build_patch_query
+from harness.env_loader import get_provider_env_key
 from harness.mcp.config_manager import load_config, save_config, sync_to_db, serialize_server, deserialize_server as _file_deserialize
 from harness.services.settings_service import SettingsService
 

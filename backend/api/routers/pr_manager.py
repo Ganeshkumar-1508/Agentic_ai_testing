@@ -96,7 +96,7 @@ async def sync_prs(request: Request):
             pr_data.get("base_sha", ""), pr_data.get("source_branch", ""),
             pr_data.get("target_branch", ""), pr_data.get("user", ""),
             pr_data.get("changed_files", 0), pr_data.get("additions", 0),
-            pr_data.get("deletions", 0), pr_data.get("labels", []),
+            pr_data.get("deletions", 0), json.dumps(pr_data.get("labels", [])),
             pr_data.get("reviewers", []), pr_data.get("milestone", ""),
             risk,
         )

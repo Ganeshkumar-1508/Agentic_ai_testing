@@ -360,6 +360,26 @@ async def lifespan(app: FastAPI):
                 logger.debug("Discovery loop error: %s", exc)
             await asyncio.sleep(900)  # 15 minutes
 
+    async def _reaper_loop():
+        """Periodically sweep orphan sessions and reap dead containers."""
+        while True:
+            try:
+                from harness.tools.subagent import sweep_orphan_sessions
+                n_sessions = await sweep_orphan_sessions(max_age_seconds=3600)
+                if n_sessions:
+                    logger.info("Reaper: swept %d orphan session(s)", n_sessions)
+            except Exception as exc:
+                logger.debug("Reaper session sweep failed: %s", exc)
+            try:
+                from harness.backends.docker import reap_orphan_containers
+                loop = asyncio.get_running_loop()
+                n_containers = await loop.run_in_executor(None, reap_orphan_containers)
+                if n_containers:
+                    logger.info("Reaper: reaped %d orphan container(s)", n_containers)
+            except Exception as exc:
+                logger.debug("Reaper container reap failed: %s", exc)
+            await asyncio.sleep(600)  # 10 minutes
+
     # Resume abandoned orchestrations on startup
     from harness.orchestrator import OrchestratorEngine
     try:
@@ -376,6 +396,7 @@ async def lifespan(app: FastAPI):
         ("digest", _digest_loop, 3600),
         ("curator", _curator_loop, 3600),
         ("discovery", _discovery_loop, 900),
+        ("reaper", _reaper_loop, 600),
     ]:
         mt = ManagedTask(name, coro, interval=interval)
         await mt.start()

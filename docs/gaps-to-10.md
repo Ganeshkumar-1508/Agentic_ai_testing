@@ -26,7 +26,7 @@
 | Phase | Gaps | Fixed | Partial | Missing | Readiness | Notes |
 |---|---|---|---|---|---|---|
 | Phase 1 (Reliability) | 7 | 7 | 0 | 0 | **~100%** | Complete |
-| Phase 2 (Isolation) | 7 | 6 | 1 | 0 | **~95%** | G34 zombie cleanup is dead code only |
+| Phase 2 (Isolation) | 7 | 7 | 0 | 0 | **~100%** | Complete |
 | Phase 3 (Observability) | 12 | 8 | 2 | 2 | **~70%** | G24, G48 still missing; G36, G37, G39, G46 were wrongly reported missing |
 | Phase 4 (Intelligence) | 10 | 7 | 3 | 0 | **~80%** | G26, G31, G40 partial; G35, G41, G45 were wrongly reported missing |
 | Phase 5 (User Facing) | 6 | 4 | 2 | 0 | **~75%** | G43, G47 wrongly reported missing; G9, G44 partial |
@@ -59,7 +59,7 @@
 - ~~G36: No codegraph tool tests~~ — VERIFIED INCORRECT. `test_codegraph_tools.py` (287 lines) tests all 4 tools.
 
 ### G4: Sandbox / Execution (8/10 → 10/10) — 95% COMPLETE
-- **G34:** Zombie session cleanup — CONFIRMED. `sweep_orphan_sessions()` and `reap_orphan_containers()` exist as dead code but are never wired into startup/scheduler loops.
+- **G34:** Zombie session cleanup — **FIXED**. `sweep_orphan_sessions()` and `reap_orphan_containers()` wired into a `ManagedTask("reaper")` in `api/main.py` lifespan, runs every 10 minutes. DB-level session sweep (max_age 1h) + Docker container reap (max_age 10min).
 - Docker Desktop instability — platform-level issue, not a code gap.
 
 ### G5: Observability Gaps — 70% COMPLETE
@@ -95,7 +95,7 @@
 | Priority | Gap | Phase | Effort | Impact |
 |---|---|---|---|---|
 | **P0** | G2: HTTP Auth | Security | 2-3d | Unblocks production deployment |
-| **P1** | G34: Zombie cleanup wiring | Isolation | 1d | Prevents resource leaks |
+| ~~P1~~ | ~~G34: Zombie cleanup wiring~~ | Isolation | 1d | **DONE** — ManagedTask in lifespan |
 | **P1** | G24: Orchestrator integration tests | Test Coverage | 3-5d | Validates full agent lifecycle |
 | **P2** | G48: CI/CD e2e test | Test Coverage | 2-3d | Catches regressions |
 | **P2** | G32: Per-tool cost tracking | Observability | 2d | Cost visibility per tool |
