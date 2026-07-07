@@ -191,20 +191,17 @@ async def import_skills(request: Request, body: dict):
 
 @router.get("/skills/categories")
 async def list_skill_categories(request: Request):
-    db = db_context.get_db()
-    if not db:
-        return {"categories": []}
+    db = get_db(request)
     rows = await db.fetch("SELECT DISTINCT category FROM skills ORDER BY category")
-    return {"categories": [r["category"] for r in rows]}
+    return {"categories": [r["category"] for r in rows] if rows else []}
 
 
 @router.patch("/skills/{name}/category")
 async def update_skill_category(request: Request, name: str, body: dict):
-    db = db_context.get_db()
+    db = get_db(request)
     category = body.get("category", "uncategorized")
-    if db:
-        await db.execute("INSERT INTO skills (name, content, category) VALUES ($1, '', $2) "
-                         "ON CONFLICT (name) DO UPDATE SET category = $2", name, category)
+    await db.execute("INSERT INTO skills (name, content, category) VALUES ($1, '', $2) "
+                     "ON CONFLICT (name) DO UPDATE SET category = $2", name, category)
     return {"status": "ok"}
 
 

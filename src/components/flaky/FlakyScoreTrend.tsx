@@ -11,7 +11,7 @@ function Skeleton() {
       <div className="w-28 h-4 rounded shimmer-bg" />
       <div className="flex gap-[3px] items-end h-[60px]">
         {Array.from({ length: 30 }).map((_, i) => (
-          <div key={i} className="flex-1 rounded-sm shimmer-bg" style={{ height: `${20 + Math.random() * 50}%` }} />
+          <div key={i} className="flex-1 rounded-sm shimmer-bg" style={{ height: `${20 + ((i * 17 + 7) % 50)}%` }} />
         ))}
       </div>
     </div>

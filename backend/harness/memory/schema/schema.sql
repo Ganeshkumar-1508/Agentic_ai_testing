@@ -147,9 +147,11 @@ CREATE TABLE IF NOT EXISTS mcp_configs (
 
 CREATE TABLE IF NOT EXISTS api_keys (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
-    name TEXT NOT NULL,
-    key_value TEXT NOT NULL UNIQUE,
+    label TEXT NOT NULL,
+    prefix TEXT NOT NULL,
+    key_hash TEXT NOT NULL UNIQUE,
     enabled BOOLEAN NOT NULL DEFAULT true,
+    last_used_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

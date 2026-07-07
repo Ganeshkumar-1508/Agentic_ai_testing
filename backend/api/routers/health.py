@@ -27,6 +27,37 @@ async def get_modes():
     }
 
 
+@router.get("/provider/status")
+async def provider_status(request: Request):
+    """Return active LLM provider status for all components to check."""
+    try:
+        from harness.api.state import get_llm
+        llm = get_llm()
+    except Exception:
+        llm = None
+
+    settings_store = request.app.state.settings_store
+    stored = await settings_store.get_all_providers()
+
+    active_provider = None
+    if llm:
+        status = llm.get_status()
+        for s in status:
+            if s.get("has_key") and s.get("model"):
+                active_provider = s
+                break
+
+    return {
+        "configured": active_provider is not None,
+        "active_provider": active_provider,
+        "total_providers": len(stored),
+        "providers": [
+            {"provider": p.get("provider", ""), "has_key": bool(p.get("api_key")), "model": p.get("model", ""), "enabled": p.get("enabled", True)}
+            for p in stored
+        ],
+    }
+
+
 system_router = APIRouter(prefix="/api/system", tags=["system"])
 
 

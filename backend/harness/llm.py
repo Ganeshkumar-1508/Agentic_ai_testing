@@ -183,10 +183,17 @@ class LLMRouter:
         try:
             await db.execute(
                 "INSERT INTO token_usage (session_id, model, input_tokens, output_tokens, estimated_cost_usd, timestamp) VALUES ($1,$2,$3,$4,$5,NOW())",
-                "", model, inp, out, round(cost, 6),
+                "system", model, inp, out, round(cost, 6),
             )
         except Exception:
-            pass
+            # Fallback: if session_id FK fails, try without it
+            try:
+                await db.execute(
+                    "INSERT INTO token_usage (model, input_tokens, output_tokens, estimated_cost_usd, timestamp) VALUES ($1,$2,$3,$4,NOW())",
+                    model, inp, out, round(cost, 6),
+                )
+            except Exception:
+                pass
 
     def set_db(self, db: Any) -> None:
         self._db_provider = db
@@ -308,26 +315,58 @@ class LLMRouter:
         self._profiles_by_model.clear()
         self._roles.clear()
 
+        # Import provider registry to look up registered profiles
+        from harness.providers import get_provider_profile
+
         for s in settings:
             if not s.get("enabled", True):
                 continue
             model = s.get("model", "") or _DEFAULT_MODEL
             api_mode = s.get("api_mode", "openai")
+            provider_name = s.get("provider", "")
 
             # Resolve API key from config dict (stored in DB)
             api_key = s.get("api_key") or s.get("apiKey") or ""
 
-            profile = ProviderProfile(
-                name=s.get("provider", ""),
-                model=model,
-                api_key=api_key,
-                base_url=s.get("base_url") or s.get("baseUrl") or "",
-                api_mode=api_mode,
-                options=s.get("options", {}) or {},
-            )
-            self._profiles[profile.name] = profile
+            # Look up registered provider profile by name or alias
+            registered = get_provider_profile(provider_name)
+            if registered:
+                # Use registered profile as base, override with user config
+                profile = ProviderProfile(
+                    name=registered.name,
+                    api_mode=registered.api_mode or api_mode,
+                    aliases=registered.aliases,
+                    display_name=registered.display_name,
+                    description=registered.description,
+                    signup_url=registered.signup_url,
+                    env_vars=registered.env_vars,
+                    base_url=s.get("base_url") or s.get("baseUrl") or registered.base_url,
+                    models_url=registered.models_url,
+                    auth_type=registered.auth_type,
+                    supports_health_check=registered.supports_health_check,
+                    fallback_models=registered.fallback_models,
+                    hostname=registered.hostname,
+                    default_headers=registered.default_headers,
+                    fixed_temperature=registered.fixed_temperature,
+                    default_max_tokens=registered.default_max_tokens,
+                    default_aux_model=registered.default_aux_model,
+                    api_key=api_key,
+                    model=model,
+                    options=s.get("options", {}) or {},
+                )
+            else:
+                # No registered profile — create a generic one
+                profile = ProviderProfile(
+                    name=provider_name,
+                    model=model,
+                    api_key=api_key,
+                    base_url=s.get("base_url") or s.get("baseUrl") or "",
+                    api_mode=api_mode,
+                    options=s.get("options", {}) or {},
+                )
+            self._profiles[provider_name] = profile
             self._profiles_by_model[model] = profile
-            self._roles[profile.name] = s.get("role", "default") or "default"
+            self._roles[provider_name] = s.get("role", "default") or "default"
 
     def get_status(self) -> list[dict[str, Any]]:
         return [

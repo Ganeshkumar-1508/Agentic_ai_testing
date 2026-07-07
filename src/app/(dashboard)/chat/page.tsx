@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api, BACKEND_URL } from "@/lib/api/api-client";
+import { useProviderStore } from "@/stores/provider-store";
 import { TopBar } from "@/components/chat/TopBar";
 import { SessionSidebar, type SessionItem, type SessionStatus } from "@/components/chat/SessionSidebar";
 import { EmptyState, type Suggestion } from "@/components/chat/EmptyState";
@@ -56,6 +57,10 @@ function AgentPageFallback() {
 function AgentPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isConfigured, loadProviders } = useProviderStore();
+
+  // Load provider config on mount
+  useEffect(() => { loadProviders(); }, [loadProviders]);
 
   // ── Core state ──────────────────────────────────────────────
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
@@ -369,6 +374,10 @@ function AgentPageInner() {
   // ── Submit (POST /api/jobs) ─────────────────────────────────
   const handleSubmit = useCallback(async () => {
     if (input.trim().length === 0 || isStreaming) return;
+    if (!isConfigured()) {
+      toast.error("No LLM provider configured. Go to Settings → LLM Providers to add one.");
+      return;
+    }
     const text = input;
     const userMsg: ChatMessageData = {
       id: `u-${Date.now()}`,
@@ -557,6 +566,14 @@ function AgentPageInner() {
       )}
 
       <main className="chat-main">
+        {!isConfigured() && (
+          <div className="mx-4 mt-4 px-4 py-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs flex items-center gap-3">
+            <span className="font-medium">No LLM provider configured.</span>
+            <button onClick={() => router.push("/settings")} className="underline hover:text-amber-200 transition-colors">
+              Go to Settings → LLM Providers to add one.
+            </button>
+          </div>
+        )}
         {messages.length === 0 ? (
           <EmptyState
             onSuggestion={(s) => {

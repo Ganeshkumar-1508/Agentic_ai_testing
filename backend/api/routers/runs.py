@@ -818,6 +818,27 @@ async def get_coverage_history(request: Request, limit: int = 20):
     ]}
 
 
+@router.get("/runs/{run_id}/checkpoints")
+async def get_run_checkpoints(request: Request, run_id: str):
+    """Return checkpoint timeline for a run."""
+    db = get_db(request)
+    rows = await db.fetch(
+        "SELECT checkpoint_type, turn_count, created_at FROM checkpoints "
+        "WHERE session_id = $1 ORDER BY created_at DESC LIMIT 50",
+        run_id,
+    )
+    return {
+        "checkpoints": [
+            {
+                "phase": r["checkpoint_type"],
+                "eventCursor": r["turn_count"] or 0,
+                "createdAt": r["created_at"].isoformat() if r["created_at"] else "",
+            }
+            for r in rows
+        ]
+    }
+
+
 @router.post("/runs/{run_id}/resume")
 async def resume_run(request: Request, run_id: str):
     """Resume a run from its last known state."""

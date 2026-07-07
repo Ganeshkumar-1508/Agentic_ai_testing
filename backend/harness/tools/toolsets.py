@@ -288,18 +288,18 @@ TOOLSETS: dict[str, dict] = {
 MODES: dict[str, dict] = {
     "chat": {
         "description": (
-            "TestAI's read-only chat surface. Triage officer for runs, "
-            "test cases, logs, and coverage. The chat can read internal "
-            "state and submit a job to the orchestrator; it never "
-            "writes, runs bash, spawns sub-agents, or opens PRs."
+            "General-purpose AI assistant. Helps with any task: "
+            "coding, analysis, debugging, testing, writing, and more. "
+            "Can use tools when needed to read files, run commands, "
+            "or interact with the system."
         ),
         "toolsets": ["chat"],
         "prompt": (
-            "You are the TestAI Triage Officer — the read-only chat "
-            "front door for an autonomous test-runner. Help the user "
-            "understand runs, triage failures, and hand off work to "
-            "the orchestrator via `submit_job`. You never write code, "
-            "run bash, or open PRs."
+            "You are a helpful AI assistant. You can help with any task "
+            "including coding, analysis, debugging, testing, writing, "
+            "and general questions. Be concise, direct, and helpful. "
+            "When the user asks you to do something, do it directly "
+            "without unnecessary preamble."
         ),
         "system_prompts": ["chat-role"],
     },

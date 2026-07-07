@@ -215,8 +215,12 @@ async def trigger_curator(request: Request):
 
 @router.get("/skills/usage")
 async def get_skill_usage(request: Request):
-    from harness.curator import _load_usage
-    return {"usage": _load_usage()}
+    try:
+        from harness.curator import _load_usage
+        data = await asyncio.get_event_loop().run_in_executor(None, _load_usage)
+        return {"usage": data}
+    except Exception as e:
+        return {"usage": {}, "error": str(e)}
 
 
 @router.get("/governance/config")

@@ -105,7 +105,7 @@ export default function NewAgentPage() {
         setAvailableModels(data.filter((p: any) => p.enabled !== false).map((p: any) => p.model || p.provider || "").filter(Boolean));
       }
     }).catch(() => {});
-    api.get<{ skills?: { name: string }[] }>("/api/admin/skills").then((data) => {
+    api.get<{ skills?: { name: string }[] }>("/api/skills").then((data) => {
       if (data?.skills) setAvailableSkills(data.skills.map((s: any) => s.name).filter(Boolean));
     }).catch(() => {});
   }, []);

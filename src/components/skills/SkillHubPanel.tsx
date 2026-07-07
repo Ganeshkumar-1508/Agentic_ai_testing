@@ -50,7 +50,7 @@ export function SkillHubPanel() {
     setLoading(true);
     try {
       const data = await api.get<{ skills: HubSkill[]; pagination: PaginationInfo; fallback?: boolean }>(
-        `/api/admin/skills/hub?limit=24&sort=${sort}${search ? `&search=${encodeURIComponent(search)}` : ""}`
+        `/api/skills/hub?limit=24&sort=${sort}${search ? `&search=${encodeURIComponent(search)}` : ""}`
       );
       setSkills(data.skills || []);
       if (data.pagination) setPagination(data.pagination);
@@ -68,7 +68,7 @@ export function SkillHubPanel() {
     if (!url) { toast.error("No install URL"); return; }
     setInstalling(skill.name);
     try {
-      await api.post("/api/admin/skills/import", { url, name: skill.name });
+      await api.post("/api/skills/import", { url, name: skill.name });
       toast.success(`Installed ${skill.name}`);
     } catch {
       toast.error("Failed to install");
