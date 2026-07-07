@@ -117,7 +117,7 @@ opencode_zen = ProviderProfile(
 
 opencode_go = OpenCodeGoProfile(
     name="opencode-go",
-    aliases=("opencode_go", "go", "opencode-go-sub"),
+    aliases=("opencode", "opencode_go", "go", "opencode-go-sub"),
     env_vars=("OPENCODE_GO_API_KEY",),
     base_url="https://opencode.ai/zen/go/v1",
     default_aux_model="glm-5",

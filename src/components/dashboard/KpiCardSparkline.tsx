@@ -36,7 +36,7 @@ export function KpiCardSparkline({ label, value, trend, sparklineData, icon, col
         <div className="w-16 h-8 rounded-lg shimmer-bg" />
         <div className="flex gap-1 items-end h-5 mt-2">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="flex-1 rounded-sm shimmer-bg" style={{ height: `${30 + Math.random() * 50}%` }} />
+            <div key={i} className="flex-1 rounded-sm shimmer-bg" style={{ height: `${30 + ((i * 13 + 5) % 50)}%` }} />
           ))}
         </div>
       </div>

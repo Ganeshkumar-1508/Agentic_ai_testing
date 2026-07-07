@@ -8,7 +8,7 @@ export function SkillsPanel() {
   const { data, isLoading } = useQuery({
     queryKey: ["skills"],
     queryFn: async () => {
-      const j = await api.get<{ skills?: { name: string; description?: string; version?: string }[] }>(`/api/admin/skills`);
+      const j = await api.get<{ skills?: { name: string; description?: string; version?: string }[] }>(`/api/skills`);
       return (j?.skills || []) as { name: string; description?: string; version?: string }[];
     },
   });

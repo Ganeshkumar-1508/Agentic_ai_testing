@@ -6,8 +6,13 @@ import json
 import logging
 import os
 import time
+import warnings
 from contextlib import asynccontextmanager
 from typing import Any, Callable
+
+# Suppress non-fatal warnings during startup
+warnings.filterwarnings("ignore", message=".*RequestsDependencyWarning.*")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="pydantic")
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -247,9 +252,11 @@ async def lifespan(app: FastAPI):
     from harness.cost_tracker import init_pricing_cache
     pricing = init_pricing_cache(db)
     try:
-        await asyncio.wait_for(pricing.refresh_if_stale(), timeout=10)
+        await asyncio.wait_for(pricing.refresh_if_stale(), timeout=15)
     except asyncio.TimeoutError:
-        logger.warning("Pricing cache refresh timed out (non-fatal)")
+        logger.info("Pricing cache refresh skipped (will retry in background)")
+    except Exception as exc:
+        logger.debug("Pricing cache refresh failed (non-fatal): %s", exc)
     app.state.pricing_cache = pricing
     t.checkpoint("pricing_cache")
 

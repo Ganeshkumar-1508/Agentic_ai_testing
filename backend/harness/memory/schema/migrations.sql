@@ -1070,3 +1070,23 @@ CREATE TABLE IF NOT EXISTS agent_versions (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_agent_versions_name ON agent_versions(agent_name, version DESC);
+
+-- System session for token_usage tracking (FK constraint requires a valid session_id)
+INSERT INTO sessions (id, status, source, created_at)
+VALUES ('system', 'completed', 'system', NOW())
+ON CONFLICT (id) DO NOTHING;
+
+-- Add category column to skills table (used by /api/skills/categories endpoint)
+ALTER TABLE skills ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'uncategorized';
+
+-- Fix api_keys table columns to match SettingsService expectations
+DROP TABLE IF EXISTS api_keys CASCADE;
+CREATE TABLE IF NOT EXISTS api_keys (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    label TEXT NOT NULL,
+    prefix TEXT NOT NULL,
+    key_hash TEXT NOT NULL UNIQUE,
+    enabled BOOLEAN NOT NULL DEFAULT true,
+    last_used_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);

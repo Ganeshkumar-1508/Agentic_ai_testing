@@ -109,7 +109,7 @@ const PANEL_MAP: Record<string, React.FC> = {
   },
   backend: () => (
     <div className="space-y-5">
-      <BackendProvidersSettings />
+      <BackendProvidersSettings key="backend-providers" />
       <PipelineModelAssignment />
     </div>
   ),

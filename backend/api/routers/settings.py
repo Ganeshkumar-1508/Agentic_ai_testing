@@ -184,7 +184,9 @@ async def delete_provider(request: Request, provider_name: str):
     _env_delete(get_provider_env_key(provider_name))
     llm = get_llm(request)
     if llm:
-        llm.configure([])
+        # Reload remaining providers instead of clearing all
+        remaining = await settings_store.get_all_providers()
+        llm.configure(remaining)
     return {"status": "ok"}
 
 

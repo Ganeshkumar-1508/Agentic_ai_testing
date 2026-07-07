@@ -45,7 +45,7 @@ export function WebhookConfig() {
     setIsLoading(true);
     try {
       const json = await api.get<{ webhooks?: WebhookEntry[] }>(`/api/settings/webhooks`);
-      setWebhooks(json?.webhooks ?? []);
+      setWebhooks((json?.webhooks ?? []).map((w: any) => ({ ...w, enabled: w.enabled ?? true })));
     } catch {
       // Fallback
     } finally {

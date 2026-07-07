@@ -2,9 +2,13 @@
 
 from typing import Any
 
-from agent.portal_tags import nous_portal_tags
 from harness.providers import register_provider
 from harness.providers.base import ProviderProfile
+
+try:
+    from agent.portal_tags import nous_portal_tags
+except ImportError:
+    nous_portal_tags = None
 
 
 class NousProfile(ProviderProfile):
@@ -13,6 +17,8 @@ class NousProfile(ProviderProfile):
     def build_extra_body(
         self, *, session_id: str | None = None, **context
     ) -> dict[str, Any]:
+        if nous_portal_tags is None:
+            return {}
         return {"tags": nous_portal_tags()}
 
     def build_api_kwargs_extras(

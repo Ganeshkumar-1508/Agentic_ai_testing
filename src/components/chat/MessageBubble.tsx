@@ -133,9 +133,9 @@ function renderContent(text: string, media?: ChatMessageData["media"]): ReactNod
       if (m.type === "image") {
         nodes.push(<img key={`media-${nodes.length}`} src={m.url} alt={m.alt || ""} className="rounded-xl max-w-full max-h-96 my-2 border border-zinc-800/30" loading="lazy" />);
       } else if (m.type === "video") {
-        nodes.push(<video key={`media-${nodes.length}`} src={m.url} controls className="rounded-xl max-w-full max-h-96 my-2 border border-zinc-800/30" />);
+        nodes.push(<video key={`media-${nodes.length}`} src={m.url} controls preload="none" className="rounded-xl max-w-full max-h-96 my-2 border border-zinc-800/30" />);
       } else if (m.type === "audio") {
-        nodes.push(<audio key={`media-${nodes.length}`} src={m.url} controls className="my-2 w-full" />);
+        nodes.push(<audio key={`media-${nodes.length}`} src={m.url} controls preload="none" className="my-2 w-full" />);
       }
     }
   }
@@ -155,7 +155,7 @@ function renderContent(text: string, media?: ChatMessageData["media"]): ReactNod
   match = VIDEO_RE.exec(text);
   while (match !== null) {
     if (match.index > lastIdx) nodes.push(<span key={`t-${lastIdx}`}>{text.slice(lastIdx, match.index)}</span>);
-    nodes.push(<video key={`vid-${nodes.length}`} src={match[0]} controls className="rounded-xl max-w-full max-h-96 my-2 border border-zinc-800/30" />);
+    nodes.push(<video key={`vid-${nodes.length}`} src={match[0]} controls preload="none" className="rounded-xl max-w-full max-h-96 my-2 border border-zinc-800/30" />);
     lastIdx = VIDEO_RE.lastIndex;
     match = VIDEO_RE.exec(text);
   }
@@ -165,7 +165,7 @@ function renderContent(text: string, media?: ChatMessageData["media"]): ReactNod
   match = AUDIO_RE.exec(text);
   while (match !== null) {
     if (match.index > lastIdx) nodes.push(<span key={`t-${lastIdx}`}>{text.slice(lastIdx, match.index)}</span>);
-    nodes.push(<audio key={`aud-${nodes.length}`} src={match[0]} controls className="my-2 w-full" />);
+    nodes.push(<audio key={`aud-${nodes.length}`} src={match[0]} controls preload="none" className="my-2 w-full" />);
     lastIdx = AUDIO_RE.lastIndex;
     match = AUDIO_RE.exec(text);
   }

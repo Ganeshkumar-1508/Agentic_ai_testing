@@ -137,7 +137,7 @@ async def list_audit_events(
 @router.get("/export")
 async def export_audit_events(
     request: Request,
-    fmt: str = Query("csv", regex="^(csv|json)$"),
+    fmt: str = Query("csv", pattern="^(csv|json)$"),
     event_type: str = Query(""),
     agent_id: str = Query(""),
     session_id: str = Query(""),
