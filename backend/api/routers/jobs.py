@@ -243,6 +243,13 @@ async def submit_job(req: Request, body: JobSpecRequest) -> SubmitJobResponse:
     ctx = dict(body.context or {})
     if "session_id" not in ctx or not ctx.get("session_id"):
         ctx["session_id"] = body.session_id or f"api-{spec_id[:8]}"
+    # Merge test_config (advanced pipeline config) from request body into context
+    test_config = getattr(body, "test_config", None)
+    if test_config is not None:
+        if isinstance(test_config, dict):
+            ctx["test_config"] = test_config
+        else:
+            ctx["test_config"] = test_config
     spec = JobSpec(
         spec_id=spec_id,
         run_id=str(uuid.uuid4()),  # placeholder; orchestrator overwrites
@@ -265,27 +272,29 @@ async def submit_job(req: Request, body: JobSpecRequest) -> SubmitJobResponse:
             status_code=503,
             detail="JobSpecStore not configured; backend not started cleanly",
         )
-    run_id = await submit_job_to_orchestrator(
-        spec,
-        job_spec_store=store,
-        orchestrator_engine_factory=factory,
-    )
-    if not run_id:
-        # Soft error — the spec was persisted but dispatch failed.
-        # The caller can poll the spec status to recover.
-        return SubmitJobResponse(
-            spec_id=spec.spec_id, run_id="", thread_id="", status="queued",
-        )
-    thread_id = ""
-    try:
-        from harness.chat.threads import get_thread_by_run_id
-        thread = await get_thread_by_run_id(run_id, db=req.app.state.db)
-        if thread is not None:
-            thread_id = thread.id
-    except Exception as exc:
-        logger.debug("submit_job: thread lookup failed run_id=%s: %s", run_id, exc)
+    # Dispatch the pipeline in the background so the API returns immediately.
+    # The caller polls GET /api/jobs/{spec_id} for status.
+    import asyncio
+    async def _dispatch():
+        try:
+            await submit_job_to_orchestrator(
+                spec,
+                job_spec_store=store,
+                orchestrator_engine_factory=factory,
+            )
+        except Exception as exc:
+            logger.error("Background dispatch failed for %s: %s", spec.spec_id, exc)
+            # Update status so job doesn't stay "pending" forever
+            try:
+                if store is not None:
+                    await store.update_status(
+                        spec.spec_id, "failed", error=str(exc)[:500],
+                    )
+            except Exception:
+                logger.error("Failed to update failed status for %s", spec.spec_id)
+    asyncio.create_task(_dispatch())
     return SubmitJobResponse(
-        spec_id=spec.spec_id, run_id=run_id, thread_id=thread_id, status="submitted",
+        spec_id=spec.spec_id, run_id=spec.run_id, thread_id="", status="submitted",
     )
 
 

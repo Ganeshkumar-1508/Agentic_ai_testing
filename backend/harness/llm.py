@@ -536,7 +536,7 @@ class LLMRouter:
             api_key=profile.api_key,
             base_url=profile.base_url,
             default_headers=headers if headers else None,
-            timeout=httpx.Timeout(connect=30.0, read=120.0, write=30.0, pool=30.0),
+            timeout=httpx.Timeout(connect=30.0, read=60.0, write=30.0, pool=30.0),
         )
         messages = profile.prepare_messages(messages)
         kwargs: dict[str, Any] = {
@@ -718,7 +718,7 @@ class LLMRouter:
             api_key=profile.api_key,
             base_url=profile.base_url,
             default_headers=headers if headers else None,
-            timeout=httpx.Timeout(connect=30.0, read=120.0, write=30.0, pool=30.0),
+            timeout=httpx.Timeout(connect=30.0, read=60.0, write=30.0, pool=30.0),
         )
         messages = profile.prepare_messages(messages)
         kwargs: dict[str, Any] = {

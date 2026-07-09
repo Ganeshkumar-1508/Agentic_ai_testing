@@ -8,8 +8,8 @@ Behaviour:
 
 1. If ``ctx.repo_url`` is empty, try to extract a GitHub URL from
    the goal + (optionally) the JobSpec prompt.
-2. Get or create the sandbox from the orchestrator's
-   ``sandbox_manager`` (keyed by session_id + repo_url).
+2. Get or create the sandbox from the backend factory
+   (``get_backend()``), keyed by session_id.
 3. Run a DNS check to log network connectivity.
 
 The phase mutates ``ctx.repo_url`` (if it was empty and the
@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import replace
+from typing import Any
 
 from harness.phases import RunContext, RunPhase
 
@@ -37,9 +38,58 @@ class SandboxPreparePhase(RunPhase):
     async def execute(self, ctx: RunContext) -> RunContext:
         if not ctx.repo_url:
             ctx = await self._extract_repo_url(ctx)
-        # Backend is created per-session via BackendFactory; no
-        # up-front sandbox creation needed here.
-        return ctx
+
+        # Create the sandbox via the backend factory
+        sandbox = await self._create_sandbox(ctx)
+        if sandbox is None:
+            logger.warning("SandboxPreparePhase: could not create sandbox for session %s", ctx.session_id)
+            return ctx
+
+        # Run DNS check
+        await self._dns_check(sandbox)
+
+        return replace(ctx, sandbox=sandbox)
+
+    async def _create_sandbox(self, ctx: RunContext) -> Any:
+        """Create a sandbox environment for this session."""
+        try:
+            # Try to get backend_factory from the orchestrator's app state
+            backend_factory = None
+            if ctx.orchestrator is not None:
+                backend_factory = getattr(ctx.orchestrator, "_backend_factory", None)
+            if backend_factory is not None:
+                sandbox = backend_factory(ctx.session_id, cwd="/workspace/repo", timeout=120)
+                logger.info("SandboxPreparePhase: created sandbox for session %s (type=%s)",
+                           ctx.session_id, type(sandbox).__name__)
+                return sandbox
+
+            # Fallback: create DockerEnvironment directly
+            from harness.backends.docker import DockerEnvironment
+            sandbox = DockerEnvironment(
+                session_id=ctx.session_id,
+                cwd="/workspace/repo",
+                timeout=120,
+                image="nikolaik/python-nodejs:python3.11-nodejs20",
+            )
+            logger.info("SandboxPreparePhase: created Docker sandbox for session %s",
+                       ctx.session_id)
+            return sandbox
+        except Exception as exc:
+            logger.warning("SandboxPreparePhase: sandbox creation failed: %s", exc)
+            # Final fallback: LocalEnvironment
+            try:
+                from harness.backends.local import LocalEnvironment
+                sandbox = LocalEnvironment(
+                    session_id=ctx.session_id,
+                    cwd="/workspace/repo",
+                    timeout=120,
+                )
+                logger.info("SandboxPreparePhase: created local sandbox for session %s (fallback)",
+                           ctx.session_id)
+                return sandbox
+            except Exception as exc2:
+                logger.warning("SandboxPreparePhase: local fallback also failed: %s", exc2)
+                return None
 
     async def _extract_repo_url(self, ctx: RunContext) -> RunContext:
         try:

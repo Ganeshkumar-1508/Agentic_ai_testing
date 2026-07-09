@@ -11,6 +11,7 @@ import {
 import { KanbanBoardSection } from "@/components/pipeline/KanbanBoardSection";
 import { SkillsPanel } from "@/components/pipeline/SkillsPanel";
 import { EventStream } from "@/components/pipeline/EventStream";
+import { AdvancedPipelineConfig, DEFAULT_CONFIG, type AdvancedConfig } from "@/components/pipeline/AdvancedPipelineConfig";
 import { usePipelineStore } from "@/stores/pipeline-store";
 import { api } from "@/lib/api/api-client";
 
@@ -47,6 +48,7 @@ function PipelinePageInner() {
   const [templates, setTemplates] = useState<any[]>([]);
   const [tokenUsage, setTokenUsage] = useState({ tokens: 0, cost: 0 });
   const [_boardId, _setBoardId] = useState<string | null>(null);
+  const [advancedConfig, setAdvancedConfig] = useState<AdvancedConfig>(DEFAULT_CONFIG);
 
   const status = workflowStatus;
   const sessionId = workflowId;
@@ -118,6 +120,27 @@ function PipelinePageInner() {
           repo_url: fullUrl,
           mode: "auto",
           test_types: selectedTestTypes,
+          advanced_config: {
+            timeout_seconds: advancedConfig.timeout_seconds,
+            max_retries: advancedConfig.max_retries,
+            parallelism: advancedConfig.parallelism,
+            shard_count: advancedConfig.shard_count,
+            retry_on_failure: advancedConfig.retry_on_failure,
+            fail_fast: advancedConfig.fail_fast,
+            continue_on_failure: advancedConfig.continue_on_failure,
+            pre_commands: advancedConfig.pre_commands,
+            post_commands: advancedConfig.post_commands,
+            cache_key: advancedConfig.cache_key,
+            cache_directories: advancedConfig.cache_directories,
+            artifact_paths: advancedConfig.artifact_paths,
+            notification_channels: advancedConfig.notification_channels,
+            os: advancedConfig.os,
+            runtime_version: advancedConfig.runtime_version,
+            browser: advancedConfig.browser,
+            auto_commit: advancedConfig.auto_commit,
+            commit_branch: advancedConfig.commit_branch,
+            tags: advancedConfig.tags,
+          },
         });
         // Tier 2 = supervised: orchestrator does the work, kanban review
         // posts the diff. Tier 1 (autonomous) would auto-merge.
@@ -127,13 +150,44 @@ function PipelinePageInner() {
         if (!sessionId) throw new Error("Backend did not return a session id");
         connectToWorkflow(sessionId);
       } else {
-        await startWorkflow(requirements.trim());
+        const { toJobSpecFromPipelineQuickTest } = await import("@/lib/adapters/job-spec");
+        const spec = toJobSpecFromPipelineQuickTest({
+          requirements: requirements.trim(),
+          mode: "auto",
+          test_types: selectedTestTypes,
+          advanced_config: {
+            timeout_seconds: advancedConfig.timeout_seconds,
+            max_retries: advancedConfig.max_retries,
+            parallelism: advancedConfig.parallelism,
+            shard_count: advancedConfig.shard_count,
+            retry_on_failure: advancedConfig.retry_on_failure,
+            fail_fast: advancedConfig.fail_fast,
+            continue_on_failure: advancedConfig.continue_on_failure,
+            pre_commands: advancedConfig.pre_commands,
+            post_commands: advancedConfig.post_commands,
+            cache_key: advancedConfig.cache_key,
+            cache_directories: advancedConfig.cache_directories,
+            artifact_paths: advancedConfig.artifact_paths,
+            notification_channels: advancedConfig.notification_channels,
+            os: advancedConfig.os,
+            runtime_version: advancedConfig.runtime_version,
+            browser: advancedConfig.browser,
+            auto_commit: advancedConfig.auto_commit,
+            commit_branch: advancedConfig.commit_branch,
+            tags: advancedConfig.tags,
+          },
+        });
+        spec.tier = 1;
+        const data = await api.post<{ spec_id?: string; session_id?: string }>(`/api/jobs`, spec);
+        const sid = data?.spec_id || data?.session_id;
+        if (!sid) throw new Error("Backend did not return a session id");
+        connectToWorkflow(sid);
       }
       toast.success(pipelineMode === "orchestrate" ? "Orchestration started" : "Pipeline started");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to start pipeline");
     }
-  }, [requirements, repoUrl, pipelineMode, startWorkflow, connectToWorkflow]);
+  }, [requirements, repoUrl, pipelineMode, advancedConfig, startWorkflow, connectToWorkflow]);
 
   const stopPipeline = useCallback(async () => {
     if (sessionId) await api.post(`/api/delegate/${sessionId}/cancel`, {}).catch(() => {});
@@ -465,19 +519,7 @@ function PipelinePageInner() {
 
             {/* Advanced Config (collapsible) */}
             {showConfig && (
-              <div>
-                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-4 block">Advanced Configuration</span>
-                <div className="border border-white/[0.06] rounded-[1.5rem] p-6">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[{ l: "Timeout (s)", v: "600" }, { l: "Max Retries", v: "3" }, { l: "Parallelism", v: "1" }, { l: "Model", v: "deepseek-v4-flash" }].map((f, i) => (
-                      <div key={i} className="flex flex-col gap-1">
-                        <label className="text-[11px] font-medium text-zinc-500">{f.l}</label>
-                        <input defaultValue={f.v} className="px-2.5 py-1.5 bg-card border border-white/[0.06] rounded-lg text-[13px] text-zinc-300 focus:outline-none focus:border-emerald-500/30" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <AdvancedPipelineConfig config={advancedConfig} onChange={setAdvancedConfig} />
             )}
           </div>
         </div>

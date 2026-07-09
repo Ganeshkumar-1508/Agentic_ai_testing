@@ -391,6 +391,18 @@ class OrchestratorEngine:
         session_id = _get_session_id(spec)
         start_tracker(spec.spec_id, session_id)
 
+        # Extract test_config from spec context for advanced pipeline settings
+        test_config = None
+        if hasattr(spec, "context") and spec.context is not None:
+            ctx_obj = spec.context
+            if hasattr(ctx_obj, "test_config") and ctx_obj.test_config is not None:
+                if hasattr(ctx_obj.test_config, "model_dump"):
+                    test_config = ctx_obj.test_config.model_dump()
+                elif isinstance(ctx_obj.test_config, dict):
+                    test_config = ctx_obj.test_config
+            elif isinstance(ctx_obj, dict) and "test_config" in ctx_obj:
+                test_config = ctx_obj["test_config"]
+
         run_coro = self.run_single(
             run_id=spec.run_id,
             session_id=session_id,
@@ -399,9 +411,19 @@ class OrchestratorEngine:
             branch=spec.branch,
             context_repos=context_repos,
             spec_id=spec.spec_id,
+            test_config=test_config,
         )
+        # Overall timeout: prevent pipeline from hanging indefinitely
+        # on Windows/Docker networking issues or stuck subprocesses
+        PIPELINE_TIMEOUT = 900  # 15 minutes
         try:
-            return await self._run_with_cancel_watch(spec, run_coro)
+            result = await asyncio.wait_for(
+                self._run_with_cancel_watch(spec, run_coro),
+                timeout=PIPELINE_TIMEOUT,
+            )
+        except asyncio.TimeoutError:
+            logger.error("Pipeline timed out after %ds for spec %s", PIPELINE_TIMEOUT, spec.spec_id)
+            result = {"status": "failed", "error": f"Pipeline timed out after {PIPELINE_TIMEOUT}s"}
         finally:
             # Stop the tracker and capture its final state.
             # We don't include it in the auto-checkpoint here
@@ -553,6 +575,7 @@ class OrchestratorEngine:
         self, run_id: str, session_id: str, repo_url: str, goal: str, branch: str = "",
         context_repos: list[dict] | None = None,
         spec_id: str = "",
+        test_config: dict | None = None,
     ) -> dict:
         """Run orchestration for a single repo.
 
@@ -571,6 +594,23 @@ class OrchestratorEngine:
         run_started_at = datetime.now(timezone.utc)
         final_status: str = "completed"
         final_error: str | None = None
+
+        # Create the parent session in the database before the pipeline runs.
+        # This is required so subagents can reference it via parent_session_id.
+        session_created = False
+        for attempt in range(3):
+            try:
+                from harness.tools.subagent import create_child_session
+                await create_child_session(
+                    session_id, 0, goal, "", None, run_started_at.timestamp(),
+                )
+                session_created = True
+                break
+            except Exception as exc:
+                if attempt < 2:
+                    await asyncio.sleep(0.5 * (attempt + 1))
+                else:
+                    logger.warning("Parent session creation failed after 3 attempts: %s", exc)
 
         # C09: build the run pipeline. The 12 phases that transform
         # state (sandbox prepare, clone, bootstrap, worktree, kg
@@ -631,6 +671,7 @@ class OrchestratorEngine:
             repo_url=repo_url, branch=branch, goal=goal,
             orchestrator=self,
             run_started_at=run_started_at.isoformat(),
+            test_config=test_config,
         )
         # Stash context_repos for CloneContextReposPhase, which reads
         # them from ``ctx.orchestrator._context_repos`` during the pipeline.
@@ -1055,7 +1096,7 @@ class OrchestratorEngine:
                     f"%{row['id'][:8]}%",
                 )
                 if board:
-                    engine = OrchestratorEngine(None)
+                    engine = OrchestratorEngine()
                     result = await engine._wait_for_board(board["id"], row["id"], row.get("repo_url", ""))
                     await db.execute(
                         "UPDATE sessions SET status = $1, ended_at = NOW(), end_reason = $2 WHERE id = $3",

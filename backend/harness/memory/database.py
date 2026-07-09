@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import random
 import asyncpg
 from typing import Any
 
@@ -15,18 +16,29 @@ class Database:
             "DATABASE_URL",
             "postgresql://postgres:postgres@localhost:5432/testai",
         )
+        # Fix Windows/Docker networking: use 127.0.0.1 instead of localhost
+        # to avoid IPv6 resolution issues
+        if "localhost" in self.dsn:
+            self.dsn = self.dsn.replace("localhost", "127.0.0.1")
         self._pool: asyncpg.Pool | None = None
 
     async def connect(self) -> None:
         last_exc: Exception | None = None
         for attempt in range(1, 11):
             try:
-                self._pool = await asyncpg.create_pool(self.dsn, min_size=1, max_size=10)
+                self._pool = await asyncpg.create_pool(
+                    self.dsn,
+                    min_size=2,
+                    max_size=10,
+                    command_timeout=60,
+                    max_inactive_connection_lifetime=300,  # 5 min recycle
+                    server_settings={"tcp_keepalives_idle": "60"},
+                )
                 break
-            except (asyncpg.CannotConnectNowError, OSError) as exc:
+            except (asyncpg.CannotConnectNowError, OSError, asyncpg.InvalidPasswordError) as exc:
                 last_exc = exc
                 if attempt < 10:
-                    wait = min(attempt * 0.5, 5)
+                    wait = min(2 ** attempt, 60) + random.uniform(0, 1)
                     logger.warning(
                         "DB connect attempt %d/10 failed (retrying in %.1fs): %s",
                         attempt, wait, exc,
@@ -79,30 +91,102 @@ class Database:
     async def execute(self, query: str, *args: Any) -> str:
         if not self._pool:
             raise RuntimeError("Database not connected")
-        async with self._pool.acquire() as conn:
-            return await conn.execute(query, *args)
+        for attempt in range(5):
+            try:
+                async with self._pool.acquire() as conn:
+                    return await conn.execute(query, *args)
+            except (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError, OSError, asyncpg.TooManyConnectionsError) as exc:
+                if attempt < 4:
+                    wait = min(2 ** attempt, 10) + random.uniform(0, 0.5)
+                    logger.warning("DB execute retry %d/5: %s", attempt + 1, exc)
+                    await asyncio.sleep(wait)
+                    # Force pool recycling on connection errors
+                    if isinstance(exc, (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError)):
+                        try:
+                            self._pool.expire_connections()
+                        except Exception:
+                            pass
+                else:
+                    raise
 
     async def fetch(self, query: str, *args: Any) -> list[asyncpg.Record]:
         if not self._pool:
             raise RuntimeError("Database not connected")
-        async with self._pool.acquire() as conn:
-            return await conn.fetch(query, *args)
+        for attempt in range(5):
+            try:
+                async with self._pool.acquire() as conn:
+                    return await conn.fetch(query, *args)
+            except (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError, OSError, asyncpg.TooManyConnectionsError) as exc:
+                if attempt < 4:
+                    wait = min(2 ** attempt, 10) + random.uniform(0, 0.5)
+                    logger.warning("DB fetch retry %d/5: %s", attempt + 1, exc)
+                    await asyncio.sleep(wait)
+                    if isinstance(exc, (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError)):
+                        try:
+                            self._pool.expire_connections()
+                        except Exception:
+                            pass
+                else:
+                    raise
 
     async def fetchrow(self, query: str, *args: Any) -> asyncpg.Record | None:
         if not self._pool:
             raise RuntimeError("Database not connected")
-        async with self._pool.acquire() as conn:
-            return await conn.fetchrow(query, *args)
+        for attempt in range(5):
+            try:
+                async with self._pool.acquire() as conn:
+                    return await conn.fetchrow(query, *args)
+            except (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError, OSError, asyncpg.TooManyConnectionsError) as exc:
+                if attempt < 4:
+                    wait = min(2 ** attempt, 10) + random.uniform(0, 0.5)
+                    logger.warning("DB fetchrow retry %d/5: %s", attempt + 1, exc)
+                    await asyncio.sleep(wait)
+                    if isinstance(exc, (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError)):
+                        try:
+                            self._pool.expire_connections()
+                        except Exception:
+                            pass
+                else:
+                    raise
 
     async def fetchval(self, query: str, *args: Any) -> Any:
         if not self._pool:
             raise RuntimeError("Database not connected")
-        async with self._pool.acquire() as conn:
-            return await conn.fetchval(query, *args)
+        for attempt in range(5):
+            try:
+                async with self._pool.acquire() as conn:
+                    return await conn.fetchval(query, *args)
+            except (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError, OSError, asyncpg.TooManyConnectionsError) as exc:
+                if attempt < 4:
+                    wait = min(2 ** attempt, 10) + random.uniform(0, 0.5)
+                    logger.warning("DB fetchval retry %d/5: %s", attempt + 1, exc)
+                    await asyncio.sleep(wait)
+                    if isinstance(exc, (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError)):
+                        try:
+                            self._pool.expire_connections()
+                        except Exception:
+                            pass
+                else:
+                    raise
 
     async def executemany(self, query: str, args: list[tuple]) -> None:
         """Execute the same query with multiple parameter sets."""
         if not self._pool:
             raise RuntimeError("Database not connected")
-        async with self._pool.acquire() as conn:
-            await conn.executemany(query, args)
+        for attempt in range(5):
+            try:
+                async with self._pool.acquire() as conn:
+                    await conn.executemany(query, args)
+                return
+            except (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError, OSError, asyncpg.TooManyConnectionsError) as exc:
+                if attempt < 4:
+                    wait = min(2 ** attempt, 10) + random.uniform(0, 0.5)
+                    logger.warning("DB executemany retry %d/5: %s", attempt + 1, exc)
+                    await asyncio.sleep(wait)
+                    if isinstance(exc, (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError)):
+                        try:
+                            self._pool.expire_connections()
+                        except Exception:
+                            pass
+                else:
+                    raise

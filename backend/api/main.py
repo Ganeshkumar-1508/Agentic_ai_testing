@@ -567,6 +567,9 @@ async def lifespan(app: FastAPI):
     shared_bus.add_sink(StreamEventsDBSink())
     from harness.observability import register_observability_sinks
     register_observability_sinks(shared_bus)
+
+    # Update base_deps with the shared event bus
+    base_deps.event_bus = shared_bus
     app.state.event_source_sink = event_source_sink
     base_deps = dataclasses.replace(base_deps, event_bus=shared_bus)
     from harness.api.state import set_event_bus, set_event_source_sink

@@ -98,11 +98,59 @@ class CoordinatorSpawnPhase(RunPhase):
             f"{memory_section}"
         )
 
+        # Inject advanced pipeline config into the goal if present
+        if ctx.test_config:
+            tc = ctx.test_config
+            config_lines = ["\n## Advanced Pipeline Configuration\n"]
+            if tc.get("timeout_seconds"):
+                config_lines.append(f"- Timeout: {tc['timeout_seconds']}s per command")
+            if tc.get("max_retries"):
+                config_lines.append(f"- Max retries: {tc['max_retries']}")
+            if tc.get("retry_on_failure") is False:
+                config_lines.append("- Retry on failure: DISABLED")
+            if tc.get("fail_fast"):
+                config_lines.append("- Fail fast: YES (stop on first failure)")
+            if tc.get("parallelism") and tc["parallelism"] > 1:
+                config_lines.append(f"- Parallelism: {tc['parallelism']} containers")
+            if tc.get("shard_count") and tc["shard_count"] > 1:
+                config_lines.append(f"- Shards: {tc['shard_count']}")
+            if tc.get("pre_commands"):
+                config_lines.append(f"- Pre-commands: {', '.join(tc['pre_commands'])}")
+            if tc.get("post_commands"):
+                config_lines.append(f"- Post-commands: {', '.join(tc['post_commands'])}")
+            if tc.get("os"):
+                config_lines.append(f"- Target OS: {tc['os']}")
+            if tc.get("runtime_version"):
+                config_lines.append(f"- Runtime: {tc['runtime_version']}")
+            if tc.get("browser"):
+                config_lines.append(f"- Browser: {tc['browser']}")
+            if tc.get("cache_directories"):
+                config_lines.append(f"- Cache dirs: {', '.join(tc['cache_directories'])}")
+            if tc.get("artifact_paths"):
+                config_lines.append(f"- Artifact paths: {', '.join(tc['artifact_paths'])}")
+            if tc.get("auto_commit"):
+                config_lines.append(f"- Auto-commit: YES (branch: {tc.get('commit_branch', 'main')})")
+            if tc.get("tags"):
+                config_lines.append(f"- Tags: {', '.join(tc['tags'])}")
+            coord_goal += "\n".join(config_lines)
+
         # Set up the per-run budget tracker and KG context (the
         # subagents spawned by the coordinator read these).
         budget_tracker, budget_token = self._setup_budget_tracker(ctx, dt)
         kg_ctx_token = self._setup_kg_context(ctx)
         prev_board_env = self._set_board_env(ctx)
+
+        # Execute pre-commands if specified in advanced config
+        if ctx.test_config and ctx.test_config.get("pre_commands"):
+            sandbox = ctx.sandbox or getattr(ctx.orchestrator, "_sandbox", None)
+            if sandbox:
+                for cmd in ctx.test_config["pre_commands"]:
+                    try:
+                        logger.info("Pre-command: %s", cmd)
+                        await sandbox.run(cmd, timeout=120)
+                    except Exception as exc:
+                        logger.warning("Pre-command failed (continuing): %s: %s", cmd, exc)
+
         try:
             model = os.environ.get("DEFAULT_MODEL", "deepseek-v4-flash")
             result = await dt.run(
@@ -116,6 +164,17 @@ class CoordinatorSpawnPhase(RunPhase):
             self._reset_budget(budget_token)
             self._reset_kg_context(kg_ctx_token)
             self._restore_board_env(prev_board_env)
+
+        # Execute post-commands if specified in advanced config
+        if ctx.test_config and ctx.test_config.get("post_commands"):
+            sandbox = ctx.sandbox or getattr(ctx.orchestrator, "_sandbox", None)
+            if sandbox:
+                for cmd in ctx.test_config["post_commands"]:
+                    try:
+                        logger.info("Post-command: %s", cmd)
+                        await sandbox.run(cmd, timeout=120)
+                    except Exception as exc:
+                        logger.warning("Post-command failed (continuing): %s: %s", cmd, exc)
 
         # Attach the raw result + budget snapshot to coordinator_result.
         coordinator_result = dict(ctx.coordinator_result or {})

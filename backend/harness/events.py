@@ -269,6 +269,16 @@ class StreamEventsDBSink:
 
     async def emit(self, event: StreamEvent) -> None:
         sid = getattr(event, "session_id", None)
+        # Fallback: extract session_id from event data if not set on the event
+        if not sid:
+            event_data_check = getattr(event, "data", None)
+            if isinstance(event_data_check, dict):
+                sid = event_data_check.get("session_id", "")
+            if not sid:
+                # Try subagent_id as session identifier
+                sub_id_check = getattr(event, "subagent_id", None)
+                if sub_id_check:
+                    sid = f"subagent-{sub_id_check}"
         if not sid:
             return
         try:

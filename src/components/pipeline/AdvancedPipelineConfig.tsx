@@ -75,7 +75,7 @@ const DEFAULT_CONFIG: AdvancedConfig = {
 export { DEFAULT_CONFIG };
 
 export function AdvancedPipelineConfig({ config, onChange }: Props) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const [activeTab, setActiveTab] = useState("execution");
 
   const update = (partial: Partial<AdvancedConfig>) => onChange({ ...config, ...partial });
