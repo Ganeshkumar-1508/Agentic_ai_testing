@@ -671,7 +671,7 @@ class JobControlDispatcher:
 
         try:
             from harness.orchestrator import OrchestratorEngine
-            engine = OrchestratorEngine(None)
+            engine = OrchestratorEngine()
             result = await engine.run_resumed_job_spec(
                 target_spec_id, resumed_by=self._ctx.session_id or "",
             )

@@ -499,7 +499,15 @@ class ToolRegistry:
             if user_dir.exists():
                 self._discover_in_directory(user_dir, module_prefix="")
 
+        # Post-discovery audit
+        entries = self.list_entries()
+        if not entries:
+            logger.error("CRITICAL: No tools registered after discovery! Check import errors above.")
+        else:
+            logger.info("Tool discovery complete: %d tools registered", len(entries))
+
     def _discover_in_directory(self, directory: Path, module_prefix: str = "") -> None:
+        ok, fail = 0, 0
         for path in sorted(directory.glob("*.py")):
             if path.name in _SKIP_MODULES or path.name == "__init__.py":
                 continue
@@ -515,9 +523,15 @@ class ToolRegistry:
                     if spec and spec.loader:
                         mod = importlib.util.module_from_spec(spec)
                         spec.loader.exec_module(mod)
-                logger.info("Discovered tool: %s", path.stem)
+                ok += 1
+            except ImportError as e:
+                fail += 1
+                logger.error("MISSING DEPENDENCY for %s: %s", path.stem, e)
             except Exception as e:
-                logger.warning("Failed to load %s: %s", path.stem, e)
+                fail += 1
+                logger.error("Failed to load %s: %s", path.stem, e, exc_info=True)
+        if fail > 0:
+            logger.warning("Tool discovery: %d loaded, %d FAILED in %s", ok, fail, directory)
 
     def discover_tools_explicit(self, tool_names: list[str]) -> None:
         for name in tool_names:

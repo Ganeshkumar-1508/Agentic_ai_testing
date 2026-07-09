@@ -11,7 +11,13 @@ services:
       POSTGRES_PASSWORD: testai
       POSTGRES_DB: testai
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
+    command: >
+      postgres
+        -c tcp_keepalives_idle=60
+        -c tcp_keepalives_interval=10
+        -c tcp_keepalives_count=5
+        -c max_connections=100
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

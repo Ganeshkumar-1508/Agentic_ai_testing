@@ -158,12 +158,13 @@ async def _llm_decompose(goal: str, repo_context: str, available_agents: list[di
     user_msg = f"GOAL: {goal}\n\nREPO CONTEXT: {repo_context or 'Not provided'}{explore_section}"
 
     try:
+        import asyncio as _asyncio
         from harness.llm import ChatMessage
         messages = [
             ChatMessage(role="system", content=system_prompt),
             ChatMessage(role="user", content=user_msg),
         ]
-        response = await llm.chat(messages)
+        response = await _asyncio.wait_for(llm.chat(messages), timeout=60.0)
         text = response.content if hasattr(response, "content") else str(response)
         text = text.strip()
         # Strip markdown code fences

@@ -64,16 +64,31 @@ def get_backend_class(backend_type: str) -> type[BaseEnvironment]:
 
 
 def resolve_backend_type(db, session_id: str, default: str = "local") -> str:
-    row = db.fetchone(
-        "SELECT backend_type FROM sessions WHERE id = $1", [session_id],
-    )
-    if row and row[0]:
-        return row[0]
-    cfg_row = db.fetchone(
-        "SELECT value FROM sandbox_config WHERE key = 'default_backend_type'",
-    )
-    if cfg_row and cfg_row[0]:
-        return cfg_row[0]
+    # Handle both sync and async DBs
+    fetchone_fn = getattr(db, "fetchone", None) or getattr(db, "fetchrow", None)
+    if fetchone_fn is None:
+        return default
+
+    import asyncio
+    import inspect
+
+    # If fetchone is async, we can't call it from sync context — return default
+    if inspect.iscoroutinefunction(fetchone_fn):
+        return default
+
+    try:
+        row = fetchone_fn(
+            "SELECT backend_type FROM sessions WHERE id = $1", [session_id],
+        )
+        if row and (row[0] if isinstance(row, (tuple, list)) else row.get("backend_type")):
+            return row[0] if isinstance(row, (tuple, list)) else row.get("backend_type")
+        cfg_row = fetchone_fn(
+            "SELECT value FROM sandbox_config WHERE key = 'default_backend_type'",
+        )
+        if cfg_row and (cfg_row[0] if isinstance(cfg_row, (tuple, list)) else cfg_row.get("value")):
+            return cfg_row[0] if isinstance(cfg_row, (tuple, list)) else cfg_row.get("value")
+    except Exception:
+        pass
     return default
 
 

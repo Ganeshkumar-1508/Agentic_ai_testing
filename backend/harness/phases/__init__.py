@@ -38,6 +38,9 @@ class RunContext:
     # (before the first phase runs).
     run_started_at: str = ""
 
+    # Advanced pipeline config (timeout, retry, pre/post commands, etc.)
+    test_config: dict | None = None
+
     # Error accumulation (read by orchestrator after all phases):
     errors: tuple[str, ...] = ()
 

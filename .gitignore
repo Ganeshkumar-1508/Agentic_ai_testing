@@ -1,24 +1,32 @@
-# === Dependencies ===
+# =============================================================================
+# TestAI Platform — Comprehensive .gitignore
+# =============================================================================
+
+# ── Dependencies ──────────────────────────────────────────────────────────────
 node_modules/
 .pnp
 .pnp.js
 .pnp.cjs
+backend/node_modules/
 
-# === Next.js / Build Output ===
+# ── Next.js / Build Output ───────────────────────────────────────────────────
 .next/
 out/
 build/
 dist/
+.vercel/
 
-# === Logs ===
+# ── Logs ─────────────────────────────────────────────────────────────────────
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+backend.log
+uvicorn.log
 
-# === Environment Files ===
+# ── Environment Files ────────────────────────────────────────────────────────
 .env
 .env.local
 .env.development.local
@@ -28,19 +36,22 @@ lerna-debug.log*
 .env.*.local
 # NOTE: .env.example is intentionally tracked as a template
 
-# === TypeScript ===
+# ── TypeScript ───────────────────────────────────────────────────────────────
 *.tsbuildinfo
 next-env.d.ts
 
-# === Editor / IDE ===
+# ── Editor / IDE ─────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 *.sublime-workspace
+.project
+.classpath
+.settings/
 
-# === OS Files ===
+# ── OS Files ─────────────────────────────────────────────────────────────────
 .DS_Store
 .DS_Store?
 ._*
@@ -50,8 +61,9 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+.DS_Store*
 
-# === Python ===
+# ── Python ───────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.pyo
@@ -63,29 +75,33 @@ venv/
 env/
 backend/venv/
 backend/.venv/
-.pytest_cache/ package-lock.json  
 *.so
-
-# === Test & Coverage Output ===
-test-results/
-coverage/
+.pytest_cache/
+htmlcov/
 .coverage
 .coverage.*
 .coverage.*.*
-htmlcov/
-.coverage/
-*.coverage
+
+# ── Test & Coverage Output ───────────────────────────────────────────────────
+test-results/
+coverage/
 junit.xml
 jest-junit/
+*.coverage
 
-# === Database / Runtime Data Files ===
+# ── Database / Runtime Data Files ────────────────────────────────────────────
 *.db
 *.sqlite
 *.sqlite3
 *.db-journal
 *.db-wal
+*.db-shm
+harness_data.db/
 
-# === Cache & Temp Files ===
+# ── Docker ───────────────────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ── Cache & Temp Files ───────────────────────────────────────────────────────
 .eslintcache
 .stylelintcache
 .cache/
@@ -93,19 +109,32 @@ jest-junit/
 *.tgz
 .tmp
 .temp
+.pytest_cache/
 
-# === Tool-Specific Config (local / per-developer) ===
+# ── Tool-Specific Config (local / per-developer) ─────────────────────────────
 .openclaude/
 .codegraph/
+.testai/skills/
+.testai/agents/
 
-# === Agent Workspace (generated results only) ===
+# ── Agent Workspace (generated results only) ─────────────────────────────────
 agent_workspace/results/
+agent_workspace/knowledge-graphs/
+backend/agent_workspace/
 
-# === Project-Specific Scratch / Runtime Directories ===
+# ── Project-Specific Scratch / Runtime Directories ───────────────────────────
 data/
 in_progess/
 plans/
 reference/
+docs/research/
 
-# === Lock files (generated, not authored) ===
+# ── Lock files (generated, not authored) ─────────────────────────────────────
 uv.lock
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
+*.bak
+*.orig
+*.tmp
+*.temp
+~$*

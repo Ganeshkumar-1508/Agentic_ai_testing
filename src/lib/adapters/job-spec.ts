@@ -69,6 +69,9 @@ export function toJobSpecFromPipelineQuickTest(
   if (payload.additional_context !== undefined) {
     testConfig.additional_context = payload.additional_context;
   }
+  if (payload.advanced_config && typeof payload.advanced_config === "object") {
+    Object.assign(testConfig, payload.advanced_config);
+  }
 
   const tier = typeof payload.tier === "number"
     ? Math.max(1, Math.min(3, payload.tier)) as JobTier

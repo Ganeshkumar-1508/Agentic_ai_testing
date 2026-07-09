@@ -268,32 +268,30 @@ def _wait_for_process(
 
         idle_after_exit = 0
         import select
-        try:
-            while True:
+        while True:
+            try:
+                ready, _, _ = select.select([fd], [], [], 0.1)
+            except (ValueError, OSError):
+                break
+            if ready:
                 try:
-                    ready, _, _ = select.select([fd], [], [], 0.1)
+                    chunk = os.read(fd, 4096)
                 except (ValueError, OSError):
                     break
-                if ready:
-                    try:
-                        chunk = os.read(fd, 4096)
-                    except (ValueError, OSError):
-                        break
-                    if not chunk:
-                        break
-                    output_chunks.append(decoder.decode(chunk))
-                    idle_after_exit = 0
-                elif proc.poll() is not None:
-                    idle_after_exit += 1
-                    if idle_after_exit >= 3:
-                        break
-        finally:
-            try:
-                tail = decoder.decode(b"", final=True)
-                if tail:
-                    output_chunks.append(tail)
-            except Exception:
-                pass
+                if not chunk:
+                    break
+                output_chunks.append(decoder.decode(chunk))
+                idle_after_exit = 0
+            elif proc.poll() is not None:
+                idle_after_exit += 1
+                if idle_after_exit >= 3:
+                    break
+        try:
+            tail = decoder.decode(b"", final=True)
+            if tail:
+                output_chunks.append(tail)
+        except Exception:
+            pass
 
     drain_thread = threading.Thread(target=_drain, daemon=True)
     drain_thread.start()

@@ -473,6 +473,9 @@ class DelegateTaskTool(BaseTool):
         child_depth = self._get_child_depth()
         depth_error = self._check_depth(child_depth)
         started_at = time.time()
+        subagent_worktree_info = None  # Initialize early for Python 3.13+ scoping
+        heartbeat_stop = asyncio.Event()  # Initialize early for Python 3.13+ scoping
+        heartbeat_task = None  # Initialize early for Python 3.13+ scoping
         if depth_error:
             return SubagentResult(
                 subagent_id=f"sa-{index}-depth",
@@ -642,7 +645,6 @@ class DelegateTaskTool(BaseTool):
             # makes the subagent inherit the sandbox runner
             # (production: git inside the container). Tests: the
             # default ``local_git_runner`` is used.
-            subagent_worktree_info = None
             try:
                 from harness.services.worktree_manager import (
                     WorktreeManager,
@@ -776,8 +778,6 @@ class DelegateTaskTool(BaseTool):
             # NOTE: ``heartbeat_stop`` is initialized BEFORE the try
             # block so the ``finally`` clause can reference it even
             # if heartbeat init failed.
-            heartbeat_stop = asyncio.Event()
-            heartbeat_task: asyncio.Task | None = None
             try:
                 from harness.services.heartbeat import (
                     SubagentHeartbeat,
