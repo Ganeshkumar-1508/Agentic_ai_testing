@@ -138,3 +138,7 @@ uv.lock
 *.tmp
 *.temp
 ~$*
+*.docx
+backend/check_keys.py
+backend/verify_llm.py
+backend/fix_providers.py
