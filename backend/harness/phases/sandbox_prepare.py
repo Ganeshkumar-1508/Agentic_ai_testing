@@ -21,6 +21,8 @@ does not pause.
 from __future__ import annotations
 
 import logging
+import os
+import sys
 from dataclasses import replace
 from typing import Any
 
@@ -79,13 +81,14 @@ class SandboxPreparePhase(RunPhase):
             # Final fallback: LocalEnvironment
             try:
                 from harness.backends.local import LocalEnvironment
+                is_win = sys.platform.startswith("win")
                 sandbox = LocalEnvironment(
                     session_id=ctx.session_id,
-                    cwd="/workspace/repo",
+                    cwd="/workspace/repo" if not is_win else os.path.join(os.getcwd(), "workspace", "repo"),
                     timeout=120,
                 )
-                logger.info("SandboxPreparePhase: created local sandbox for session %s (fallback)",
-                           ctx.session_id)
+                logger.info("SandboxPreparePhase: created local sandbox for session %s (fallback type=%s)",
+                           ctx.session_id, type(sandbox).__name__)
                 return sandbox
             except Exception as exc2:
                 logger.warning("SandboxPreparePhase: local fallback also failed: %s", exc2)

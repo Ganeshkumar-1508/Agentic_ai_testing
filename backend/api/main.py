@@ -450,13 +450,9 @@ async def lifespan(app: FastAPI):
     app.state.backend_factory = backend_factory
     app.state.orchestrator_engine = OrchestratorEngine()
 
-    # Wire the sudo password callback to the terminal read_password_thread
-    try:
-        from harness.backends.base import read_password_thread as _rpt
-        from harness.backends.factory import set_sudo_password_callback as _set_spc
-        _set_spc(_rpt)
-    except Exception:
-        pass
+    # DO NOT wire read_password_thread as sudo callback — it blocks on
+    # interactive input and freezes the pipeline when run in background.
+    # Sudo commands in pipelines should use passwordless sudo or be avoided.
 
     # Wire backend_factory into tool modules so they can create
     # per-session backends without a sandbox_manager.
@@ -546,11 +542,6 @@ async def lifespan(app: FastAPI):
 
         return agent
     app.state.agent_factory = agent_factory
-    # Wire agent_factory to shared state for orchestrator use
-    from harness.api.state import set_agent_factory as _set_af
-    _set_af(agent_factory)
-    logger.info("Agent factory set: %s", "yes" if agent_factory else "NO")
-    t.checkpoint("agent_factory")
 
     # Kanban dispatcher — removed in favor of coordinator agent (Model B).
     # The coordinator (delegate_task) uses kanban tools to manage the
@@ -575,6 +566,17 @@ async def lifespan(app: FastAPI):
     from harness.api.state import set_event_bus, set_event_source_sink
     set_event_bus(shared_bus)
     # C03: expose the sink to non-FastAPI callers (BoardWaiter).
+
+    # Wire agent_factory AFTER base_deps is fully initialized with event_bus
+    from harness.api.state import set_agent_factory as _set_af
+    _set_af(agent_factory)
+    logger.info("Agent factory set: %s", "yes" if agent_factory else "NO")
+    t.checkpoint("agent_factory")
+
+    # Set orchestrator engine factory for pipeline dispatch
+    from harness.orchestrator import OrchestratorEngine
+    app.state.orchestrator_engine_factory = lambda: OrchestratorEngine()
+    logger.info("Orchestrator engine factory set")
     set_event_source_sink(event_source_sink)
     t.checkpoint("event_bus")
 

@@ -36,22 +36,13 @@ class CoordinatorSpawnPhase(RunPhase):
             raise RuntimeError("CoordinatorSpawnPhase requires orchestrator")
 
         from dataclasses import replace
-        from harness.tools.delegate_task import DelegateTaskTool
-        from harness.api.state import get_agent_factory
         from harness.tools.registry import registry
 
-        agent_factory = get_agent_factory()
-        if not agent_factory:
-            try:
-                from api.main import app
-                agent_factory = getattr(app.state, "agent_factory", None)
-            except Exception:
-                pass
-        dt = (
-            DelegateTaskTool(agent_factory=agent_factory)
-            if agent_factory
-            else registry.get("delegate_task")
-        )
+        # Always use the registry singleton — it has backend_factory,
+        # event_bus, and all infrastructure properly wired.
+        # Creating a fresh DelegateTaskTool(agent_factory=...) misses
+        # _backend_factory and causes child agents to fail silently.
+        dt = registry.get("delegate_task")
         if not dt or not hasattr(dt, "run"):
             raise RuntimeError("delegate_task not available")
 
