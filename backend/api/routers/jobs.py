@@ -22,11 +22,15 @@ integrations (A2A adapter, webhooks, cron).
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
+
+# Hold references to background tasks to prevent garbage collection
+_background_tasks: set[asyncio.Task] = set()
 from pydantic import BaseModel, ConfigDict, Field
 
 from harness.jobs.spec import JobSpec
@@ -275,15 +279,22 @@ async def submit_job(req: Request, body: JobSpecRequest) -> SubmitJobResponse:
     # Dispatch the pipeline in the background so the API returns immediately.
     # The caller polls GET /api/jobs/{spec_id} for status.
     import asyncio
+    logger.info("DISPATCH: Job %s submitted, starting background task", spec.spec_id)
     async def _dispatch():
+        print(f"DISPATCH: _dispatch() ENTERED for {spec.spec_id}")
+        logger.info("DISPATCH: Background task started for %s", spec.spec_id)
         try:
+            print(f"DISPATCH: Calling submit_job_to_orchestrator for {spec.spec_id}")
+            logger.info("DISPATCH: Calling submit_job_to_orchestrator for %s", spec.spec_id)
             await submit_job_to_orchestrator(
                 spec,
                 job_spec_store=store,
                 orchestrator_engine_factory=factory,
             )
+            logger.info("DISPATCH: submit_job_to_orchestrator completed for %s", spec.spec_id)
         except Exception as exc:
-            logger.error("Background dispatch failed for %s: %s", spec.spec_id, exc)
+            print(f"DISPATCH: FAILED for {spec.spec_id}: {exc}")
+            logger.error("DISPATCH: Background dispatch FAILED for %s: %s", spec.spec_id, exc, exc_info=True)
             # Update status so job doesn't stay "pending" forever
             try:
                 if store is not None:
@@ -292,7 +303,10 @@ async def submit_job(req: Request, body: JobSpecRequest) -> SubmitJobResponse:
                     )
             except Exception:
                 logger.error("Failed to update failed status for %s", spec.spec_id)
-    asyncio.create_task(_dispatch())
+    task = asyncio.create_task(_dispatch())
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
+    print(f"TASK CREATED: {task.get_name()} for {spec.spec_id}")
     return SubmitJobResponse(
         spec_id=spec.spec_id, run_id=spec.run_id, thread_id="", status="submitted",
     )

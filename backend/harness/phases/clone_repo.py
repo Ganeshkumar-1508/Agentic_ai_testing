@@ -75,6 +75,17 @@ class CloneRepoPhase(RunPhase):
         else:
             clone_cmd = f"git clone --depth 1 {repo_url} /workspace/repo 2>&1"
         result = await sandbox.run(clone_cmd, timeout=300)
-        if result.returncode != 0:
-            err = (result.stderr or result.stdout or "").strip()
-            raise RuntimeError(f"Clone failed: {err[:1000]}")
+        if result.returncode == 0:
+            return
+        err = (result.stderr or result.stdout or "").strip()
+        # Branch fallback: if the branch doesn't exist on remote, try default branch
+        if branch and ("Remote branch" in err and "not found" in err):
+            logger.warning("Branch '%s' not found on remote, trying default branch", branch)
+            fallback_cmd = f"git clone --depth 1 {repo_url} /workspace/repo 2>&1"
+            await sandbox.run("rm -rf /workspace/repo && mkdir -p /workspace/repo", timeout=10)
+            fallback_result = await sandbox.run(fallback_cmd, timeout=300)
+            if fallback_result.returncode == 0:
+                return
+            fallback_err = (fallback_result.stderr or fallback_result.stdout or "").strip()
+            raise RuntimeError(f"Clone failed (tried branch={branch}, then default): {fallback_err[:1000]}")
+        raise RuntimeError(f"Clone failed: {err[:1000]}")

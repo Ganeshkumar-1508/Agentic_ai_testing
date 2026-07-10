@@ -1,7 +1,7 @@
 export const BACKEND_URL =
   (typeof window !== "undefined"
-    ? process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8001"
-    : process.env.BACKEND_URL || "http://localhost:8001"
+    ? process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8001"
+    : process.env.BACKEND_URL || "http://127.0.0.1:8001"
   ).replace(/\/+$/, "");
 
 /** @deprecated Use BACKEND_URL instead. */

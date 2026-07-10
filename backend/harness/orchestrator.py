@@ -297,6 +297,8 @@ class OrchestratorEngine:
         spec: Any,
         context_repos: list[dict] | None = None,
     ) -> dict:
+        logger.info("ORCHESTRATOR: run_job_spec START for spec_id=%s", spec.spec_id)
+        print(f"ORCHESTRATOR: run_job_spec START for spec_id={spec.spec_id}")
         """`JobSpec`-aware entry point for the chat→orchestrator handoff.
 
         The chat Role's `submit_job` tool produces a `JobSpec` and hands
@@ -1079,8 +1081,8 @@ class OrchestratorEngine:
 
     @staticmethod
     async def resume_abandoned(db) -> list[dict]:
-        """Find and resume abandoned sessions (running, no heartbeat >5min).
-        Kanban-level resume — finds existing boards and re-monitors them."""
+        """Find and update abandoned sessions (running, no heartbeat >5min).
+        Non-blocking: just marks them as failed instead of waiting for boards."""
         resumed = []
         try:
             rows = await db.fetch(
@@ -1090,26 +1092,13 @@ class OrchestratorEngine:
                    ORDER BY created_at DESC LIMIT 5"""
             )
             for row in rows:
-                board = await db.fetchrow(
-                    """SELECT id FROM kanban_boards
-                       WHERE name ILIKE $1 ORDER BY created_at DESC LIMIT 1""",
-                    f"%{row['id'][:8]}%",
+                # Non-blocking: just mark as failed instead of waiting for boards
+                await db.execute(
+                    "UPDATE sessions SET status = 'failed', ended_at = NOW(), end_reason = 'abandoned-no-heartbeat' WHERE id = $1",
+                    row["id"],
                 )
-                if board:
-                    engine = OrchestratorEngine()
-                    result = await engine._wait_for_board(board["id"], row["id"], row.get("repo_url", ""))
-                    await db.execute(
-                        "UPDATE sessions SET status = $1, ended_at = NOW(), end_reason = $2 WHERE id = $3",
-                        "completed" if result.get("success") else "failed",
-                        "auto-resumed" if result.get("success") else "auto-resume-failed",
-                        row["id"],
-                    )
-                    resumed.append({"session_id": row["id"], "status": "resumed", "board_id": board["id"]})
-                else:
-                    await db.execute(
-                        "UPDATE sessions SET status = 'failed', ended_at = NOW(), end_reason = 'abandoned-no-board' WHERE id = $1",
-                        row["id"],
-                    )
+                resumed.append({"session_id": row["id"], "status": "failed"})
+                logger.info("Resume abandoned: marked %s as failed (no heartbeat)", row["id"])
         except Exception as e:
             logger.warning("Resume abandoned failed: %s", e)
         return resumed

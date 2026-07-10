@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import datetime
 import logging
 import os
@@ -146,6 +147,11 @@ class LLMRouter:
         # picked. Greptile's caveat: "don't assume model-agnosticism
         # is free" — measure recall and precision per provider.
         self._provider_health: dict[str, dict[str, Any]] = {}
+        # Global concurrency limiter: OpenCode Go / Console Go API
+        # cannot handle parallel requests from subagents spawned
+        # simultaneously. Serialize all LLM calls to prevent
+        # "Upstream request failed" errors.
+        self._api_semaphore = asyncio.Semaphore(1)
 
     def _record_usage(self, model: str, usage: Any) -> None:
         """Record token usage from an API response."""
@@ -495,31 +501,50 @@ class LLMRouter:
         model: str | None = None,
         top_p: float = 0.9,
     ) -> CompletionResponse:
-        profile = self._resolve(model)
-        dict_messages = messages_to_dicts(messages)
-        max_tokens = self._resolve_max_tokens(profile, max_tokens)
-        temperature = self._resolve_temperature(profile, temperature)
+        async with self._api_semaphore:
+            profile = self._resolve(model)
+            dict_messages = messages_to_dicts(messages)
+            max_tokens = self._resolve_max_tokens(profile, max_tokens)
+            temperature = self._resolve_temperature(profile, temperature)
 
-        # Wire of C00-C-3 (F15/CC6): record call outcome for the
-        # provider-quality score. ``finally`` ensures the outcome is
-        # captured even on exception, so a model that silently
-        # degrades (greptile's caveat) shows up in the dashboard.
-        _start = time.monotonic()
-        _error_type = ""
-        try:
-            if profile.api_mode == "anthropic":
-                return await self._chat_anthropic(profile, dict_messages, tools, tool_choice, temperature, max_tokens, top_p)
-            return await self._chat_openai(profile, dict_messages, tools, tool_choice, temperature, max_tokens, top_p)
-        except Exception as exc:
-            _error_type = type(exc).__name__
-            raise
-        finally:
-            self.record_provider_outcome(
-                profile.model,
-                success=not _error_type,
-                latency_ms=(time.monotonic() - _start) * 1000.0,
-                error_type=_error_type,
-            )
+            import openai as _openai
+            last_exc = None
+            for attempt in range(3):
+                try:
+                    _start = time.monotonic()
+                    _error_type = ""
+                    try:
+                        if profile.api_mode == "anthropic":
+                            result = await self._chat_anthropic(profile, dict_messages, tools, tool_choice, temperature, max_tokens, top_p)
+                        else:
+                            result = await self._chat_openai(profile, dict_messages, tools, tool_choice, temperature, max_tokens, top_p)
+                    except Exception as exc:
+                        _error_type = type(exc).__name__
+                        raise
+                    finally:
+                        self.record_provider_outcome(
+                            profile.model,
+                            success=not _error_type,
+                            latency_ms=(time.monotonic() - _start) * 1000.0,
+                            error_type=_error_type,
+                        )
+                    return result
+                except _openai.APIStatusError as e:
+                    last_exc = e
+                    if e.status_code in (400, 502, 503, 504) and attempt < 2:
+                        retry_delay = (2 ** attempt) * (0.5 + 0.5)
+                        await asyncio.sleep(retry_delay)
+                    else:
+                        raise
+                except (httpx.ConnectError, httpx.TimeoutException) as e:
+                    last_exc = e
+                    if attempt < 2:
+                        retry_delay = (2 ** attempt) * (0.5 + 0.5)
+                        await asyncio.sleep(retry_delay)
+                    else:
+                        raise
+            if last_exc:
+                raise last_exc
 
     async def _chat_openai(
         self, profile: ProviderProfile,
@@ -690,18 +715,52 @@ class LLMRouter:
         model: str | None = None,
         top_p: float = 0.9,
     ) -> AsyncGenerator[Any, None]:
-        profile = self._resolve(model)
-        dict_messages = messages_to_dicts(messages)
-        max_tokens = self._resolve_max_tokens(profile, max_tokens)
-        temperature = self._resolve_temperature(profile, temperature)
+        async with self._api_semaphore:
+            profile = self._resolve(model)
+            dict_messages = messages_to_dicts(messages)
+            max_tokens = self._resolve_max_tokens(profile, max_tokens)
+            temperature = self._resolve_temperature(profile, temperature)
 
-        if profile.api_mode == "anthropic":
-            async for chunk in self._stream_anthropic(profile, dict_messages, tools, temperature, max_tokens, top_p):
-                yield chunk
-            return
+            if profile.api_mode == "anthropic":
+                async for chunk in self._stream_anthropic(profile, dict_messages, tools, temperature, max_tokens, top_p):
+                    yield chunk
+                return
 
-        async for chunk in self._stream_openai(profile, dict_messages, tools, tool_choice, temperature, max_tokens, top_p):
-            yield chunk
+            # Retry loop for transient upstream failures
+            import openai as _openai
+            last_exc = None
+            for attempt in range(3):
+                try:
+                    async for chunk in self._stream_openai(profile, dict_messages, tools, tool_choice, temperature, max_tokens, top_p):
+                        yield chunk
+                    return
+                except _openai.APIStatusError as e:
+                    last_exc = e
+                    if e.status_code in (400, 502, 503, 504) and attempt < 2:
+                        retry_delay = (2 ** attempt) * (0.5 + 0.5)
+                        logger.warning(
+                            "LLM stream attempt %d/3 failed (status=%d), retrying in %.1fs: %s",
+                            attempt + 1, e.status_code, retry_delay, e.message[:200],
+                        )
+                        await asyncio.sleep(retry_delay)
+                    else:
+                        raise
+                except httpx.HTTPStatusError as e:
+                    last_exc = e
+                    if e.response.status_code in (502, 503, 504) and attempt < 2:
+                        retry_delay = (2 ** attempt) * (0.5 + 0.5)
+                        await asyncio.sleep(retry_delay)
+                    else:
+                        raise
+                except (httpx.ConnectError, httpx.TimeoutException) as e:
+                    last_exc = e
+                    if attempt < 2:
+                        retry_delay = (2 ** attempt) * (0.5 + 0.5)
+                        await asyncio.sleep(retry_delay)
+                    else:
+                        raise
+            if last_exc:
+                raise last_exc
 
     async def _stream_openai(
         self, profile: ProviderProfile,

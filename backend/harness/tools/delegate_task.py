@@ -360,7 +360,7 @@ class DelegateTaskTool(BaseTool):
                 )
             results = await self._run_batch(tasks[:cap], context, resolved, model_override, role, agent_name=agent_name, max_tool_rounds=max_tool_rounds)
             summary = "\n\n".join(
-                f"## Task {i + 1}: {tasks[i][:80]}\n{r}"
+                f"## Task {i + 1}: {(tasks[i][:80] if isinstance(tasks[i], str) else tasks[i].get('goal', str(tasks[i]))[:80])}\n{r}"
                 for i, r in enumerate(results)
             )
             return ToolResult(success=True, output=summary, data={"mode": "fanout", "count": len(results)})
@@ -1132,7 +1132,7 @@ class DelegateTaskTool(BaseTool):
 
     async def _run_batch(
         self,
-        tasks: list[str],
+        tasks: list[str | dict],
         context: str,
         allowed: list[str],
         model_override: str | None = None,
@@ -1141,6 +1141,7 @@ class DelegateTaskTool(BaseTool):
         max_tool_rounds: int | None = None,
     ) -> list[str]:
         from harness.tools.subagent import Subagent
+        from harness.tools.toolsets import resolve_toolsets
 
         sub = Subagent(
             agent_factory=self._get_agent_factory(),
@@ -1148,12 +1149,24 @@ class DelegateTaskTool(BaseTool):
             max_spawn_depth=self._max_spawn_depth,
         )
 
-        async def _spawn_with_glue(goal: str) -> "SubagentResult":
+        async def _spawn_with_glue(task: str | dict) -> "SubagentResult":
+            if isinstance(task, dict):
+                task_goal = task.get("goal", "")
+                task_raw_toolsets = task.get("toolsets", None)
+                if task_raw_toolsets:
+                    task_toolsets = resolve_toolsets(task_raw_toolsets)
+                else:
+                    task_toolsets = allowed
+                task_role = task.get("role", role)
+            else:
+                task_goal = task
+                task_toolsets = allowed
+                task_role = role
             return await sub.spawn(
-                goal=goal,
-                role=role,
+                goal=task_goal,
+                role=task_role,
                 context=context,
-                toolsets=allowed,
+                toolsets=task_toolsets,
                 model_override=model_override,
                 agent_name=agent_name,
                 max_tool_rounds=max_tool_rounds,
@@ -1297,7 +1310,7 @@ class DelegateTaskTool(BaseTool):
 
     async def _run_batch_background(
         self,
-        tasks: list[str],
+        tasks: list[str | dict],
         context: str,
         allowed: list[str],
         model_override: str | None = None,
@@ -1307,8 +1320,12 @@ class DelegateTaskTool(BaseTool):
     ) -> list[str]:
         ids: list[str] = []
         for t in tasks:
+            if isinstance(t, dict):
+                t_goal = t.get("goal", "")
+            else:
+                t_goal = t
             sid = await self._run_background(
-                t, context, allowed, model_override, role,
+                t_goal, context, allowed, model_override, role,
                 agent_name=agent_name, max_tool_rounds=max_tool_rounds,
             )
             ids.append(sid)

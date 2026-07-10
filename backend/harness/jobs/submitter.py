@@ -25,6 +25,7 @@ soft error and surface a "queued but not started" state.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import uuid
 from typing import Any
@@ -62,15 +63,20 @@ async def submit_job_to_orchestrator(
     # Lazy imports to avoid circular dependencies at module load.
     from harness.jobs.spec import _job_spec_store as _module_store
 
+    logger.info("SUBMIT: Starting for spec_id=%s", spec.spec_id)
     store = job_spec_store if job_spec_store is not None else _module_store()
     record = to_record(spec)
+    print(f"SUBMIT: Starting for spec_id={spec.spec_id}")
 
     # Step 1: persist (durable across restarts).
     persisted = False
     if store is not None:
         try:
-            await store.save(record)
+            await asyncio.wait_for(store.save(record), timeout=15)
             persisted = True
+            logger.info("SUBMIT: Persisted spec %s", spec.spec_id)
+        except asyncio.TimeoutError:
+            logger.error("submit_job: persist TIMED OUT for spec_id=%s", spec.spec_id)
         except Exception as exc:
             logger.error(
                 "submit_job_to_orchestrator: persist failed spec_id=%s err=%s",
@@ -88,18 +94,28 @@ async def submit_job_to_orchestrator(
     # thread can be back-filled later by a manual ``/threads``
     # lookup. The thread is what makes the run observable in the
     # chat surface, so we want it created as early as possible.
-    await _auto_create_thread_for_spec(spec)
+    try:
+        await asyncio.wait_for(_auto_create_thread_for_spec(spec), timeout=5)
+    except asyncio.TimeoutError:
+        logger.warning("submit_job: thread auto-create timed out (non-fatal)")
+    except Exception as exc:
+        logger.warning("submit_job: thread auto-create failed: %s (non-fatal)", exc)
 
     # Step 3: dispatch.
     dispatched = False
+    _caught_error = ""
     try:
+        logger.info("SUBMIT: Creating orchestrator engine for %s", spec.spec_id)
+        print(f"SUBMIT: Creating orchestrator engine for {spec.spec_id}")
         engine = (
             orchestrator_engine_factory()
             if orchestrator_engine_factory is not None
             else _default_orchestrator_engine()
         )
         if engine is not None:
+            logger.info("SUBMIT: Running pipeline for %s", spec.spec_id)
             result = await engine.run_job_spec(spec)
+            logger.info("SUBMIT: Pipeline completed for %s, result=%s", spec.spec_id, str(result)[:200])
             # Attach the resulting run_id to the spec so a follow-up
             # ``get_job`` shows the linkage.
             run_id = str(result.get("run_id") or spec.run_id or "")
@@ -111,11 +127,16 @@ async def submit_job_to_orchestrator(
             # into the persisted record (the orchestrator normally
             # does this, but we double-check for the no-orchestrator
             # edge case).
-            if persisted and store is not None and run_id:
+            if persisted:
+                result_error = str(result.get("error") or "")
+                result_status = "running" if (run_id and not result_error) else "failed"
                 try:
-                    await store.update_status(
-                        spec.spec_id, "running", run_id=run_id,
-                    )
+                    if store is not None:
+                        await store.update_status(
+                            spec.spec_id, result_status,
+                            run_id=run_id if run_id else None,
+                            error=result_error[:500] if result_error else None,
+                        )
                 except Exception:
                     pass
             dispatched = True
@@ -125,14 +146,23 @@ async def submit_job_to_orchestrator(
             "submit_job_to_orchestrator: dispatch failed spec_id=%s err=%s",
             spec.spec_id, exc,
         )
+        _caught_error = str(exc)
 
     # Dispatch failed but we may have persisted. Surface a soft error.
+    error_msg = _caught_error if _caught_error else "Dispatch failed"
     if persisted:
         logger.warning(
             "submit_job_to_orchestrator: spec_id=%s persisted but not "
-            "dispatched (returned empty run_id)",
-            spec.spec_id,
+            "dispatched (returned empty run_id): %s",
+            spec.spec_id, error_msg,
         )
+        try:
+            if store is not None:
+                await store.update_status(
+                    spec.spec_id, "failed", error=error_msg[:500],
+                )
+        except Exception:
+            pass
     return ""
 
 

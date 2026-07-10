@@ -174,7 +174,7 @@ function SessionsPageInner() {
         id: s.session_id || s.id,
         title: s.goal?.slice(0, 80) || s.title || (s.session_id || s.id || "").slice(0, 12),
         status: s.status === "ok" ? "completed" : s.status || "completed",
-        source: s.source === "pipeline" ? "pipeline" : s.source === "delegation" ? "delegation" : "chat",
+        source: s.source === "pipeline" || s.source === "api" ? "pipeline" : s.source === "delegation" ? "delegation" : "chat",
         goal: s.goal || "",
         agentRole: s.agent_role || "",
         depth: s.depth ?? 0,
@@ -211,14 +211,19 @@ function SessionsPageInner() {
       combined.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
       setSessions(combined);
       setPrs(prData?.prs ?? []);
-    } catch {
-      // silent
+    } catch (e) {
+      toast.error("Failed to load sessions");
     } finally {
       setLoading(false);
     }
   }, [search]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  useEffect(() => {
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
   useEffect(() => {
     if (!selectedId) { setSessionPrs([]); setArtifacts([]); return; }
@@ -315,7 +320,7 @@ function SessionsPageInner() {
             <RevealSection>
               <BentoCard label="Session Overview" description="Aggregate session metrics across all sources" padding="sm">
                 <KpiRow items={[
-                  { label: "Total Sessions", value: sessions.length, sub: `+${overview?.pipeline_runs_24h ?? 0} this week` },
+                  { label: "Total Sessions", value: sessions.length, sub: `+${overview?.pipeline_runs_24h ?? 0} last 24h` },
                   { label: "Active Now", value: overview?.active_agents ?? 0, sub: `${overview?.pipeline_status?.running ?? 0} agents`, pulse: (overview?.active_agents ?? 0) > 0 },
                   { label: "Today", value: overview?.pipeline_runs_24h ?? 0, sub: `${overview?.tests_24h?.passed ?? 0} passed` },
                   { label: "Avg Cost", value: `$${((sessions.reduce((s, x) => s + x.cost, 0) / (sessions.length || 1))).toFixed(4)}`, sub: `~${Math.round(sessions.reduce((s, x) => s + x.tokens, 0) / (sessions.length || 1))} tok avg` },
@@ -495,9 +500,9 @@ function SessionsPageInner() {
                               return <p className="text-zinc-600">No messages captured for this session yet.</p>;
                             }
                             return events.slice(0, 20).map((ev: any, i: number) => {
-                              const isUser = ev.type === "user_message" || ev.payload?.role === "user";
-                              const isAssistant = ev.type === "assistant_message" || ev.payload?.role === "assistant";
-                              const isTool = ev.type === "tool_call" || ev.type === "tool_result" || ev.type === "tool.execution.started" || ev.type === "tool.execution.completed" || ev.type === "ToolExecutionStarted" || ev.type === "ToolExecutionCompleted" || ev.payload?.tool_name;
+                              const isUser = ev.type === "user_message" || ev.type === "user" || ev.payload?.role === "user";
+                              const isAssistant = ev.type === "assistant_message" || ev.type === "assistant" || ev.type === "llmcall.completed" || ev.type === "LLMCallCompleted" || ev.payload?.role === "assistant";
+                              const isTool = ev.type === "tool.execution.started" || ev.type === "tool.execution.completed" || ev.type === "ToolExecutionStarted" || ev.type === "ToolExecutionCompleted" || ev.type === "tool_call" || ev.type === "tool_result" || ev.payload?.tool_name;
                               const toolName = ev.payload?.tool_name || ev.payload?.name;
                               const text = ev.payload?.content ?? ev.payload?.text ?? ev.payload?.message ?? (typeof ev.payload === "string" ? ev.payload : "");
                               return (
@@ -661,7 +666,7 @@ function SessionsPageInner() {
                         {selectedTab === "logs" && (
                           (() => {
                             const toolEvents = (eventsQ.data?.events ?? []).filter(
-                              (e: any) => e.type === "tool_call" || e.type === "tool_result" || e.type === "tool.execution.started" || e.type === "tool.execution.completed" || e.type === "ToolExecutionStarted" || e.type === "ToolExecutionCompleted" || e.payload?.tool_name
+                              (e: any) => e.type === "tool.execution.started" || e.type === "tool.execution.completed" || e.type === "ToolExecutionStarted" || e.type === "ToolExecutionCompleted" || e.type === "tool_call" || e.type === "tool_result" || e.payload?.tool_name
                             );
                             if (eventsQ.isLoading) {
                               return <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-8 rounded-lg shimmer-bg" />)}</div>;
