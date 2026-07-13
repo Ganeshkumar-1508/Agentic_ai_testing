@@ -147,8 +147,8 @@ function PipelinePageInner() {
           },
         });
         spec.tier = 2;
-        const data = await api.post<{ spec_id?: string; session_id?: string }>(`/api/jobs`, spec);
-        const sessionId = data?.spec_id || data?.session_id;
+        const data = await api.post<{ spec_id?: string; run_id?: string; session_id?: string }>(`/api/jobs`, spec);
+        const sessionId = data?.run_id || data?.spec_id || data?.session_id;
         if (!sessionId) throw new Error("Backend did not return a session id");
         connectToWorkflow(sessionId);
       } else {
@@ -182,8 +182,8 @@ function PipelinePageInner() {
           },
         });
         spec.tier = 1;
-        const data = await api.post<{ spec_id?: string; session_id?: string }>(`/api/jobs`, spec);
-        const sid = data?.spec_id || data?.session_id;
+        const data = await api.post<{ spec_id?: string; run_id?: string; session_id?: string }>(`/api/jobs`, spec);
+        const sid = data?.run_id || data?.spec_id || data?.session_id;
         if (!sid) throw new Error("Backend did not return a session id");
         connectToWorkflow(sid);
       }
@@ -199,7 +199,7 @@ function PipelinePageInner() {
   }, [disconnect, sessionId]);
 
   useEffect(() => {
-    if (!sessionId) {
+    if (!sessionId || (status !== "running")) {
       setTokenUsage({ tokens: 0, cost: 0 });
       return;
     }
@@ -229,14 +229,15 @@ function PipelinePageInner() {
   }, [router]);
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId || status !== "running") return;
     const discoverBoard = () => {
       api.get<{ boards?: Array<{ id: string; name?: string; config?: { source?: string } }> }>(`/api/kanban/boards`)
         .then((d) => {
           const boards = d.boards || [];
           const match = boards.find((b) =>
-            b.name?.toLowerCase().includes(sessionId.slice(0, 8)) ||
-            b.config?.source === "orchestrator"
+            (sessionId && b.name?.toLowerCase().includes(sessionId.slice(0, 8))) ||
+            b.config?.source === "orchestrator" ||
+            b.config?.session_id === sessionId
           );
           if (match) _setBoardId(match.id);
         })
@@ -265,7 +266,7 @@ function PipelinePageInner() {
           </button>
           <button onClick={() => setShowConfig(!showConfig)}
             className="flex items-center gap-2 px-4 py-2 rounded-[0.75rem] text-[13px] font-medium border border-white/[0.06] bg-white/[0.03] text-zinc-400 hover:bg-white/[0.05] transition-all">
-            <Settings2 className="w-4 h-4" strokeWidth={1.5} /> Config
+            <Settings2 className="w-4 h-4" strokeWidth={1.5} /> Advanced Config
           </button>
           <button onClick={status === "running" ? stopPipeline : startPipeline}
             disabled={status === "running" ? false : !requirements.trim() ? true : pipelineMode === "orchestrate" && !repoUrl.trim()}
@@ -346,6 +347,7 @@ function PipelinePageInner() {
       <div>
         <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5 block">Requirements</label>
         <textarea value={requirements} onChange={e => setRequirements(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); startPipeline(); } }}
           placeholder={pipelineMode === "quick" ? "Describe what you want to test, e.g. 'Generate tests for user authentication API including login, registration, password reset, and edge cases'" : "Describe what to focus on, e.g. 'Fix all open bugs and add tests for the auth module'"}
           className="w-full min-h-[100px] bg-card border border-white/[0.06] rounded-xl p-5 text-[14px] text-zinc-100 placeholder:text-zinc-600 resize-y focus:outline-none focus:border-emerald-500/30 focus:ring-2 focus:ring-emerald-500/10 transition-all leading-relaxed" />
         <div className="flex items-center justify-between mt-3">
@@ -397,9 +399,24 @@ function PipelinePageInner() {
       </div>
 
       {/* === 4c. FILE UPLOAD AREA === */}
-      <div className="border border-dashed border-white/[0.06] rounded-xl p-4 flex items-center justify-center gap-3 text-[12px] text-zinc-500 hover:border-emerald-500/20 hover:bg-emerald-500/5 transition-all cursor-pointer">
+      <div
+        onClick={() => document.getElementById("pipeline-file-input")?.click()}
+        onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-emerald-500/40", "bg-emerald-500/5"); }}
+        onDragLeave={(e) => { e.currentTarget.classList.remove("border-emerald-500/40", "bg-emerald-500/5"); }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.currentTarget.classList.remove("border-emerald-500/40", "bg-emerald-500/5");
+          const files = Array.from(e.dataTransfer.files);
+          if (files.length > 0) toast.success(`${files.length} file(s) selected`);
+        }}
+        className="border border-dashed border-white/[0.06] rounded-xl p-4 flex items-center justify-center gap-3 text-[12px] text-zinc-500 hover:border-emerald-500/20 hover:bg-emerald-500/5 transition-all cursor-pointer">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         Drop source files here or <span className="text-emerald-400 font-medium">browse</span> to upload for context-aware test generation
+        <input id="pipeline-file-input" type="file" multiple className="hidden" onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          if (files.length > 0) toast.success(`${files.length} file(s) selected`);
+          e.target.value = "";
+        }} />
       </div>
 
       {/* === 3. MODE SELECTOR BAR === */}
@@ -457,7 +474,11 @@ function PipelinePageInner() {
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <div className="border border-white/[0.06] rounded-[1.5rem] max-h-[400px] overflow-y-auto">
               {historySessions.length === 0 ? (
-                <div className="p-8 text-center text-[13px] text-zinc-600">No past sessions</div>
+                <div className="p-8 text-center text-[13px] text-zinc-600">
+                  <History className="w-8 h-8 mx-auto mb-2 text-zinc-700" strokeWidth={1} />
+                  <p>No past sessions</p>
+                  <p className="text-[11px] text-zinc-700 mt-1">Completed pipeline runs appear here</p>
+                </div>
               ) : historySessions.map((s: any) => (
                 <div key={s.session_id} onClick={() => loadSession(s.session_id)}
                   className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-3 px-5 py-3 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/[0.02] transition-colors group">
