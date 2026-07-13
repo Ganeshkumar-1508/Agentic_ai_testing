@@ -741,6 +741,9 @@ class Agent:
     # ------------------------------------------------------------------ #
 
     async def run(self, user_input: str, model: str | None = None) -> str:
+        import logging
+        _log = logging.getLogger(__name__)
+        _log.info("Agent.run ENTERED: session=%s model=%s input=%s", self.session_id, model, user_input[:50])
         agent_id = str(uuid.uuid4())
         self._recorder = None
         try:

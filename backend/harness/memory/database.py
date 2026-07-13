@@ -29,7 +29,7 @@ class Database:
                 self._pool = await asyncpg.create_pool(
                     self.dsn,
                     min_size=2,
-                    max_size=10,
+                    max_size=20,
                     command_timeout=60,
                     max_inactive_connection_lifetime=300,  # 5 min recycle
                     server_settings={"tcp_keepalives_idle": "60"},
@@ -93,14 +93,19 @@ class Database:
             raise RuntimeError("Database not connected")
         for attempt in range(5):
             try:
-                async with self._pool.acquire() as conn:
+                async with self._pool.acquire(timeout=10) as conn:
                     return await conn.execute(query, *args)
+            except asyncio.TimeoutError:
+                logger.error("DB pool acquire timed out (attempt %d/5)", attempt + 1)
+                if attempt < 4:
+                    await asyncio.sleep(min(2 ** attempt, 5))
+                else:
+                    raise RuntimeError(f"DB pool exhausted after {attempt+1} attempts")
             except (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError, OSError, asyncpg.TooManyConnectionsError) as exc:
                 if attempt < 4:
                     wait = min(2 ** attempt, 10) + random.uniform(0, 0.5)
                     logger.warning("DB execute retry %d/5: %s", attempt + 1, exc)
                     await asyncio.sleep(wait)
-                    # Force pool recycling on connection errors
                     if isinstance(exc, (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError)):
                         try:
                             self._pool.expire_connections()
@@ -114,8 +119,14 @@ class Database:
             raise RuntimeError("Database not connected")
         for attempt in range(5):
             try:
-                async with self._pool.acquire() as conn:
+                async with self._pool.acquire(timeout=10) as conn:
                     return await conn.fetch(query, *args)
+            except asyncio.TimeoutError:
+                logger.error("DB pool acquire timed out (attempt %d/5)", attempt + 1)
+                if attempt < 4:
+                    await asyncio.sleep(min(2 ** attempt, 5))
+                else:
+                    raise RuntimeError(f"DB pool exhausted after {attempt+1} attempts")
             except (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError, OSError, asyncpg.TooManyConnectionsError) as exc:
                 if attempt < 4:
                     wait = min(2 ** attempt, 10) + random.uniform(0, 0.5)
@@ -134,8 +145,14 @@ class Database:
             raise RuntimeError("Database not connected")
         for attempt in range(5):
             try:
-                async with self._pool.acquire() as conn:
+                async with self._pool.acquire(timeout=10) as conn:
                     return await conn.fetchrow(query, *args)
+            except asyncio.TimeoutError:
+                logger.error("DB pool acquire timed out (attempt %d/5)", attempt + 1)
+                if attempt < 4:
+                    await asyncio.sleep(min(2 ** attempt, 5))
+                else:
+                    raise RuntimeError(f"DB pool exhausted after {attempt+1} attempts")
             except (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError, OSError, asyncpg.TooManyConnectionsError) as exc:
                 if attempt < 4:
                     wait = min(2 ** attempt, 10) + random.uniform(0, 0.5)
@@ -154,8 +171,14 @@ class Database:
             raise RuntimeError("Database not connected")
         for attempt in range(5):
             try:
-                async with self._pool.acquire() as conn:
+                async with self._pool.acquire(timeout=10) as conn:
                     return await conn.fetchval(query, *args)
+            except asyncio.TimeoutError:
+                logger.error("DB pool acquire timed out (attempt %d/5)", attempt + 1)
+                if attempt < 4:
+                    await asyncio.sleep(min(2 ** attempt, 5))
+                else:
+                    raise RuntimeError(f"DB pool exhausted after {attempt+1} attempts")
             except (asyncpg.ConnectionDoesNotExistError, asyncpg.InterfaceError, OSError, asyncpg.TooManyConnectionsError) as exc:
                 if attempt < 4:
                     wait = min(2 ** attempt, 10) + random.uniform(0, 0.5)
