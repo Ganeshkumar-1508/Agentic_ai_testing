@@ -210,25 +210,22 @@ class KanbanService:
 
     # ── Boards ─────────────────────────────────────────────────────
 
-    async def list_boards(self, board_id: str = "") -> list[dict[str, Any]]:
-        """List all boards (or one board), with their tasks inlined.
+    async def list_boards(self, board_id: str = "", source: str = "") -> list[dict[str, Any]]:
+        """List boards, optionally filtered by board_id or source.
 
-        The frontend's kanban page renders `b.tasks` directly off the
-        board object (see `src/app/(dashboard)/kanban/page.tsx:288-289`).
-        Returning tasks as a separate field would force the UI to do
-        a second round-trip per board. The e2e-test (June 2026)
-        found that the previous version of this method returned ONLY
-        the board object — tasks were correctly written to the DB by
-        `create_task()` but never appeared on the UI because the
-        /boards endpoint didn't nest them.
-
-        The `board_id` filter scopes the list to a single board
-        (used by the API's board-scope header path).
+        The `source` parameter filters by `config->>'source'` in the
+        kanban_boards JSONB column (used by the pipeline page to find
+        orchestrator-created boards without fetching all boards).
         """
         if board_id:
             rows = await self.db.fetch(
                 "SELECT * FROM kanban_boards WHERE id = $1 ORDER BY created_at DESC",
                 board_id,
+            )
+        elif source:
+            rows = await self.db.fetch(
+                "SELECT * FROM kanban_boards WHERE config->>'source' = $1 ORDER BY created_at DESC",
+                source,
             )
         else:
             rows = await self.db.fetch("SELECT * FROM kanban_boards ORDER BY created_at DESC")

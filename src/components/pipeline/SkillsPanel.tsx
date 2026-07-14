@@ -24,7 +24,7 @@ export function SkillsPanel({ onSelectSkill, selectedSkill }: SkillsPanelProps) 
   const allSkills = data || [];
   const skills = allSkills
     .filter((s) => !search || s.name.toLowerCase().includes(search.toLowerCase()) || (s.description || "").toLowerCase().includes(search.toLowerCase()))
-    .slice(0, 15);
+    .slice(0, 50);
 
   return (
     <div className="bg-card border border-white/[0.06] rounded-xl p-4">
