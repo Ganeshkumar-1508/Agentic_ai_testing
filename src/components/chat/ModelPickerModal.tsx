@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, Cpu, Loader2, AlertCircle, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api/api-client";
+import { useProviderStore } from "@/stores/provider-store";
 
 interface ProviderModel {
   provider?: string;
@@ -52,9 +53,19 @@ export function ModelPickerModal({ open, onClose, currentModel, onSelect }: Mode
     if (!open) return;
     setLoading(true);
     setError(null);
+    // Load configured providers
     api.get<any[]>("/api/settings/providers")
       .then((data) => {
-        setModels(Array.isArray(data) ? data.filter((p: any) => p.enabled !== false) : []);
+        const providers = Array.isArray(data) ? data.filter((p: any) => p.enabled !== false) : [];
+        // Also collect available_models from store
+        const storeModels = useProviderStore.getState().providers
+          .filter(p => p.available_models?.length)
+          .flatMap(p => (p.available_models || []).map(m => ({
+            provider: p.provider, model: m, enabled: true, label: `${p.provider}/${m}`
+          })));
+        // Merge: configured models first, then store available models
+        const allModels = [...providers, ...storeModels.filter(sm => !providers.some(p => p.model === sm.model))];
+        setModels(allModels);
       })
       .catch(() => setError("Failed to load models"))
       .finally(() => setLoading(false));

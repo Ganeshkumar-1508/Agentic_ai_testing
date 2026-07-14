@@ -456,6 +456,7 @@ class NotificationPrefRequest(BaseModel):
     channel: str
     enabled: bool = True
     events: list[str] = []
+    target: str = ""
 
 
 @router.get("/settings/notification-prefs")
@@ -467,7 +468,7 @@ async def get_notification_prefs(request: Request):
 @router.post("/settings/notification-prefs")
 async def upsert_notification_pref(request: Request, body: NotificationPrefRequest):
     svc = SettingsService(get_db(request))
-    await svc.upsert_notification_pref(body.channel, body.enabled, body.events)
+    await svc.upsert_notification_pref(body.channel, body.enabled, body.events, target=body.target)
     return {"status": "ok"}
 
 
