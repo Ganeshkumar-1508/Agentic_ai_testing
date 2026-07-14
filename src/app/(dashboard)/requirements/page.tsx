@@ -15,7 +15,7 @@ import {
   FileText, Upload, Github, Gitlab as GitlabIcon, GitBranch,
   Check, ChevronRight, ChevronLeft, Play, Sparkles, ArrowRight,
   FileCode, ListChecks, FileUp, Eye, Zap, Loader2, AlertCircle,
-  Plus, Search, Trash2, Link2,
+  Plus, Search, Trash2, Link2, X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -74,6 +74,16 @@ const PRIORITY_BADGE: Record<string, string> = {
   low: "bg-emerald-400/10 text-emerald-400",
 };
 
+const MAX_FILE_SIZE_MB = 25;
+const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.txt,.md,.csv,.json";
+
+interface UploadedFileEntry {
+  file: File;
+  id: string;
+  status: "pending" | "uploading" | "done" | "error";
+  error?: string;
+}
+
 export default function RequirementsPage() {
   const router = useRouter();
   const [reqs, setReqs] = useState<Requirement[]>([]);
@@ -100,6 +110,12 @@ export default function RequirementsPage() {
   const [language, setLanguage] = useState<string>("");
   const [framework, setFramework] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Upload state
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFileEntry[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const fetchReqs = useCallback(async () => {
     try {
@@ -159,6 +175,86 @@ export default function RequirementsPage() {
       setLinkInput("");
       await fetchReqs();
     } catch { /* ignore */ }
+  };
+
+  // ── File upload handlers ──
+
+  const handleFileButtonClick = () => {
+    setUploadError(null);
+    fileInputRef.current?.click();
+  };
+
+  const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+
+    const incoming = Array.from(fileList);
+    const tooLarge = incoming.filter((f) => f.size > MAX_FILE_SIZE_MB * 1024 * 1024);
+
+    if (tooLarge.length > 0) {
+      setUploadError(`${tooLarge.length} file(s) exceed ${MAX_FILE_SIZE_MB}MB and were skipped`);
+    }
+
+    const accepted = incoming.filter((f) => f.size <= MAX_FILE_SIZE_MB * 1024 * 1024);
+    if (accepted.length === 0) {
+      e.target.value = "";
+      return;
+    }
+
+    const entries: UploadedFileEntry[] = accepted.map((file) => ({
+      file,
+      id: `${file.name}-${file.size}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      status: "pending",
+    }));
+
+    setUploadedFiles((prev) => [...prev, ...entries]);
+    uploadFiles(entries);
+
+    // reset so selecting the same file again still fires onChange
+    e.target.value = "";
+  };
+
+  const removeUploadedFile = (id: string) => {
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
+  };
+
+  const uploadFiles = async (entries: UploadedFileEntry[]) => {
+    setIsUploading(true);
+    setUploadError(null);
+    setUploadProgress(0);
+
+    const ids = new Set(entries.map((en) => en.id));
+    setUploadedFiles((prev) => prev.map((f) => (ids.has(f.id) ? { ...f, status: "uploading" } : f)));
+
+    const formData = new FormData();
+    entries.forEach((entry) => formData.append("files", entry.file));
+
+    // Attach the currently-selected requirement, if any.
+    if (editingReq) {
+      formData.append("requirement_id", editingReq.id);
+    }
+
+    try {
+      await api.upload("/api/traceability/upload", formData, (percent) => {
+        setUploadProgress(percent);
+      });
+
+      setUploadedFiles((prev) => prev.map((f) => (ids.has(f.id) ? { ...f, status: "done" } : f)));
+      await fetchReqs();
+    } catch (err) {
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Upload failed";
+
+      setUploadError(message);
+      setUploadedFiles((prev) =>
+        prev.map((f) => (ids.has(f.id) ? { ...f, status: "error", error: message } : f)),
+      );
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
   };
 
   const filtered = search.trim()
@@ -382,12 +478,72 @@ export default function RequirementsPage() {
           {/* Pipeline Launcher (original workflow) */}
           <div className="mt-4 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 space-y-4">
             <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Run Test Pipeline</h3>
-            <p className="text-xs text-zinc-600">Choose a requirement above or enter requirements directly to generate and execute tests.</p>
+            <p className="text-xs text-zinc-600">
+              {editingReq
+                ? <>Files will be attached to <span className="text-zinc-400">{editingReq.title}</span>.</>
+                : "Choose a requirement above or enter requirements directly to generate and execute tests."}
+            </p>
             <Textarea placeholder="Describe what you want to test..." className="min-h-[80px]" />
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleFilesSelected}
+              accept={ACCEPTED_FILE_TYPES}
+            />
+
             <div className="flex items-center gap-3">
               <Button><Play className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.5} /> Run Pipeline</Button>
-              <Button variant="outline"><Upload className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.5} /> Upload Files</Button>
+              <Button variant="outline" onClick={handleFileButtonClick} disabled={isUploading}>
+                {isUploading ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <Upload className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.5} />
+                )}
+                {isUploading ? `Uploading... ${uploadProgress}%` : "Upload Files"}
+              </Button>
             </div>
+
+            {isUploading && (
+              <Progress value={uploadProgress} className="h-1" />
+            )}
+
+            {uploadError && (
+              <div className="flex items-center gap-1.5 text-xs text-red-400">
+                <AlertCircle className="w-3 h-3" strokeWidth={1.5} />
+                {uploadError}
+              </div>
+            )}
+
+            {uploadedFiles.length > 0 && (
+              <div className="space-y-1">
+                {uploadedFiles.map((entry) => (
+                  <div key={entry.id} className="flex items-center gap-2 text-xs text-zinc-500">
+                    {entry.status === "uploading" ? (
+                      <Loader2 className="w-3 h-3 animate-spin text-zinc-500" strokeWidth={1.5} />
+                    ) : entry.status === "done" ? (
+                      <Check className="w-3 h-3 text-emerald-400" strokeWidth={1.5} />
+                    ) : entry.status === "error" ? (
+                      <AlertCircle className="w-3 h-3 text-red-400" strokeWidth={1.5} />
+                    ) : (
+                      <FileCode className="w-3 h-3" strokeWidth={1.5} />
+                    )}
+                    <span className={cn("truncate", entry.status === "error" && "text-red-400")}>
+                      {entry.file.name}
+                    </span>
+                    <span className="text-zinc-700 shrink-0">({(entry.file.size / 1024).toFixed(1)} KB)</span>
+                    <button
+                      onClick={() => removeUploadedFile(entry.id)}
+                      className="ml-auto text-zinc-700 hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-3 h-3" strokeWidth={1.5} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

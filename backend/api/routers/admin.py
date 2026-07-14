@@ -314,7 +314,7 @@ async def delete_skill(request: Request, name: str):
     return {"status": "deleted", "name": name}
 
 
-@router.post("/api/ci/run")
+@router.post("/ci/run")
 async def ci_run(request: Request, req: CIRunRequest):
     from harness.ci.git_providers import get_provider_from_url, get_provider
 
@@ -519,7 +519,7 @@ async def export_all_data(request: Request):
     }
 
 
-@router.post("/api/webhooks/github")
+@router.post("/webhooks/github")
 async def github_webhook(request: Request, req: WebhookPayload):
     # Q1+Q2+Q3: extend the GitHub webhook to fire TestAI runs.
     # The original handler (pre-Q1) only fired the CI runner on

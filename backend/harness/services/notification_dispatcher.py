@@ -111,8 +111,13 @@ class NotificationDispatcher:
         status: str,
         summary: str,
         db: Any = None,
+        channels: list[str] | None = None,
     ) -> None:
         """Format the notification, find matching prefs, deliver to each target.
+
+        If ``channels`` is provided (from Advanced Config ``notification_channels``),
+        only those channels are used. Otherwise, all enabled prefs matching
+        the run:{status} event are used.
 
         Returns ``None`` (fire-and-forget). On any error &mdash;
         no DB, no prefs, delivery failure &mdash; the call
@@ -146,14 +151,29 @@ class NotificationDispatcher:
             from harness.delivery.router import DeliveryRouter
             from harness.delivery.adapters.base import DeliveryTarget
             router = DeliveryRouter(db=db)
-            rows = await db.fetch(
-                "SELECT channel, target FROM notification_prefs "
-                "WHERE enabled = true AND events @> $1",
-                json.dumps([event]),
-            )
+            if channels:
+                placeholders = ", ".join(f"${i+2}" for i in range(len(channels)))
+                rows = await db.fetch(
+                    f"SELECT channel, target FROM notification_prefs "
+                    f"WHERE enabled = true AND CAST(events AS jsonb) @> CAST($1 AS jsonb) AND channel IN ({placeholders})",
+                    json.dumps([event]), *channels,
+                )
+            else:
+                rows = await db.fetch(
+                    "SELECT channel, target FROM notification_prefs "
+                    "WHERE enabled = true AND CAST(events AS jsonb) @> CAST($1 AS jsonb)",
+                    json.dumps([event]),
+                )
             for row in rows:
                 t = row["target"] or ""
-                target = DeliveryTarget.parse(t) if t else DeliveryTarget(platform=row["channel"])
+                channel = row["channel"]
+                # For email channels, use the channel as platform and target as chat_id
+                if channel == "email" and "@" in t:
+                    target = DeliveryTarget(platform=channel, chat_id=t)
+                elif t:
+                    target = DeliveryTarget.parse(t)
+                else:
+                    target = DeliveryTarget(platform=channel)
                 await router.deliver(content, [target])
         except Exception as exc:
             logger.warning(

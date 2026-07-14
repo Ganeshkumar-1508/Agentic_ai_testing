@@ -179,7 +179,6 @@ def _build_dispatcher(allowed_tools: list[str], session_id: str = "sess-1"):
         llm=LLMRouter(),
         store=PersistentStore.__new__(PersistentStore),
         permissions=perms,
-        sandbox_manager=None,
     )
     deps.store.db = object()
 

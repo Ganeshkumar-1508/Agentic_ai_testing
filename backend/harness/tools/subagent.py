@@ -421,11 +421,11 @@ async def persist_delegation(
         total_tokens = prompt_tokens + completion_tokens
         await db.execute(
             "INSERT INTO agent_delegations "
-            "(parent_session_id, subagent_id, goal, status, started_at, finished_at, "
+            "(session_id, parent_session_id, subagent_id, goal, status, started_at, finished_at, "
             "duration_ms, output, prompt_tokens, completion_tokens, total_tokens, "
             "cost_usd, model, depth, parent_subagent_id, tool_calls_count) "
-            "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)",
-            parent_session_id, subagent_id, goal[:500], status,
+            "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)",
+            subagent_id, parent_session_id, subagent_id, goal[:500], status,
             datetime.datetime.fromtimestamp(started_at, tz=datetime.timezone.utc),
             datetime.datetime.fromtimestamp(finished_at, tz=datetime.timezone.utc),
             duration_ms, output[:2000], prompt_tokens, completion_tokens,
