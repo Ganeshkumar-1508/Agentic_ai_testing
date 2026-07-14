@@ -57,19 +57,27 @@ async def get_active_subagents(request: Request):
 
 @router.get("/swarm/delegate-events")
 async def get_delegate_events(request: Request, limit: int = 50, run_id: str | None = None):
-    svc = OpsService(get_db(request))
-    active_session_id = run_id or await svc.get_active_session_id()
+    try:
+        svc = OpsService(get_db(request))
+        active_session_id = run_id or await svc.get_active_session_id()
 
-    trace_rows = await svc.get_trace_events(
-        ["agent.started", "agent.completed", "llmcall.completed", "tool.execution.started", "tool.execution.completed", "round.started", "round.completed"], limit,
-    )
-    stream_rows = await svc.get_stream_events(active_session_id, limit) if active_session_id else []
+        trace_rows = await svc.get_trace_events(
+            ["agent.started", "agent.completed", "llmcall.completed", "tool.execution.started", "tool.execution.completed", "round.started", "round.completed"], limit,
+        )
+        stream_rows = []
+        if active_session_id:
+            try:
+                stream_rows = await svc.get_stream_events(active_session_id, limit)
+            except AttributeError:
+                stream_rows = []
 
-    combined = list(trace_rows) + list(stream_rows)
-    combined.sort(key=lambda r: r["created_at"] or "", reverse=True)
-    combined = combined[:limit]
+        combined = list(trace_rows) + list(stream_rows)
+        combined.sort(key=lambda r: r.get("created_at", "") if isinstance(r, dict) else "", reverse=True)
+        combined = combined[:limit]
 
-    return {"events": [svc.format_event(r) for r in combined]}
+        return {"events": [svc.format_event(r) for r in combined]}
+    except Exception as e:
+        return {"events": [], "error": str(e)}
 
 
 @router.get("/swarm/summary")
