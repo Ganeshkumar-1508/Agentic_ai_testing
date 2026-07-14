@@ -89,44 +89,29 @@ async def submit_job_to_orchestrator(
             spec.spec_id,
         )
 
-    # Step 2: auto-create the chat thread 1:1 with this run.
-    # Best-effort: a failure here logs + continues, because the
-    # thread can be back-filled later by a manual ``/threads``
-    # lookup. The thread is what makes the run observable in the
-    # chat surface, so we want it created as early as possible.
-    try:
-        await asyncio.wait_for(_auto_create_thread_for_spec(spec), timeout=5)
-    except asyncio.TimeoutError:
-        logger.warning("submit_job: thread auto-create timed out (non-fatal)")
-    except Exception as exc:
-        logger.warning("submit_job: thread auto-create failed: %s (non-fatal)", exc)
-
-    # Step 3: dispatch.
+    # Step 2: dispatch.
     dispatched = False
     _caught_error = ""
     try:
-        logger.info("SUBMIT: Creating orchestrator engine for %s", spec.spec_id)
-        print(f"SUBMIT: Creating orchestrator engine for {spec.spec_id}")
         engine = (
             orchestrator_engine_factory()
             if orchestrator_engine_factory is not None
             else _default_orchestrator_engine()
         )
         if engine is not None:
-            logger.info("SUBMIT: Running pipeline for %s", spec.spec_id)
             result = await engine.run_job_spec(spec)
-            logger.info("SUBMIT: Pipeline completed for %s, result=%s", spec.spec_id, str(result)[:200])
-            # Attach the resulting run_id to the spec so a follow-up
-            # ``get_job`` shows the linkage.
             run_id = str(result.get("run_id") or spec.run_id or "")
             try:
                 spec.attach_run_id(run_id)
             except Exception:
                 pass
-            # If persistence succeeded, also propagate the run_id
-            # into the persisted record (the orchestrator normally
-            # does this, but we double-check for the no-orchestrator
-            # edge case).
+            # Step 2b: auto-create thread AFTER orchestrator returns real run_id
+            if run_id:
+                try:
+                    await asyncio.wait_for(_auto_create_thread_for_spec(spec), timeout=5)
+                except (asyncio.TimeoutError, Exception) as exc:
+                    logger.warning("submit_job: thread auto-create failed: %s (non-fatal)", exc)
+
             if persisted:
                 result_error = str(result.get("error") or "")
                 result_status = "running" if (run_id and not result_error) else "failed"
