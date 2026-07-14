@@ -182,11 +182,11 @@ class SettingsService:
         rows = await self.db.fetch("SELECT * FROM notification_preferences ORDER BY channel")
         return [dict(r) for r in rows]
 
-    async def upsert_notification_pref(self, channel: str, enabled: bool, events: list[str]) -> None:
+    async def upsert_notification_pref(self, channel: str, enabled: bool, events: list[str], target: str = "") -> None:
         await self.db.execute(
-            "INSERT INTO notification_preferences (channel, enabled, events) VALUES ($1, $2, $3) "
-            "ON CONFLICT (channel) DO UPDATE SET enabled=$2, events=$3",
-            channel, enabled, json.dumps(events),
+            "INSERT INTO notification_preferences (channel, enabled, events, target) VALUES ($1, $2, $3, $4) "
+            "ON CONFLICT (channel) DO UPDATE SET enabled=$2, events=$3, target=$4",
+            channel, enabled, json.dumps(events), target,
         )
 
     async def delete_notification_pref(self, pref_id: str) -> None:
