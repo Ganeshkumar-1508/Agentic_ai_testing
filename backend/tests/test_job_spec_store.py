@@ -301,7 +301,7 @@ async def test_submit_job_calls_jobspecstore_when_wired(monkeypatch):
     delegation = DelegationContext()
     deps = AgentDependencies(
         llm=LLMRouter(), store=PersistentStore.__new__(PersistentStore),
-        permissions=perms, sandbox_manager=None,
+        permissions=perms,
     )
     # Bypass the store's actual DB connection.
     deps.store.db = object()
