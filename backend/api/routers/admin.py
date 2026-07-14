@@ -430,7 +430,7 @@ async def ci_run(request: Request, req: CIRunRequest):
 class TemplateCreate(BaseModel):
     name: str
     description: str = ""
-    requirements: str
+    requirements: str = ""
     mode: str = "auto"
     language: str = ""
     framework: str = ""

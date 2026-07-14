@@ -14,6 +14,7 @@ import { EventStream } from "@/components/pipeline/EventStream";
 import { AdvancedPipelineConfig, DEFAULT_CONFIG, type AdvancedConfig } from "@/components/pipeline/AdvancedPipelineConfig";
 import { usePipelineStore } from "@/stores/pipeline-store";
 import { api } from "@/lib/api/api-client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 const MODES = ["auto", "ask", "custom"] as const;
 const DEFAULT_QUICK_CHIPS = ["Generate tests for auth API", "Test payment flow edge cases", "E2E: user registration", "API: rate limiting tests"];
@@ -47,10 +48,15 @@ function PipelinePageInner() {
   const [showConfig, setShowConfig] = useState(false);
   const [historySessions, setHistorySessions] = useState<any[]>([]);
   const [templates, setTemplates] = useState<any[]>([]);
+  const [showAllTemplates, setShowAllTemplates] = useState(false);
   const [tokenUsage, setTokenUsage] = useState({ tokens: 0, cost: 0 });
   const [_boardId, _setBoardId] = useState<string | null>(null);
   const [advancedConfig, setAdvancedConfig] = useState<AdvancedConfig>(DEFAULT_CONFIG);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [templateDesc, setTemplateDesc] = useState("");
 
   const status = workflowStatus;
   const sessionId = workflowId;
@@ -76,21 +82,21 @@ function PipelinePageInner() {
   }, []);
 
   useEffect(() => {
+    const requestedSessionId = searchParams.get("session_id");
+    if (requestedSessionId) {
+      connectToWorkflow(requestedSessionId);
+      return;
+    }
+
     if (startupRef.current) return;
     startupRef.current = true;
 
     try {
       const seededRequirements = sessionStorage.getItem("pipeline_requirements");
       const autorun = sessionStorage.getItem("pipeline_autorun");
-      const requestedSessionId = searchParams.get("session_id");
 
       if (seededRequirements?.trim()) {
         setRequirements(seededRequirements.trim());
-      }
-
-      if (requestedSessionId) {
-        connectToWorkflow(requestedSessionId);
-        return;
       }
 
       if (seededRequirements?.trim() && autorun === "1") {
@@ -106,6 +112,7 @@ function PipelinePageInner() {
 
   const startPipeline = useCallback(async () => {
     if (!requirements.trim()) return;
+    setSubmitting(true);
     try {
       sessionStorage.setItem("pipeline_requirements", requirements.trim());
       _setBoardId(null);
@@ -117,7 +124,12 @@ function PipelinePageInner() {
           ? `https://github.com/${repoUrl.trim()}`
           : "";
 
-      if (pipelineMode === "orchestrate" && effectiveRepoUrl) {
+      if (pipelineMode === "orchestrate") {
+        if (!effectiveRepoUrl || (!effectiveRepoUrl.startsWith("https://") && !effectiveRepoUrl.startsWith("http://") && !effectiveRepoUrl.startsWith("git@"))) {
+          toast.error("Please enter a valid repo URL (https:// or git@)");
+          setSubmitting(false);
+          return;
+        }
         const { toJobSpecFromPipelineQuickTest } = await import("@/lib/adapters/job-spec");
         const spec = toJobSpecFromPipelineQuickTest({
           requirements: requirements.trim(),
@@ -192,6 +204,7 @@ function PipelinePageInner() {
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to start pipeline");
     }
+    setSubmitting(false);
   }, [requirements, repoUrl, branch, pipelineMode, mode, selectedTestTypes, advancedConfig, startWorkflow, connectToWorkflow]);
 
   const stopPipeline = useCallback(async () => {
@@ -221,8 +234,8 @@ function PipelinePageInner() {
 
     syncCost();
     const interval = setInterval(syncCost, 5000);
-    return () => clearInterval(interval);
-  }, [sessionId]);
+    return () => { clearInterval(interval); };
+  }, [sessionId, status]);
 
   const loadSession = useCallback((sid: string) => {
     setShowHistory(false);
@@ -232,7 +245,7 @@ function PipelinePageInner() {
   useEffect(() => {
     if (!sessionId || status !== "running") return;
     const discoverBoard = () => {
-      api.get<{ boards?: Array<{ id: string; name?: string; config?: { source?: string } }> }>(`/api/kanban/boards`)
+      api.get<{ boards?: Array<{ id: string; name?: string; config?: { source?: string } }> }>(`/api/kanban/boards?source=orchestrator`)
         .then((d) => {
           const boards = d.boards || [];
           const match = boards.find((b) =>
@@ -270,7 +283,7 @@ function PipelinePageInner() {
             <Settings2 className="w-4 h-4" strokeWidth={1.5} /> Advanced Config
           </button>
           <button onClick={status === "running" ? stopPipeline : startPipeline}
-            disabled={status === "running" ? false : !requirements.trim() ? true : pipelineMode === "orchestrate" && !repoUrl.trim()}
+            disabled={status === "running" || submitting ? true : !requirements.trim() ? true : pipelineMode === "orchestrate" && !repoUrl.trim()}
             className="flex items-center gap-2 px-5 py-2 rounded-[0.75rem] text-[13px] font-semibold bg-emerald-500 text-zinc-950 hover:bg-emerald-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-[0.98]">
             {status === "running" ? <><Square className="w-4 h-4" strokeWidth={2} /> Stop</> : <><Play className="w-4 h-4" strokeWidth={2} /> Run</>}
           </button>
@@ -301,14 +314,14 @@ function PipelinePageInner() {
       {/* === 2. PIPELINE MODE TOGGLE === */}
       <div className="flex items-center gap-3">
         <div className="flex bg-card border border-white/[0.06] rounded-full p-0.5 gap-0.5">
-          <button onClick={() => setPipelineMode("quick")}
+          <button onClick={() => { setPipelineMode("quick"); setRequirements(""); }}
             className={`px-4 py-1.5 rounded-full text-[12px] font-medium transition-all flex items-center gap-1.5 ${
               pipelineMode === "quick" ? "bg-emerald-500 text-zinc-950 font-semibold" : "text-zinc-400 hover:text-zinc-300"
             }`}>
             <Zap className="w-3.5 h-3.5" strokeWidth={1.5} />
             Quick Test
           </button>
-          <button onClick={() => setPipelineMode("orchestrate")}
+          <button onClick={() => { setPipelineMode("orchestrate"); setRequirements(""); setSelectedSkill(""); }}
             className={`px-4 py-1.5 rounded-full text-[12px] font-medium transition-all flex items-center gap-1.5 ${
               pipelineMode === "orchestrate" ? "bg-emerald-500 text-zinc-950 font-semibold" : "text-zinc-400 hover:text-zinc-300"
             }`}>
@@ -354,12 +367,12 @@ function PipelinePageInner() {
         <div className="flex items-center justify-between mt-3">
           <div className="flex items-center gap-2 flex-wrap">
             {pipelineMode === "quick" ? (quickChips).map((chip, i) => (
-              <button key={i} onClick={() => { setRequirements(chip); setTimeout(startPipeline, 100); }}
+              <button key={i} onClick={() => { setRequirements(chip); setTimeout(startPipeline, 300); }}
                 className="px-3 py-1.5 rounded-full text-[11px] font-medium border border-white/[0.06] text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all">
                 {chip}
               </button>
             )) : (
-              <button onClick={() => { setRequirements("Fix all open issues and add tests for the main functionality"); setTimeout(startPipeline, 100); }}
+              <button onClick={() => { setRequirements("Fix all open issues and add tests for the main functionality"); setTimeout(startPipeline, 300); }}
                 className="px-3 py-1.5 rounded-full text-[11px] font-medium border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 transition-all">
                 Fix open issues
               </button>
@@ -446,7 +459,7 @@ function PipelinePageInner() {
             <Settings2 className="w-3 h-3" strokeWidth={1.5} /> Advanced Config
           </button>
           <button onClick={status === "running" ? stopPipeline : startPipeline}
-            disabled={status === "running" ? false : !requirements.trim() ? true : pipelineMode === "orchestrate" && !repoUrl.trim()}
+            disabled={status === "running" || submitting ? true : !requirements.trim() ? true : pipelineMode === "orchestrate" && !repoUrl.trim()}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-500 text-zinc-950 hover:bg-emerald-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-[0.98]">
             {status === "running" ? <><Square className="w-3 h-3" strokeWidth={2} /> Stop</> : <><Play className="w-3 h-3" strokeWidth={2} /> Run with Options</>}
           </button>
@@ -520,11 +533,11 @@ function PipelinePageInner() {
                 <div className="text-center py-12 text-[13px] text-zinc-600 border border-dashed border-white/[0.06] rounded-[1.5rem]">
                   <FileText className="w-8 h-8 mx-auto mb-2 text-zinc-700" strokeWidth={1} />
                   <p>No templates yet</p>
-                  <p className="text-[11px] text-zinc-600 mt-1">Templates can be added via the API or Settings page</p>
+                  <p className="text-[11px] text-zinc-600 mt-1">Click <span className="text-emerald-400">Add Template</span> above or create via Settings</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {templates.slice(0, 5).map((t, i) => (
+                  {(showAllTemplates ? templates : templates.slice(0, 5)).map((t, i) => (
                     <div key={i} className="border border-white/[0.06] rounded-[1.5rem] p-6 hover:border-emerald-500/10 hover:translate-y-[-2px] transition-all cursor-pointer group">
                       <div className="text-[14px] font-semibold text-zinc-200">{t.name || t.id}</div>
                       <div className="text-[12px] text-zinc-500 mt-1.5 leading-relaxed">{(t.description || "").slice(0, 60)}</div>
@@ -540,17 +553,13 @@ function PipelinePageInner() {
                       </div>
                     </div>
                   ))}
+                  {templates.length > 5 && (
+                    <div className="col-span-full text-center pt-2">
+                      <button onClick={() => setShowAllTemplates(true)} className="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors">Show all {templates.length} templates</button>
+                    </div>
+                  )}
                   <div className="border border-dashed border-white/[0.06] rounded-[1.5rem] p-6 flex flex-col items-center justify-center min-h-[140px] hover:border-emerald-500 hover:bg-emerald-500/5 transition-all cursor-pointer"
-                    onClick={async () => {
-                      const name = prompt("Template name:");
-                      if (!name?.trim()) return;
-                      const desc = prompt("Template description (optional):");
-                      try {
-                        await api.post("/api/pipeline-templates", { name: name.trim(), description: desc?.trim() || "" });
-                        toast.success("Template created");
-                        api.get<{ templates?: any[] }>(`/api/pipeline-templates`).then((d) => setTemplates(d.templates || [])).catch(() => {});
-                      } catch { toast.error("Failed to create template"); }
-                    }}>
+                    onClick={() => setTemplateDialogOpen(true)}>
                     <Code2 className="w-6 h-6 text-zinc-600 mb-2" strokeWidth={1.5} />
                     <span className="text-[13px] text-zinc-500 font-medium">Add Template</span>
                   </div>
@@ -565,6 +574,44 @@ function PipelinePageInner() {
           </div>
         </div>
       )}
+
+      <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+        <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-200">
+          <DialogHeader>
+            <DialogTitle>Create Template</DialogTitle>
+            <DialogDescription>Save the current pipeline configuration as a reusable template.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <input
+              autoFocus
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="Template name"
+              className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-[13px] text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-emerald-500"
+            />
+            <input
+              value={templateDesc}
+              onChange={(e) => setTemplateDesc(e.target.value)}
+              placeholder="Description (optional)"
+              className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-[13px] text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+          <DialogFooter>
+            <button onClick={() => setTemplateDialogOpen(false)} className="px-4 py-2 text-[13px] text-zinc-400 hover:text-zinc-300 transition-colors">Cancel</button>
+            <button onClick={async () => {
+              if (!templateName.trim()) return;
+              try {
+                await api.post("/api/pipeline-templates", { name: templateName.trim(), description: templateDesc?.trim() || "", requirements: "" });
+                toast.success("Template created");
+                setTemplateDialogOpen(false);
+                setTemplateName("");
+                setTemplateDesc("");
+                api.get<{ templates?: any[] }>(`/api/pipeline-templates`).then((d) => setTemplates(d.templates || [])).catch(() => {});
+              } catch (e) { console.error("Failed to create template:", e); toast.error("Failed to create template"); }
+            }} className="px-4 py-2 text-[13px] font-semibold bg-emerald-500 text-zinc-950 rounded-lg hover:bg-emerald-400 transition-colors">Create</button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* === 6. KANBAN BOARD SECTION === */}
       {status === "running" && <KanbanBoardSection boardId={_boardId} sessionId={sessionId} />}
@@ -636,21 +683,22 @@ function PipelinePageInner() {
 function ApprovalQueueSection({ sessionId }: { sessionId: string | null }) {
   const [approvals, setApprovals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const status = useWorkflowStatus();
 
   useEffect(() => {
-    if (!sessionId) { setLoading(false); return; }
+    if (!sessionId || status !== "running") { setLoading(false); setApprovals([]); return; }
     let mounted = true;
     const fetchApprovals = async () => {
       try {
-        const d = await api.get<{ pending?: any[] }>("/api/delegate/approvals/pending");
-        if (mounted) setApprovals(d?.pending || []);
+        const d = await api.get<{ approvals?: any[] }>("/api/delegate/approvals/pending");
+        if (mounted) setApprovals(d?.approvals || []);
       } catch { /* ignore */ }
       if (mounted) setLoading(false);
     };
     fetchApprovals();
     const interval = setInterval(fetchApprovals, 10000);
     return () => { mounted = false; clearInterval(interval); };
-  }, [sessionId]);
+  }, [sessionId, status]);
 
   if (loading) return <div className="h-12 rounded-lg shimmer-bg" />;
   if (approvals.length === 0) return (

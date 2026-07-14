@@ -899,3 +899,30 @@ async def get_run_forensics(request: Request, run_id: str) -> dict:
             "summary_available": False,
             "error": str(exc),
         }
+
+
+@router.get("/cost/session/{session_id}")
+async def get_session_cost(request: Request, session_id: str):
+    """Return token usage breakdown per model for a session."""
+    db = get_db(request)
+    rows = await db.fetch(
+        "SELECT model, "
+        "SUM(input_tokens) as input_tokens, "
+        "SUM(output_tokens) as output_tokens, "
+        "SUM(COALESCE(cache_read_tokens, 0)) as cache_read_tokens, "
+        "SUM(estimated_cost_usd) as cost "
+        "FROM token_usage WHERE session_id = $1 "
+        "GROUP BY model ORDER BY cost DESC",
+        session_id,
+    )
+    models = [
+        {
+            "input_tokens": int(r["input_tokens"] or 0),
+            "output_tokens": int(r["output_tokens"] or 0),
+            "cache_read_tokens": int(r["cache_read_tokens"] or 0),
+            "cost": float(r["cost"] or 0),
+        }
+        for r in rows
+    ]
+    total_cost = sum(m["cost"] for m in models)
+    return {"models": models, "total_cost": total_cost}
