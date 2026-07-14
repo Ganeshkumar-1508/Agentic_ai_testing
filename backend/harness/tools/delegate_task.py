@@ -901,7 +901,31 @@ class DelegateTaskTool(BaseTool):
                     detector_name="heartbeat_stale",
                     )
 
-            result_inner: _AgentResult = await child_task
+            try:
+                result_inner: _AgentResult = await child_task
+            except Exception as child_exc:
+                for p in pending:
+                    p.cancel()
+                heartbeat_stop.set()
+                if heartbeat_task is not None and not heartbeat_task.done():
+                    with contextlib.suppress(asyncio.CancelledError, Exception):
+                        await heartbeat_task
+                if getattr(self, "_continue_on_failure", False):
+                    logger.warning("Subagent %s failed (continue_on_failure): %s", subagent_id, child_exc)
+                    record["status"] = "failed"
+                    record["result"] = str(child_exc)[:500]
+                    await persist_delegation(
+                        parent_session_id=self._session_id or None,
+                        subagent_id=subagent_id, goal=goal, status="failed",
+                        result=str(child_exc)[:500],
+                    )
+                    return SubagentResult(
+                        subagent_id=subagent_id, status="error",
+                        error=str(child_exc), started_at=started_at,
+                        finished_at=time.time(),
+                        duration_sec=time.time() - started_at,
+                    )
+                raise
             for p in pending:
                 p.cancel()
             # C06: stop the heartbeat cleanly once the child returns.

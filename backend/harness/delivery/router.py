@@ -167,6 +167,7 @@ class DeliveryRouter:
             api_token=cfg_data.get("api_token", "") or "",
             webhook_url=cfg_data.get("webhook_url", "") or "",
             signing_secret=cfg_data.get("signing_secret", "") or "",
+            extra={k: v for k, v in cfg_data.items() if k not in ("enabled", "api_token", "webhook_url", "signing_secret")},
         )
 
     # ------------------------------------------------------------------

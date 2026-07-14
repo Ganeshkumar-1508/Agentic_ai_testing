@@ -598,14 +598,14 @@ class TestContextCompressorInit:
 
 class TestUpdateModel:
     def test_recalibrates_budgets(self):
-        c = ContextCompressor(model="x", quiet_mode=True)
+        c = ContextCompressor(model="x", quiet_mode=True, threshold_percent=0.5)
         original_threshold = c.threshold_tokens
         c.update_model(model="x", context_length=100_000)
         assert c.context_length == 100_000
         assert c.threshold_tokens == 50_000  # 100K × 0.5
 
     def test_step_down_context(self):
-        c = ContextCompressor(model="x", quiet_mode=True)
+        c = ContextCompressor(model="x", quiet_mode=True, threshold_percent=0.5)
         c.update_model(model="x", context_length=10_000)
         # After step-down, budgets should reflect new (smaller) context
         assert c.max_summary_tokens <= 500  # 10K × 0.05

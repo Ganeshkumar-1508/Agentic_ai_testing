@@ -50,6 +50,7 @@ function PipelinePageInner() {
   const [tokenUsage, setTokenUsage] = useState({ tokens: 0, cost: 0 });
   const [_boardId, _setBoardId] = useState<string | null>(null);
   const [advancedConfig, setAdvancedConfig] = useState<AdvancedConfig>(DEFAULT_CONFIG);
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
 
   const status = workflowStatus;
   const sessionId = workflowId;
@@ -353,12 +354,12 @@ function PipelinePageInner() {
         <div className="flex items-center justify-between mt-3">
           <div className="flex items-center gap-2 flex-wrap">
             {pipelineMode === "quick" ? (quickChips).map((chip, i) => (
-              <button key={i} onClick={() => setRequirements(chip)}
+              <button key={i} onClick={() => { setRequirements(chip); setTimeout(startPipeline, 100); }}
                 className="px-3 py-1.5 rounded-full text-[11px] font-medium border border-white/[0.06] text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all">
                 {chip}
               </button>
             )) : (
-              <button onClick={() => setRequirements("Fix all open issues and add tests for the main functionality")}
+              <button onClick={() => { setRequirements("Fix all open issues and add tests for the main functionality"); setTimeout(startPipeline, 100); }}
                 className="px-3 py-1.5 rounded-full text-[11px] font-medium border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 transition-all">
                 Fix open issues
               </button>
@@ -509,7 +510,7 @@ function PipelinePageInner() {
       {status === "idle" && (
         <div className="grid grid-cols-[280px_1fr] gap-6">
           <div className="space-y-4">
-            <SkillsPanel />
+            <SkillsPanel onSelectSkill={(sk) => { setSelectedSkill(sk.name); setRequirements(sk.description || sk.name); }} selectedSkill={selectedSkill} />
           </div>
           <div className="space-y-4">
             {/* Templates Gallery */}
@@ -535,11 +536,21 @@ function PipelinePageInner() {
                         </div>
                       )}
                       <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => setRequirements(t.requirements || t.description || "")} className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors">Use template</button>
+                        <button onClick={() => { setRequirements(t.requirements || t.description || ""); setTimeout(startPipeline, 100); }} className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors">Use template</button>
                       </div>
                     </div>
                   ))}
-                  <div className="border border-dashed border-white/[0.06] rounded-[1.5rem] p-6 flex flex-col items-center justify-center min-h-[140px] hover:border-emerald-500 hover:bg-emerald-500/5 transition-all cursor-pointer">
+                  <div className="border border-dashed border-white/[0.06] rounded-[1.5rem] p-6 flex flex-col items-center justify-center min-h-[140px] hover:border-emerald-500 hover:bg-emerald-500/5 transition-all cursor-pointer"
+                    onClick={async () => {
+                      const name = prompt("Template name:");
+                      if (!name?.trim()) return;
+                      const desc = prompt("Template description (optional):");
+                      try {
+                        await api.post("/api/pipeline-templates", { name: name.trim(), description: desc?.trim() || "" });
+                        toast.success("Template created");
+                        api.get<{ templates?: any[] }>(`/api/pipeline-templates`).then((d) => setTemplates(d.templates || [])).catch(() => {});
+                      } catch { toast.error("Failed to create template"); }
+                    }}>
                     <Code2 className="w-6 h-6 text-zinc-600 mb-2" strokeWidth={1.5} />
                     <span className="text-[13px] text-zinc-500 font-medium">Add Template</span>
                   </div>
@@ -590,15 +601,7 @@ function PipelinePageInner() {
             {/* Approval Queue */}
             <div className="bg-card border border-white/[0.06] rounded-xl p-5">
               <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-3 block">Approval Queue</span>
-              <div className="space-y-2">
-                <div className="bg-card border border-white/[0.06] rounded-lg p-4 text-[12px] text-zinc-500 leading-relaxed">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Shield className="w-4 h-4 text-blue-400" strokeWidth={1.5} />
-                    <span className="text-zinc-300 font-medium">Live approval state</span>
-                  </div>
-                  Approval-required tool calls will appear here only if emitted by the active delegate stream. No synthetic approval placeholders are shown.
-                </div>
-              </div>
+              <ApprovalQueueSection sessionId={sessionId} />
             </div>
           </div>
         </>
@@ -627,6 +630,47 @@ function PipelinePageInner() {
         </div>
       )}
     </motion.div>
+  );
+}
+
+function ApprovalQueueSection({ sessionId }: { sessionId: string | null }) {
+  const [approvals, setApprovals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!sessionId) { setLoading(false); return; }
+    let mounted = true;
+    const fetchApprovals = async () => {
+      try {
+        const d = await api.get<{ pending?: any[] }>("/api/delegate/approvals/pending");
+        if (mounted) setApprovals(d?.pending || []);
+      } catch { /* ignore */ }
+      if (mounted) setLoading(false);
+    };
+    fetchApprovals();
+    const interval = setInterval(fetchApprovals, 10000);
+    return () => { mounted = false; clearInterval(interval); };
+  }, [sessionId]);
+
+  if (loading) return <div className="h-12 rounded-lg shimmer-bg" />;
+  if (approvals.length === 0) return (
+    <div className="flex flex-col items-center justify-center py-8 text-zinc-600">
+      <Shield className="w-8 h-8 opacity-30 mb-2" strokeWidth={1} />
+      <p className="text-[12px]">No pending approvals</p>
+    </div>
+  );
+  return (
+    <div className="space-y-2">
+      {approvals.slice(0, 5).map((a: any, i: number) => (
+        <div key={a.id || i} className="bg-card border border-white/[0.06] rounded-lg p-3 space-y-1">
+          <div className="flex items-center gap-2 text-[11px]">
+            <Shield className="w-3.5 h-3.5 text-amber-400" strokeWidth={1.5} />
+            <span className="text-zinc-300 font-medium font-mono">{a.tool || a.tool_name || "Unknown tool"}</span>
+          </div>
+          {a.args && <div className="text-[10px] text-zinc-600 font-mono truncate">{JSON.stringify(a.args).slice(0, 200)}</div>}
+        </div>
+      ))}
+    </div>
   );
 }
 

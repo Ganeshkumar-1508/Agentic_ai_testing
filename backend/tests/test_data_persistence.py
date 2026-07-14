@@ -80,7 +80,11 @@ class FakeStoreWithDb(FakeStore):
 
 def _run(coro):
     import asyncio
-    return asyncio.get_event_loop().run_until_complete(coro)
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+    return loop.run_until_complete(coro)
 
 
 # ---------------------------------------------------------------------------

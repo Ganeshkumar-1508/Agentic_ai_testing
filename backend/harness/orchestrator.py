@@ -678,6 +678,8 @@ class OrchestratorEngine:
         # Stash context_repos for CloneContextReposPhase, which reads
         # them from ``ctx.orchestrator._context_repos`` during the pipeline.
         self._context_repos = list(context_repos or [])
+        # Stash test_config for _send_notification to read notification_channels
+        self._test_config = test_config
 
         # Run the 15-phase pipeline. The pipeline owns phase iteration,
         # between-phase pause checks, and error collection. The
@@ -1103,7 +1105,8 @@ class OrchestratorEngine:
             logger.warning("Resume abandoned failed: %s", e)
         return resumed
 
-    async def _send_notification(self, session_id: str, repo_url: str, status: str, summary: str) -> None:
+    async def _send_notification(self, session_id: str, repo_url: str, status: str, summary: str,
+                                  channels: list[str] | None = None) -> None:
         """Thin delegate to :meth:`NotificationDispatcher.dispatch` (C03 Phase 3).
 
         The DB query, ``DeliveryRouter`` call, and error-handling
@@ -1112,6 +1115,11 @@ class OrchestratorEngine:
         The 3 call sites (completed / failed / timeout) are
         unchanged &mdash; the signature is preserved.
         """
+        # Read notification_channels from test_config if not explicitly passed
+        if channels is None and hasattr(self, "_test_config") and self._test_config:
+            tc_channels = self._test_config.get("notification_channels")
+            if isinstance(tc_channels, list) and tc_channels:
+                channels = tc_channels
         from harness.services.notification_dispatcher import NotificationDispatcher
         await NotificationDispatcher.dispatch(
             session_id=session_id,
@@ -1119,4 +1127,5 @@ class OrchestratorEngine:
             status=status,
             summary=summary,
             db=get_db(),
+            channels=channels,
         )

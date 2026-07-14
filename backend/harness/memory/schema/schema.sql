@@ -258,6 +258,7 @@ CREATE TABLE IF NOT EXISTS test_cases (
     error_message TEXT,
     stack_trace TEXT,
     executed_at TIMESTAMPTZ,
+    artifact_id TEXT REFERENCES artifacts(id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -490,14 +491,27 @@ CREATE TABLE IF NOT EXISTS memory_entries (
 CREATE TABLE IF NOT EXISTS agent_delegations (
     id BIGSERIAL PRIMARY KEY,
     session_id TEXT NOT NULL REFERENCES sessions(id),
+    subagent_id TEXT,
     parent_delegation_id BIGINT REFERENCES agent_delegations(id),
+    parent_session_id TEXT REFERENCES sessions(id),
     agent_role TEXT NOT NULL DEFAULT 'leaf',
+    path TEXT,
     goal TEXT,
     status TEXT NOT NULL DEFAULT 'running',
+    started_at TIMESTAMPTZ DEFAULT NOW(),
+    finished_at TIMESTAMPTZ,
+    duration_ms INT DEFAULT 0,
+    output TEXT,
+    error TEXT,
     tools_used TEXT[] DEFAULT '{}',
     tool_calls_count INT DEFAULT 0,
-    duration_ms INT DEFAULT 0,
-    error TEXT,
+    prompt_tokens INT DEFAULT 0,
+    completion_tokens INT DEFAULT 0,
+    total_tokens INT DEFAULT 0,
+    cost_usd REAL DEFAULT 0.0,
+    model TEXT,
+    depth INT DEFAULT 0,
+    parent_subagent_id TEXT,
     result_summary TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     completed_at TIMESTAMPTZ
@@ -622,6 +636,7 @@ CREATE TABLE IF NOT EXISTS artifacts (
     size_bytes INTEGER NOT NULL DEFAULT 0,
     mime_type TEXT DEFAULT 'text/plain',
     description TEXT DEFAULT '',
+    meta JSONB DEFAULT '{}',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     expires_at TIMESTAMPTZ
 );

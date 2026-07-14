@@ -322,10 +322,148 @@ class TestDeliver:
         assert "Unknown delivery platform" in results["phantom:C1"]["error"]
 
 
-# ---------------------------------------------------------------------------
-# DeliveryTarget.parse sanity (kept in the same file because pr_manager uses
-# the same parser)
-# ---------------------------------------------------------------------------
+class TestDeliverExtended:
+    """Additional edge-case tests for the DeliveryRouter."""
+
+    def test_deliver_empty_targets(self):
+        r = DeliveryRouter(registry={"echo": _EchoAdapter})
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver("hello", [])
+        )
+        assert results == {}
+
+    def test_deliver_no_content(self):
+        r = DeliveryRouter(registry={"echo": _EchoAdapter})
+        target = DeliveryTarget(platform="echo", chat_id="C1")
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver("", [target])
+        )
+        assert results["echo:C1"]["success"] is True
+        adapter = r._instances["echo"]
+        assert adapter.calls[0][1] == ""
+
+    def test_deliver_none_content(self):
+        """None content causes a TypeError in len(); verify failure is caught."""
+        r = DeliveryRouter(registry={"echo": _EchoAdapter})
+        target = DeliveryTarget(platform="echo", chat_id="C1")
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver(None, [target])
+        )
+        assert results["echo:C1"]["success"] is False
+
+    def test_deliver_with_metadata(self):
+        r = DeliveryRouter(registry={"echo": _EchoAdapter})
+        target = DeliveryTarget(platform="echo", chat_id="C1")
+        meta = {"run_id": "r-1", "status": "completed"}
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver("result", [target], metadata=meta)
+        )
+        adapter = r._instances["echo"]
+        _, _, passed_meta = adapter.calls[0]
+        assert passed_meta == meta
+
+    def test_deliver_same_target_twice_uses_cached_adapter(self):
+        db = _FakeDB([{"platform": "echo", "config": {"api_token": "x"}}])
+        r = DeliveryRouter(db=db, registry={"echo": _EchoAdapter})
+        t = DeliveryTarget(platform="echo", chat_id="C1")
+        asyncio.get_event_loop().run_until_complete(r.deliver("a", [t]))
+        asyncio.get_event_loop().run_until_complete(r.deliver("b", [t]))
+        assert len(db.calls) == 1  # Only one DB hit
+
+    def test_deliver_content_just_under_limit(self):
+        r = DeliveryRouter(registry={"echo": _EchoAdapter})
+        t = DeliveryTarget(platform="echo", chat_id="C1")
+        just_under = "x" * (MAX_CONTENT_CHARS - 1)
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver(just_under, [t])
+        )
+        adapter = r._instances["echo"]
+        assert len(adapter.calls[0][1]) == MAX_CONTENT_CHARS - 1
+        assert "truncated" not in adapter.calls[0][1]
+        assert results["echo:C1"]["success"] is True
+
+    def test_deliver_content_at_limit(self):
+        r = DeliveryRouter(registry={"echo": _EchoAdapter})
+        t = DeliveryTarget(platform="echo", chat_id="C1")
+        at_limit = "x" * MAX_CONTENT_CHARS
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver(at_limit, [t])
+        )
+        assert results["echo:C1"]["success"] is True
+        assert "truncated" not in results["echo:C1"]["result"]["echoed"]
+
+    def test_deliver_local_without_job_id(self, tmp_path):
+        r = DeliveryRouter(output_dir=tmp_path / "delivery")
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver("content", [DeliveryTarget(platform="local")])
+        )
+        assert "local" in results
+        assert results["local"]["success"] is True
+        stored = list((tmp_path / "delivery" / "misc").glob("*.md"))
+        assert len(stored) == 1
+
+    def test_deliver_local_with_full_metadata(self, tmp_path):
+        r = DeliveryRouter(output_dir=tmp_path / "delivery")
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver(
+                "content",
+                [DeliveryTarget(platform="local")],
+                job_id="j42",
+                job_name="Test Job",
+                metadata={"env": "staging"},
+            )
+        )
+        text = (tmp_path / "delivery" / "j42").glob("*").__next__().read_text()
+        assert "Test Job" in text
+        assert "j42" in text
+        assert "staging" in text
+
+    def test_deliver_local_creates_output_dir(self, tmp_path):
+        deep_dir = tmp_path / "a" / "b" / "c" / "delivery"
+        r = DeliveryRouter(output_dir=deep_dir)
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver("x", [DeliveryTarget(platform="local")])
+        )
+        assert deep_dir.exists()
+        assert results["local"]["success"] is True
+
+    def test_deliver_multiple_platforms(self):
+        r = DeliveryRouter(registry={"echo": _EchoAdapter})
+        targets = [
+            DeliveryTarget(platform="local"),
+            DeliveryTarget(platform="echo", chat_id="C1"),
+        ]
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver("multi", targets)
+        )
+        assert "local" in results
+        assert "echo:C1" in results
+        assert results["local"]["success"] is True
+        assert results["echo:C1"]["success"] is True
+
+    def test_register_platform_after_delivery(self):
+        r = DeliveryRouter()
+        class LateAdapter(BaseAdapter):
+            name = "late"
+            async def send(self, chat_id, content, metadata=None):
+                return {"ok": True}
+            async def health(self):
+                return True
+        r.register_platform("late", LateAdapter)
+        t = DeliveryTarget(platform="late", chat_id="C1")
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver("late binding", [t])
+        )
+        assert results["late:C1"]["success"] is True
+
+    def test_unregister_platform_makes_it_unavailable(self):
+        r = DeliveryRouter(registry={"echo": _EchoAdapter})
+        r.unregister_platform("echo")
+        t = DeliveryTarget(platform="echo", chat_id="C1")
+        results = asyncio.get_event_loop().run_until_complete(
+            r.deliver("gone", [t])
+        )
+        assert results["echo:C1"]["success"] is False
 
 
 class TestDeliveryTargetParse:
