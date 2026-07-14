@@ -60,6 +60,7 @@ async def get_providers(request: Request):
     if not llm:
         return []
     stored = await settings_store.get_all_providers()
+    # Merge: start from LLM status, enrich from DB (for api_key, metadata)
     status = llm.get_status()
     merged = {s["provider"]: s for s in status}
 
@@ -73,19 +74,17 @@ async def get_providers(request: Request):
 
     for s in stored:
         provider_name = s["provider"]
-        # has_key reflects whether a key exists (DB or env), checked BEFORE stripping
         s["has_key"] = bool(s.get("api_key")) or bool(os.environ.get(get_provider_env_key(provider_name)))
-        s.pop("api_key", None)
         if meta := defs.get(provider_name):
             s["display_name"] = meta.get("display_name", provider_name)
             s["description"] = meta.get("description", "")
             s["signup_url"] = meta.get("signup_url", "")
             s["auth_type"] = meta.get("auth_type", "api_key")
             s["env_vars"] = meta.get("env_vars", "")
-            s["api_mode"] = meta.get("api_mode", "chat_completions")
+            s["api_mode"] = s.get("api_mode") or meta.get("api_mode", "chat_completions")
             s["base_url"] = s.get("base_url") or meta.get("base_url", "")
-        if provider_name not in merged:
-            merged[provider_name] = s
+        # Always use DB as source of truth (it has api_key)
+        merged[provider_name] = s
     return list(merged.values())
 
 
@@ -104,14 +103,22 @@ async def save_providers(request: Request, providers: list[ProviderSettingsReque
         # Preserve existing API key if not provided in the request
         existing = await settings_store.get_provider(provider_name)
         existing_key = (existing or {}).get("api_key", "")
+        resolved_key = p.api_key or existing_key or ""
         config = {
             "base_url": p.base_url,
             "model": p.model,
             "enabled": p.enabled,
             "options": p.options,
-            "api_key": p.api_key or existing_key or "",
+            "api_key": resolved_key,
         }
         await settings_store.upsert_provider(provider_name, config)
+        # Write API key to environment so has_key checks and env-based lookups work
+        if resolved_key:
+            from harness.env_loader import write_key as _write_key
+            try:
+                _write_key(get_provider_env_key(provider_name), resolved_key)
+            except Exception:
+                pass
         # Auto-create provider_definition for custom providers
         try:
             existing = await db.fetchrow("SELECT name FROM provider_definitions WHERE name=$1", provider_name)
@@ -449,6 +456,7 @@ class NotificationPrefRequest(BaseModel):
     channel: str
     enabled: bool = True
     events: list[str] = []
+    target: str = ""
 
 
 @router.get("/settings/notification-prefs")
@@ -460,7 +468,7 @@ async def get_notification_prefs(request: Request):
 @router.post("/settings/notification-prefs")
 async def upsert_notification_pref(request: Request, body: NotificationPrefRequest):
     svc = SettingsService(get_db(request))
-    await svc.upsert_notification_pref(body.channel, body.enabled, body.events)
+    await svc.upsert_notification_pref(body.channel, body.enabled, body.events, target=body.target)
     return {"status": "ok"}
 
 

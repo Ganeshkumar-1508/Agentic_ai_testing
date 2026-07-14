@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import re
@@ -111,8 +112,17 @@ async def run_cron_job_now(request: Request, job_id: str):
 @router.get("/skills")
 async def list_skills(request: Request):
     from harness.tools.skill_tools import _scan_skills
-    skills = _scan_skills()
-    return {"skills": skills}
+    try:
+        loop = asyncio.get_event_loop()
+        skills = await asyncio.wait_for(
+            loop.run_in_executor(None, _scan_skills),
+            timeout=5.0,
+        )
+        return {"skills": skills}
+    except asyncio.TimeoutError:
+        return {"skills": [], "error": "timeout"}
+    except Exception as e:
+        return {"skills": [], "error": str(e)}
 
 
 @router.get("/skills/hub")
@@ -187,6 +197,13 @@ async def import_skills(request: Request, body: dict):
         return {"status": "ok", "imported": imported, "count": len(imported)}
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+@router.get("/skills/curator-status")
+async def skills_curator_status(request: Request):
+    """Alias for /api/ops/skills/curator-status accessible under /api/skills/."""
+    from .ops import get_curator_status
+    return await get_curator_status(request)
 
 
 @router.get("/skills/categories")

@@ -119,6 +119,36 @@ async def create_agent(body: CreateAgentIn) -> dict[str, Any]:
     }
 
 
+@router.put("/{name}")
+async def update_agent(name: str, body: CreateAgentIn) -> dict[str, Any]:
+    """Update an existing agent definition."""
+    if not body.name.strip():
+        raise HTTPException(400, "name is required")
+    CUSTOM_DIR.mkdir(parents=True, exist_ok=True)
+    store = AgentStore(agents_dir=CUSTOM_DIR)
+    existing = store.get_agent(name)
+    if not existing:
+        raise HTTPException(404, "Agent not found")
+    from harness.agent_config import AgentConfig
+    agent = AgentConfig(
+        name=body.name,
+        description=body.description or existing.description,
+        model=body.model or existing.model,
+        tools=body.tools or existing.tools,
+        skills=body.skills or existing.skills,
+        prompt=body.prompt or existing.prompt,
+    )
+    store.save_agent(agent)
+    return {
+        "name": agent.name,
+        "description": agent.description,
+        "model": agent.model or None,
+        "tools": agent.tools,
+        "skills": agent.skills,
+        "prompt": agent.prompt,
+    }
+
+
 @router.delete("/{name}")
 async def delete_agent(name: str) -> dict[str, bool]:
     CUSTOM_DIR.mkdir(parents=True, exist_ok=True)

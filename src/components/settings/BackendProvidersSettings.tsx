@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { SkeletonBlock } from "@/components/shared/LoadingSkeleton";
 import { ErrorState } from "@/components/shared/ErrorState";
 import {
@@ -128,6 +129,24 @@ export function BackendProvidersSettings() {
   // Load on mount
   useEffect(() => { loadProviders(); }, [loadProviders]);
 
+  // Auto-fetch models when API key + base URL are both filled
+  const autoFetchTimerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  useEffect(() => {
+    localProviders.forEach((p) => {
+      if (p.apiKey && p.baseUrl && !availableModels[p.provider]?.length && !(p as any).available_models?.length) {
+        clearTimeout(autoFetchTimerRef.current[p.provider]);
+        autoFetchTimerRef.current[p.provider] = setTimeout(() => {
+          testConnection(p).then((result) => {
+            if (result.models.length > 0) {
+              setAvailableModels((prev) => ({ ...prev, [p.provider]: result.models }));
+            }
+          });
+        }, 1500);
+      }
+    });
+    return () => Object.values(autoFetchTimerRef.current).forEach(clearTimeout);
+  }, [localProviders.map(p => `${p.apiKey}-${p.baseUrl}`).join(',')]);
+
   // Sync global store to local state for editing
   useEffect(() => {
     setLocalProviders(providers.map((p) => ({ ...p })));
@@ -167,7 +186,17 @@ export function BackendProvidersSettings() {
 
   const handleSave = async () => {
     const ok = await saveProviders(localProviders);
-    setSaveStatus(ok ? "saved" : "error");
+    if (ok) {
+      setSaveStatus("saved");
+      const active = localProviders.filter(p => p.enabled && p.has_key);
+      if (active.length > 0) {
+        toast.success(`Connected! ${active.map(p => p.provider).join(", ")} — API key saved and ready for Chat, Agent, Pipeline`);
+      } else {
+        toast.success("Provider saved");
+      }
+    } else {
+      setSaveStatus("error");
+    }
   };
 
   const handleTest = async (provider: ProviderConfig) => {
@@ -301,19 +330,21 @@ export function BackendProvidersSettings() {
                 <div className="space-y-1">
                   <label className="flex items-center gap-1 text-[10px] text-zinc-500 uppercase tracking-wider font-medium">
                     Model
-                    <Tooltip text="Default model ID" />
+                    <Tooltip text="Enter base URL and API key, click Test Connection to fetch available models" />
                   </label>
-                  {availableModels[provider.provider]?.length > 0 ? (
+                  {(availableModels[provider.provider]?.length > 0 || (provider as any).available_models?.length > 0) ? (
                     <StyledSelect value={provider.model}
                       onChange={(e) => updateLocal(provider.provider, "model", e.target.value)}>
-                      {availableModels[provider.provider].map((m) => (
+                      <option value="" className="bg-surface text-zinc-300">Select a model...</option>
+                      {(availableModels[provider.provider] || (provider as any).available_models || []).map((m: string) => (
                         <option key={m} value={m} className="bg-surface text-zinc-300">{m}</option>
                       ))}
                     </StyledSelect>
                   ) : (
                     <Input value={provider.model}
                       onChange={(e) => updateLocal(provider.provider, "model", e.target.value)}
-                      placeholder="model-name" className="bg-zinc-900/80 border-zinc-800 text-xs h-8 rounded-lg font-mono focus:border-emerald-500/40" />
+                      placeholder="Enter base URL + API key, click Test Connection"
+                      className="bg-zinc-900/80 border-zinc-800 text-xs h-8 rounded-lg font-mono focus:border-emerald-500/40" />
                   )}
                 </div>
               </div>
