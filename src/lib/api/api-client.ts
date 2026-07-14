@@ -49,6 +49,54 @@ async function request<T>(
   return res.json();
 }
 
+/**
+ * Upload files via multipart/form-data.
+ * IMPORTANT: do NOT set a Content-Type header here — the browser needs to
+ * generate its own header with the correct multipart boundary. Setting it
+ * manually (e.g. copying "application/json" from request()) will corrupt
+ * the upload and the backend will fail to parse the form data.
+ */
+async function requestUpload<T>(
+  path: string,
+  formData: FormData,
+  onProgress?: (percent: number) => void,
+): Promise<T> {
+  const url = `${BACKEND_URL}${path}`;
+
+  // XHR (not fetch) so we can report real upload progress.
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+
+    xhr.onload = () => {
+      let body: unknown = null;
+      try {
+        body = xhr.responseText ? JSON.parse(xhr.responseText) : null;
+      } catch {
+        body = null;
+      }
+
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve((xhr.status === 204 ? undefined : body) as T);
+      } else {
+        reject(formatError(xhr.status, body));
+      }
+    };
+
+    xhr.onerror = () => {
+      reject({ status: 0, message: "Network error during upload" } as ApiError);
+    };
+
+    xhr.send(formData);
+  });
+}
+
 export const api = {
   get: <T>(path: string, params?: Record<string, string>) =>
     request<T>(path, { method: "GET", params }),
@@ -76,6 +124,10 @@ export const api = {
       method: "DELETE",
       body: body !== undefined ? JSON.stringify(body) : undefined,
     }),
+
+  /** Upload one or more files as multipart/form-data. */
+  upload: <T>(path: string, formData: FormData, onProgress?: (percent: number) => void) =>
+    requestUpload<T>(path, formData, onProgress),
 };
 
 /** Simple JSON fetch — returns null on error. */
