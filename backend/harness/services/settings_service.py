@@ -230,10 +230,10 @@ class SettingsService:
         rows = await self.db.fetch("SELECT * FROM quality_gates ORDER BY name")
         return [dict(r) for r in rows]
 
-    async def create_gate(self, name: str, metric: str, threshold: float, enabled: bool, description: str) -> None:
+    async def create_gate(self, name: str, metric: str, threshold: float, enabled: bool, description: str, warn_threshold: float = 0.8, fail_threshold: float = 0.6) -> None:
         await self.db.execute(
-            "INSERT INTO quality_gates (name, metric, fail_threshold, warn_threshold, enabled, description) VALUES ($1, $2, $3, $3, $4, $5)",
-            name, metric, threshold, enabled, description or "",
+            "INSERT INTO quality_gates (name, metric, fail_threshold, warn_threshold, enabled, description) VALUES ($1, $2, $3, $4, $5, $6)",
+            name, metric, fail_threshold, warn_threshold, enabled, description or "",
         )
 
     async def update_gate(self, gate_id: str, name: str | None = None, threshold: float | None = None, enabled: bool | None = None) -> None:
