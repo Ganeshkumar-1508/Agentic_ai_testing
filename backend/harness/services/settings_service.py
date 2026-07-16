@@ -214,11 +214,11 @@ class SettingsService:
         rows = await self.db.fetch("SELECT * FROM feature_flags ORDER BY key")
         return [dict(r) for r in rows]
 
-    async def upsert_feature_flag(self, flag_key: str, enabled: bool, description: str) -> None:
+    async def upsert_feature_flag(self, flag_key: str, enabled: bool, description: str, label: str = "", rollout_percent: int = 0) -> None:
         await self.db.execute(
-            "INSERT INTO feature_flags (key, label, enabled, description) VALUES ($1, $1, $2, $3) "
-            "ON CONFLICT (key) DO UPDATE SET label=$1, enabled=$2, description=$3",
-            flag_key, enabled, description or "",
+            "INSERT INTO feature_flags (key, label, enabled, description, rollout_percent) VALUES ($1, $2, $3, $4, $5) "
+            "ON CONFLICT (key) DO UPDATE SET label=$2, enabled=$3, description=$4, rollout_percent=$5",
+            flag_key, label or flag_key, enabled, description or "", rollout_percent,
         )
 
     async def delete_feature_flag(self, flag_key: str) -> None:

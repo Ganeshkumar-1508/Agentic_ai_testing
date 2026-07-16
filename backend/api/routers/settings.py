@@ -506,8 +506,10 @@ async def delete_saved_filter(request: Request, filter_id: str):
 
 class FeatureFlagRequest(BaseModel):
     flag_key: str
+    label: str = ""
     enabled: bool = False
     description: str = ""
+    rollout_percent: int = 0
 
 
 @router.get("/settings/feature-flags")
@@ -519,7 +521,8 @@ async def get_feature_flags(request: Request):
 @router.post("/settings/feature-flags")
 async def upsert_feature_flag(request: Request, body: FeatureFlagRequest):
     svc = SettingsService(get_db(request))
-    await svc.upsert_feature_flag(body.flag_key, body.enabled, body.description)
+    await svc.upsert_feature_flag(body.flag_key, body.enabled, body.description,
+                                  label=body.label, rollout_percent=body.rollout_percent)
     return {"status": "ok"}
 
 
