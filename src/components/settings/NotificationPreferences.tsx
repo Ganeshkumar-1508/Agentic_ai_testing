@@ -43,7 +43,12 @@ export function NotificationPreferences() {
     queryKey: ["notification-prefs"],
     queryFn: async () => {
       const json = await api.get<{ preferences: NotificationPref[] }>(`/api/settings/notification-prefs`);
-      return json?.preferences ?? [];
+      const prefs = json?.preferences ?? [];
+      // Parse events from JSON string if needed
+      return prefs.map((p: any) => ({
+        ...p,
+        events: Array.isArray(p.events) ? p.events : typeof p.events === "string" ? JSON.parse(p.events) : [],
+      }));
     },
   });
 

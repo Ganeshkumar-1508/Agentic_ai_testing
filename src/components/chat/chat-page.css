@@ -270,6 +270,20 @@
   gap: 6px;
 }
 
+.agent-session-delete {
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  color: var(--text-4);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.agent-session-row:hover .agent-session-delete { opacity: 1; }
+.agent-session-delete:hover { color: var(--danger) !important; }
+
 .agent-sidebar-foot {
   padding: 8px 12px;
   border-top: 1px solid var(--border);

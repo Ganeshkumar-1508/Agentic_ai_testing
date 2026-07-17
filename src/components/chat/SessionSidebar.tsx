@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Trash2 } from "lucide-react";
 
 export type SessionStatus = "active" | "running" | "failed" | "completed" | "idle";
 
@@ -16,10 +16,12 @@ export function SessionRow({
   session,
   active,
   onClick,
+  onDelete,
 }: {
   session: SessionItem;
   active: boolean;
   onClick: (id: string) => void;
+  onDelete?: (id: string) => void;
 }) {
   return (
     <button
@@ -34,6 +36,15 @@ export function SessionRow({
         <div className="agent-session-title">{session.title}</div>
         {session.meta && <div className="agent-session-meta">{session.meta}</div>}
       </div>
+      {onDelete && (
+        <span
+          onClick={(e) => { e.stopPropagation(); onDelete(session.id); }}
+          className="agent-session-delete"
+          title="Delete session"
+        >
+          <Trash2 width={11} height={11} strokeWidth={1.5} />
+        </span>
+      )}
     </button>
   );
 }
@@ -42,6 +53,7 @@ export function SessionSidebar({
   sessions,
   activeId,
   onSelect,
+  onDelete,
   onNewChat,
   onSearch,
   searchValue,
@@ -50,6 +62,7 @@ export function SessionSidebar({
   sessions: SessionItem[];
   activeId: string | null;
   onSelect: (id: string) => void;
+  onDelete?: (id: string) => void;
   onNewChat: () => void;
   onSearch?: (q: string) => void;
   searchValue?: string;
@@ -82,7 +95,7 @@ export function SessionSidebar({
           </div>
         ) : (
           sessions.map((s) => (
-            <SessionRow key={s.id} session={s} active={s.id === activeId} onClick={onSelect} />
+            <SessionRow key={s.id} session={s} active={s.id === activeId} onClick={onSelect} onDelete={onDelete} />
           ))
         )}
       </div>
