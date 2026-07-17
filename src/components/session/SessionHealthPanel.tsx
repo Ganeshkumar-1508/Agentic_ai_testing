@@ -78,6 +78,7 @@ export function SessionHealthPanel({ sessionId }: SessionHealthPanelProps) {
   const [data, setData] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const load = useCallback(async () => {
     if (!sessionId) return;
@@ -93,13 +94,15 @@ export function SessionHealthPanel({ sessionId }: SessionHealthPanelProps) {
     }
   }, [sessionId]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); setMounted(true); }, [load]);
 
   const formatTokens = (n: number) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
     if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
     return String(n);
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="space-y-3">

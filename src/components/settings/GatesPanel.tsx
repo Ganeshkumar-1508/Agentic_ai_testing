@@ -11,8 +11,8 @@ interface Gate {
   name: string;
   metric: string;
   description: string;
-  warnThreshold: number;
-  failThreshold: number;
+  warn_threshold: number;
+  fail_threshold: number;
   enabled: boolean;
   createdAt: string;
 }
@@ -21,7 +21,7 @@ export function GatesPanel() {
   const [gates, setGates] = useState<Gate[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
-  const [newGate, setNewGate] = useState({ name: "", metric: "", description: "", warnThreshold: 80, failThreshold: 60 });
+  const [newGate, setNewGate] = useState({ name: "", metric: "", description: "", warn_threshold: 80, fail_threshold: 60 });
 
   const fetchGates = useCallback(async () => {
     try {
@@ -38,7 +38,7 @@ export function GatesPanel() {
       await api.post(`/api/settings/gates`, newGate);
       toast.success("Gate created");
       setShowNew(false);
-      setNewGate({ name: "", metric: "", description: "", warnThreshold: 80, failThreshold: 60 });
+      setNewGate({ name: "", metric: "", description: "", warn_threshold: 80, fail_threshold: 60 });
       fetchGates();
     } catch { toast.error("Failed to create gate"); }
   };
@@ -98,12 +98,12 @@ export function GatesPanel() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Warn Threshold</label>
-                  <input type="number" value={newGate.warnThreshold} onChange={(e) => setNewGate({ ...newGate, warnThreshold: parseFloat(e.target.value) || 0 })}
+                  <input type="number" value={newGate.warn_threshold} onChange={(e) => setNewGate({ ...newGate, warn_threshold: parseFloat(e.target.value) || 0 })}
                     className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 outline-none focus:border-emerald-500/40" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Fail Threshold</label>
-                  <input type="number" value={newGate.failThreshold} onChange={(e) => setNewGate({ ...newGate, failThreshold: parseFloat(e.target.value) || 0 })}
+                  <input type="number" value={newGate.fail_threshold} onChange={(e) => setNewGate({ ...newGate, fail_threshold: parseFloat(e.target.value) || 0 })}
                     className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 outline-none focus:border-emerald-500/40" />
                 </div>
               </div>
@@ -153,8 +153,8 @@ export function GatesPanel() {
                 {gate.description && <span className="truncate">{gate.description}</span>}
               </div>
               <div className="flex items-center gap-4 text-[10px] text-zinc-600">
-                <span className="flex items-center gap-1">Warn: <span className="text-amber-400 font-mono">{gate.warnThreshold}</span></span>
-                <span className="flex items-center gap-1">Fail: <span className="text-red-400 font-mono">{gate.failThreshold}</span></span>
+                <span className="flex items-center gap-1">Warn: <span className="text-amber-400 font-mono">{gate.warn_threshold}</span></span>
+                <span className="flex items-center gap-1">Fail: <span className="text-red-400 font-mono">{gate.fail_threshold}</span></span>
               </div>
             </motion.div>
           ))}

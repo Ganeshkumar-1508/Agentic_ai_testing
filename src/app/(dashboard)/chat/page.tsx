@@ -58,9 +58,10 @@ function AgentPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isConfigured, isLoading, loadProviders } = useProviderStore();
+  const [mounted, setMounted] = useState(false);
 
   // Load provider config on mount — force clear cache to ensure fresh state
-  useEffect(() => { loadProviders(); }, [loadProviders]);
+  useEffect(() => { loadProviders(); setMounted(true); }, [loadProviders]);
 
   // ── Core state ──────────────────────────────────────────────
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
@@ -462,6 +463,8 @@ function AgentPageInner() {
 
       setStreamingPhase("");
       setAgentStatus("idle");
+      setIsStreaming(false);
+      setWorkflowStatus("completed");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Connection failed";
       toast.error(msg);
@@ -605,6 +608,17 @@ function AgentPageInner() {
           sessions={sessionHistory.filter((s) => !sessionSearch || s.title.toLowerCase().includes(sessionSearch.toLowerCase()))}
           activeId={sessionId}
           onSelect={handleSelectSession}
+          onDelete={async (id) => {
+            if (!confirm("Delete this session?")) return;
+            try {
+              await api.delete(`/api/chat/threads/${id}`);
+              setSessionHistory((prev) => prev.filter((s) => s.id !== id));
+              if (sessionId === id) {
+                setSessionId(null);
+                setMessages([]);
+              }
+            } catch { /* ignore */ }
+          }}
           onNewChat={handleNewChat}
           onSearch={setSessionSearch}
           searchValue={sessionSearch}
@@ -612,11 +626,11 @@ function AgentPageInner() {
       )}
 
       <main className="chat-main">
-        {isLoading ? (
+        {mounted && isLoading ? (
           <div className="mx-4 mt-4 px-4 py-3 rounded-xl border border-zinc-800/30 bg-zinc-900/50 text-zinc-500 text-xs flex items-center gap-3">
             <span className="animate-pulse">Loading provider configuration...</span>
           </div>
-        ) : !isConfigured() ? (
+        ) : mounted && !isConfigured() ? (
           <div className="mx-4 mt-4 px-4 py-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs flex items-center gap-3">
             <span className="font-medium">No LLM provider configured.</span>
             <button onClick={() => router.push("/settings")} className="underline hover:text-amber-200 transition-colors">
@@ -669,7 +683,7 @@ function AgentPageInner() {
           />
         )}
 
-        {sessionId && !isStreaming && (
+        {mounted && sessionId && !isStreaming && (
           <div className="px-4 py-3 border-t border-zinc-800/20">
             <SessionHealthPanel sessionId={sessionId} />
           </div>

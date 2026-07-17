@@ -42,7 +42,7 @@ export const useProviderStore = create<ProviderStore>()(
       lastFetched: 0,
 
       loadProviders: async () => {
-        if (Date.now() - get().lastFetched < CACHE_TTL && get().providers.length > 0) return;
+        // Always fetch fresh data — no cache
         set({ isLoading: true, error: null });
         try {
           const raw = await api.get<any[]>("/api/settings/providers");

@@ -133,7 +133,7 @@ export function BackendProvidersSettings() {
   const autoFetchTimerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   useEffect(() => {
     localProviders.forEach((p) => {
-      if (p.apiKey && p.baseUrl && !availableModels[p.provider]?.length && !(p as any).available_models?.length) {
+      if (p.api_key && p.base_url && !availableModels[p.provider]?.length && !(p as any).available_models?.length) {
         clearTimeout(autoFetchTimerRef.current[p.provider]);
         autoFetchTimerRef.current[p.provider] = setTimeout(() => {
           testConnection(p).then((result) => {
@@ -145,7 +145,7 @@ export function BackendProvidersSettings() {
       }
     });
     return () => Object.values(autoFetchTimerRef.current).forEach(clearTimeout);
-  }, [localProviders.map(p => `${p.apiKey}-${p.baseUrl}`).join(',')]);
+  }, [localProviders.map(p => `${p.api_key}-${p.base_url}`).join(',')]);
 
   // Sync global store to local state for editing
   useEffect(() => {

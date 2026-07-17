@@ -17,6 +17,7 @@ import { BackendProvidersSettings } from "@/components/settings/BackendProviders
 import { PipelineModelAssignment } from "@/components/settings/PipelineModelAssignment";
 import { MCPServerManager } from "@/components/settings/MCPServerManager";
 import { WebhookConfig } from "@/components/settings/WebhookConfig";
+import { GatesPanel } from "@/components/settings/GatesPanel";
 import { CICDSetup } from "@/components/settings/CICDSetup";
 import { SessionBrowser } from "@/components/settings/SessionBrowser";
 import { AllowlistManager } from "@/components/agents/AllowlistManager";
@@ -83,6 +84,7 @@ const TAB_GROUPS: TabGroup[] = [
     tabs: [
       { id: "environment", label: "Environment", icon: Variable, desc: "Manage environment variables injected into sandbox containers" },
       { id: "budgets", label: "Cost & Budgets", icon: DollarSign, desc: "Set token and cost budgets per agent, phase, and run" },
+      { id: "gates", label: "Quality Gates", icon: Gauge, desc: "Define thresholds that block or warn on quality metrics" },
       { id: "observability", label: "Observability", icon: Activity, desc: "OpenTelemetry tracing configuration" },
       { id: "notifications", label: "Notifications", icon: Bell, desc: "Configure alert channels for pipeline events and failures" },
       { id: "digest", label: "Daily Digest", icon: Radio, desc: "Schedule automated daily summary reports" },
@@ -141,6 +143,7 @@ const PANEL_MAP: Record<string, React.FC> = {
   permissions: () => <AllowlistManager />,
   environment: EnvVarsManager,
   notifications: NotificationPreferences,
+  gates: GatesPanel,
   runner: () => {
     const RunnerComp = React.lazy(() => import("@/components/settings/RunnerConfigSettings").then(m => ({ default: m.RunnerConfigSettings })));
     return (

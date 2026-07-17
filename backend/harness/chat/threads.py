@@ -477,17 +477,19 @@ async def archive_thread(
     thread_id: str,
     *,
     db: "Database | None" = None,
-) -> None:
+) -> bool:
     """Soft-delete: set ``is_archived = true``. The row stays in the
     table for audit / restore; excluded from :func:`list_threads` by
-    default.
+    default. Returns True if thread was archived, False if not found.
     """
     conn = _resolve_db(db)
-    await conn.execute(
+    result = await conn.execute(
         "UPDATE chat_threads SET is_archived = true, updated_at = NOW() "
         "WHERE id = $1",
         thread_id,
     )
+    # result is like "UPDATE 1" or "UPDATE 0"
+    return result.endswith("1")
 
 
 async def unarchive_thread(
