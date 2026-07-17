@@ -86,6 +86,8 @@ const TAB_GROUPS: TabGroup[] = [
       { id: "budgets", label: "Cost & Budgets", icon: DollarSign, desc: "Set token and cost budgets per agent, phase, and run" },
       { id: "gates", label: "Quality Gates", icon: Gauge, desc: "Define thresholds that block or warn on quality metrics" },
       { id: "observability", label: "Observability", icon: Activity, desc: "OpenTelemetry tracing configuration" },
+      { id: "otel", label: "OTel Settings", icon: Radio, desc: "OpenTelemetry agent and exporter configuration" },
+      { id: "sessions", label: "Sessions", icon: History, desc: "Browse and manage chat sessions and run history" },
       { id: "notifications", label: "Notifications", icon: Bell, desc: "Configure alert channels for pipeline events and failures" },
       { id: "digest", label: "Daily Digest", icon: Radio, desc: "Schedule automated daily summary reports" },
       { id: "runner", label: "Runner", icon: Cpu, desc: "Configure sandbox size, timeouts, and resource limits for test runners" },
@@ -144,6 +146,7 @@ const PANEL_MAP: Record<string, React.FC> = {
   environment: EnvVarsManager,
   notifications: NotificationPreferences,
   gates: GatesPanel,
+  sessions: SessionBrowser,
   runner: () => {
     const RunnerComp = React.lazy(() => import("@/components/settings/RunnerConfigSettings").then(m => ({ default: m.RunnerConfigSettings })));
     return (

@@ -835,27 +835,30 @@ async def save_escalation_policy(request: Request, body: dict):
 
 
 @router.get("/settings/otel")
-async def get_otel_settings():
-    """Get current OpenTelemetry configuration from env vars."""
+async def get_otel_settings(request: Request):
+    """Get current OpenTelemetry configuration from settings table, falling back to env vars."""
+    svc = SettingsService(get_db(request))
+    enabled = await svc.get_setting("otel_enabled")
+    endpoint = await svc.get_setting("otel_endpoint")
+    service_name = await svc.get_setting("otel_service_name")
+
     return {
-        "enabled": os.environ.get("OTEL_ENABLED", "false").lower() == "true",
-        "endpoint": os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"),
-        "service_name": os.environ.get("OTEL_SERVICE_NAME", "testai-harness"),
+        "enabled": enabled.lower() == "true" if enabled is not None else os.environ.get("OTEL_ENABLED", "false").lower() == "true",
+        "endpoint": endpoint or os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"),
+        "service_name": service_name or os.environ.get("OTEL_SERVICE_NAME", "testai-harness"),
         "protocol": os.environ.get("OTEL_EXPORTER_OTLP_PROTOCOL", "grpc"),
     }
 
 
 @router.post("/settings/otel")
-async def upsert_otel_settings(body: dict):
+async def upsert_otel_settings(request: Request, body: dict):
     """Save OpenTelemetry configuration.
 
     Persisted to the settings table via SettingsService.
     Values take effect on the next process restart (OTel is
     initialized at startup from env vars / settings store).
     """
-    import os as _os
-    from harness.services.settings_service import SettingsService
-    svc = SettingsService()
+    svc = SettingsService(get_db(request))
     await svc.set_setting("otel_enabled", str(body.get("enabled", False)))
     await svc.set_setting("otel_endpoint", body.get("endpoint", "http://localhost:4317"))
     await svc.set_setting("otel_service_name", body.get("service_name", "testai-harness"))
