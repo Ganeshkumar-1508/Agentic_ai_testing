@@ -140,6 +140,68 @@ async def list_plugins(request: Request):
     return {"plugins": plugins, "total": len(plugins)}
 
 
+@router.post("/plugins/{name}/enable")
+async def enable_plugin(name: str):
+    """Enable a plugin by writing enabled=true to its config."""
+    import json
+    from pathlib import Path
+    for source_dir in [
+        Path(__file__).resolve().parent.parent.parent / "plugins",
+        Path.home() / ".testai" / "plugins",
+        Path.cwd() / ".testai" / "plugins",
+    ]:
+        plugin_dir = source_dir / name
+        config_file = plugin_dir / "config.json"
+        if plugin_dir.exists():
+            try:
+                config = json.loads(config_file.read_text("utf-8")) if config_file.exists() else {}
+            except Exception:
+                config = {}
+            config["enabled"] = True
+            config_file.write_text(json.dumps(config, indent=2), "utf-8")
+            return {"status": "ok", "name": name, "enabled": True}
+    return {"status": "error", "message": f"Plugin '{name}' not found"}
+
+
+@router.post("/plugins/{name}/disable")
+async def disable_plugin(name: str):
+    """Disable a plugin by writing enabled=false to its config."""
+    import json
+    from pathlib import Path
+    for source_dir in [
+        Path(__file__).resolve().parent.parent.parent / "plugins",
+        Path.home() / ".testai" / "plugins",
+        Path.cwd() / ".testai" / "plugins",
+    ]:
+        plugin_dir = source_dir / name
+        config_file = plugin_dir / "config.json"
+        if plugin_dir.exists():
+            try:
+                config = json.loads(config_file.read_text("utf-8")) if config_file.exists() else {}
+            except Exception:
+                config = {}
+            config["enabled"] = False
+            config_file.write_text(json.dumps(config, indent=2), "utf-8")
+            return {"status": "ok", "name": name, "enabled": False}
+    return {"status": "error", "message": f"Plugin '{name}' not found"}
+
+
+@router.delete("/plugins/{name}")
+async def uninstall_plugin(name: str):
+    """Uninstall a plugin by removing its directory."""
+    import shutil
+    from pathlib import Path
+    for source_dir in [
+        Path.home() / ".testai" / "plugins",
+        Path.cwd() / ".testai" / "plugins",
+    ]:
+        plugin_dir = source_dir / name
+        if plugin_dir.exists():
+            shutil.rmtree(plugin_dir)
+            return {"status": "ok", "name": name, "uninstalled": True}
+    return {"status": "error", "message": f"Plugin '{name}' not found (cannot uninstall bundled plugins)"}
+
+
 @router.get("/plugins/hooks")
 async def list_hooks(request: Request):
     from harness.hooks import get_hook_registry, VALID_HOOKS

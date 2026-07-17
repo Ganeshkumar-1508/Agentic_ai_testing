@@ -423,3 +423,18 @@ class SettingsService:
             "SELECT * FROM delivery_log ORDER BY created_at DESC LIMIT $1", limit,
         )
         return [dict(r) for r in rows]
+
+    # ── Generic Settings ──────────────────────────────────────
+
+    async def set_setting(self, key: str, value: str) -> None:
+        await self.db.execute(
+            "INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, NOW()) "
+            "ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()",
+            key, value,
+        )
+
+    async def get_setting(self, key: str) -> str | None:
+        row = await self.db.fetchrow(
+            "SELECT value FROM settings WHERE key = $1", key
+        )
+        return row["value"] if row else None
