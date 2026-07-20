@@ -125,8 +125,8 @@ function PipelinePageInner() {
           : "";
 
       if (pipelineMode === "orchestrate") {
-        if (!effectiveRepoUrl || (!effectiveRepoUrl.startsWith("https://") && !effectiveRepoUrl.startsWith("http://") && !effectiveRepoUrl.startsWith("git@"))) {
-          toast.error("Please enter a valid repo URL (https:// or git@)");
+        if (!effectiveRepoUrl) {
+          toast.error("Please enter a valid repo URL");
           setSubmitting(false);
           return;
         }
@@ -245,7 +245,7 @@ function PipelinePageInner() {
   useEffect(() => {
     if (!sessionId || status !== "running") return;
     const discoverBoard = () => {
-      api.get<{ boards?: Array<{ id: string; name?: string; config?: { source?: string } }> }>(`/api/kanban/boards?source=orchestrator`)
+      api.get<{ boards?: Array<{ id: string; name?: string; config?: { source?: string; session_id?: string } }> }>(`/api/kanban/boards?source=orchestrator`)
         .then((d) => {
           const boards = d.boards || [];
           const match = boards.find((b) =>
@@ -314,7 +314,7 @@ function PipelinePageInner() {
       {/* === 2. PIPELINE MODE TOGGLE === */}
       <div className="flex items-center gap-3">
         <div className="flex bg-card border border-white/[0.06] rounded-full p-0.5 gap-0.5">
-          <button onClick={() => { setPipelineMode("quick"); setRequirements(""); }}
+          <button onClick={() => { setPipelineMode("quick"); setRequirements(""); setSelectedSkill(""); }}
             className={`px-4 py-1.5 rounded-full text-[12px] font-medium transition-all flex items-center gap-1.5 ${
               pipelineMode === "quick" ? "bg-emerald-500 text-zinc-950 font-semibold" : "text-zinc-400 hover:text-zinc-300"
             }`}>
@@ -367,12 +367,12 @@ function PipelinePageInner() {
         <div className="flex items-center justify-between mt-3">
           <div className="flex items-center gap-2 flex-wrap">
             {pipelineMode === "quick" ? (quickChips).map((chip, i) => (
-              <button key={i} onClick={() => { setRequirements(chip); setTimeout(startPipeline, 300); }}
+              <button key={i} onClick={() => { if (submitting) return; setRequirements(chip); setTimeout(startPipeline, 300); }}
                 className="px-3 py-1.5 rounded-full text-[11px] font-medium border border-white/[0.06] text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all">
                 {chip}
               </button>
             )) : (
-              <button onClick={() => { setRequirements("Fix all open issues and add tests for the main functionality"); setTimeout(startPipeline, 300); }}
+              <button onClick={() => { if (submitting) return; setRequirements("Fix all open issues and add tests for the main functionality"); setTimeout(startPipeline, 300); }}
                 className="px-3 py-1.5 rounded-full text-[11px] font-medium border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 transition-all">
                 Fix open issues
               </button>
@@ -533,7 +533,7 @@ function PipelinePageInner() {
                 <div className="text-center py-12 text-[13px] text-zinc-600 border border-dashed border-white/[0.06] rounded-[1.5rem]">
                   <FileText className="w-8 h-8 mx-auto mb-2 text-zinc-700" strokeWidth={1} />
                   <p>No templates yet</p>
-                  <p className="text-[11px] text-zinc-600 mt-1">Click <span className="text-emerald-400">Add Template</span> above or create via Settings</p>
+                  <p className="text-[11px] text-zinc-600 mt-1">Create one below to get started</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -549,7 +549,7 @@ function PipelinePageInner() {
                         </div>
                       )}
                       <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => { setRequirements(t.requirements || t.description || ""); setTimeout(startPipeline, 100); }} className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors">Use template</button>
+                        <button onClick={() => { if (submitting) return; setRequirements(t.requirements || t.description || ""); setTimeout(startPipeline, 300); }} className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors">Use template</button>
                       </div>
                     </div>
                   ))}
@@ -558,13 +558,13 @@ function PipelinePageInner() {
                       <button onClick={() => setShowAllTemplates(true)} className="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors">Show all {templates.length} templates</button>
                     </div>
                   )}
-                  <div className="border border-dashed border-white/[0.06] rounded-[1.5rem] p-6 flex flex-col items-center justify-center min-h-[140px] hover:border-emerald-500 hover:bg-emerald-500/5 transition-all cursor-pointer"
-                    onClick={() => setTemplateDialogOpen(true)}>
-                    <Code2 className="w-6 h-6 text-zinc-600 mb-2" strokeWidth={1.5} />
-                    <span className="text-[13px] text-zinc-500 font-medium">Add Template</span>
-                  </div>
                 </div>
               )}
+              <div className="mt-4 border border-dashed border-white/[0.06] rounded-[1.5rem] p-6 flex flex-col items-center justify-center min-h-[100px] hover:border-emerald-500 hover:bg-emerald-500/5 transition-all cursor-pointer"
+                onClick={() => setTemplateDialogOpen(true)}>
+                <Code2 className="w-6 h-6 text-zinc-600 mb-2" strokeWidth={1.5} />
+                <span className="text-[13px] text-zinc-500 font-medium">Add Template</span>
+              </div>
             </div>
 
             {/* Advanced Config (collapsible) */}
@@ -582,17 +582,19 @@ function PipelinePageInner() {
             <DialogDescription>Save the current pipeline configuration as a reusable template.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
-            <input
+            <label htmlFor="template-name" className="text-[11px] text-zinc-500 font-medium">Template Name</label>
+            <input id="template-name" name="template-name"
               autoFocus
               value={templateName}
               onChange={(e) => setTemplateName(e.target.value)}
-              placeholder="Template name"
+              placeholder="My Template"
               className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-[13px] text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-emerald-500"
             />
-            <input
+            <label htmlFor="template-desc" className="text-[11px] text-zinc-500 font-medium">Description (optional)</label>
+            <input id="template-desc" name="template-desc"
               value={templateDesc}
               onChange={(e) => setTemplateDesc(e.target.value)}
-              placeholder="Description (optional)"
+              placeholder="What does this template do?"
               className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-[13px] text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-emerald-500"
             />
           </div>
@@ -683,7 +685,7 @@ function PipelinePageInner() {
 function ApprovalQueueSection({ sessionId }: { sessionId: string | null }) {
   const [approvals, setApprovals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const status = useWorkflowStatus();
+  const status = usePipelineStore(s => s.status);
 
   useEffect(() => {
     if (!sessionId || status !== "running") { setLoading(false); setApprovals([]); return; }
