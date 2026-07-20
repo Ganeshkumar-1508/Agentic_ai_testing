@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +10,7 @@ import { SkeletonBlock } from "@/components/shared/LoadingSkeleton";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { api } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   Puzzle, Plus, Trash2, Loader2, Check, X,
   Search, ChevronDown, ChevronRight, RefreshCw, Terminal,
@@ -261,14 +262,19 @@ export function MCPServerManager() {
     }
   };
 
+  const getConnection = (serverName: string) =>
+    connections.find((c) => c.name === serverName || c.id === serverName);
+
   const sortedServers = useMemo(() => {
     const s = [...servers];
     if (sortBy === "name") s.sort((a, b) => a.name.localeCompare(b.name));
+    else if (sortBy === "status") s.sort((a, b) => {
+      const ca = getConnection(a.name)?.connected ? 0 : 1;
+      const cb = getConnection(b.name)?.connected ? 0 : 1;
+      return ca - cb;
+    });
     return s;
   }, [servers, sortBy]);
-
-  const getConnection = (serverName: string) =>
-    connections.find((c) => c.name === serverName || c.id === serverName);
 
   const getAllTools = useMemo(() => {
     const tools: Array<MCPTool & { serverName: string }> = [];
@@ -284,7 +290,7 @@ export function MCPServerManager() {
     if (!toolSearch) return [];
     return getAllTools.filter((t) =>
       t.name.toLowerCase().includes(toolSearch.toLowerCase()) ||
-      t.description.toLowerCase().includes(toolSearch.toLowerCase()),
+      (t.description || "").toLowerCase().includes(toolSearch.toLowerCase()),
     );
   }, [getAllTools, toolSearch]);
 
@@ -305,7 +311,9 @@ export function MCPServerManager() {
         setServers((prev) => [...prev, result.server!]);
         setShowAddForm(false);
       }
-    } catch { /* ignore */ }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to add MCP server");
+    }
   };
 
   const updateServer = async (id: string, data: any) => {
@@ -313,21 +321,30 @@ export function MCPServerManager() {
       await api.patch(`/api/settings/mcp/${id}`, data);
       setEditingId(null);
       await fetchAll();
-    } catch { /* ignore */ }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update MCP server");
+    }
   };
 
   const deleteServer = async (id: string) => {
     try {
       await api.delete(`/api/settings/mcp/${id}`);
       setServers((prev) => prev.filter((s) => s.id !== id));
-    } catch { /* ignore */ }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete MCP server");
+    }
   };
 
   const handleTest = async () => {
     setTestingId("all");
-    await api.post(`/api/settings/mcp/reload`, {});
-    await fetchAll();
-    setTestingId(null);
+    try {
+      await api.post(`/api/settings/mcp/reload`, {});
+      await fetchAll();
+    } catch {
+      toast.error("Failed to reload MCP servers");
+    } finally {
+      setTestingId(null);
+    }
   };
 
   const healthyCount = connections.filter((c) => c.connected).length;
@@ -415,7 +432,6 @@ export function MCPServerManager() {
           const conn = getConnection(server.name);
           const isExpanded = expandedServer === server.id;
           const isEditing = editingId === server.id;
-          const isTesting = testingId === "all";
           const cfg = server.config || {};
           const hasArgs = cfg.args && cfg.args.length > 0;
           const hasEnv = cfg.env && Object.keys(cfg.env).length > 0;

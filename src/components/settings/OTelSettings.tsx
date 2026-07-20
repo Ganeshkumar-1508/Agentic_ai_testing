@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import { api } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
-  Activity, CheckCircle2, XCircle, Loader2, Save,
-  Radio, Wifi, WifiOff,
+  Activity, Loader2, Save,
+  Wifi, WifiOff,
 } from "lucide-react";
 
 export function OTelSettings() {
@@ -30,12 +29,14 @@ export function OTelSettings() {
     refetchInterval: 10_000,
   });
 
-  if (data && !loaded) {
-    setEndpoint(data.endpoint);
-    setServiceName(data.service_name);
-    setEnabled(data.enabled);
-    setLoaded(true);
-  }
+  useEffect(() => {
+    if (data && !loaded) {
+      setEndpoint(data.endpoint);
+      setServiceName(data.service_name);
+      setEnabled(data.enabled);
+      setLoaded(true);
+    }
+  }, [data, loaded]);
 
   const saveMut = useMutation({
     mutationFn: async () => {

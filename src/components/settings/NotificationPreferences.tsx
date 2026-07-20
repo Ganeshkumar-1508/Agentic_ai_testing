@@ -132,8 +132,9 @@ export function NotificationPreferences() {
               </button>
             ))}
           </div>
-          <button onClick={() => upsertMut.mutate({ channel: newChannel, enabled: true, events: newEvents, target: newTarget })}
-            className="px-3 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold hover:bg-emerald-500/25 transition-colors">
+          <button onClick={() => { if (!newTarget.trim()) { toast.error("Target is required"); return; } upsertMut.mutate({ channel: newChannel, enabled: true, events: newEvents, target: newTarget }); }}
+            disabled={!newTarget.trim() || newEvents.length === 0}
+            className="px-3 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold hover:bg-emerald-500/25 transition-colors disabled:opacity-40">
             Save
           </button>
         </motion.div>

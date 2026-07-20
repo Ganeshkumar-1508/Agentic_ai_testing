@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Trash2, Download, Clock, Shield, Check, AlertTriangle } from "lucide-react";
+import { Trash2, Download, Clock } from "lucide-react";
 import { api } from "@/lib/api/api-client";
 import { toast } from "sonner";
 
@@ -41,7 +40,7 @@ export function DataPrivacySettings() {
       <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/40 p-6 space-y-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-zinc-800/50 flex items-center justify-center"><Clock size={16} className="text-zinc-400" strokeWidth={1.5} /></div>
-          <div><h3 className="text-sm font-medium text-zinc-200">Data Retention</h3><p className="text-xs text-zinc-500">Automatically delete session data older than this many days</p></div>
+          <div><h3 className="text-sm font-medium text-zinc-200">Data Retention</h3><p className="text-xs text-zinc-500">Delete session data older than this many days (manual cleanup)</p></div>
         </div>
         <div className="flex items-center gap-3">
           <input type="number" value={retention} onChange={(e) => setRetention(e.target.value)} min="1" max="365" className="w-20 bg-zinc-800/60 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 font-mono text-center focus:outline-none focus:border-emerald-500/40" />

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Plus, Trash2, Eye, EyeOff, Shield, Variable, Save } from "lucide-react";
 import { api } from "@/lib/api/api-client";

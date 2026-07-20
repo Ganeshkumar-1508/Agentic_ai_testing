@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api/api-client";
 import {
   MagnifyingGlassIcon, TrashIcon, CheckIcon, Cross2Icon,
-  ReloadIcon, Link2Icon, GlobeIcon,
+  ReloadIcon, Link2Icon,
 } from "@radix-ui/react-icons";
 
 interface PlatformConfig {
@@ -98,8 +98,13 @@ export function PlatformAdapterSettings() {
 
   const toggleEnabled = async (platform: string, enabled: boolean) => {
     const cfg = getConfig(platform);
-    await api.post(`/api/settings/platforms`, { platform, enabled, config: cfg?.config || {} });
-    await load();
+    try {
+      await api.post(`/api/settings/platforms`, { platform, enabled, config: cfg?.config || {} });
+      showStatus("success", `${platform} ${enabled ? "enabled" : "disabled"}`);
+      await load();
+    } catch (e) {
+      showStatus("error", e instanceof Error ? e.message : `Failed to update ${platform}`);
+    }
   };
 
   const remove = async (platform: string) => {
@@ -112,9 +117,18 @@ export function PlatformAdapterSettings() {
 
   const testConnection = async (platform: string) => {
     setTestingPlatform(platform);
-    await new Promise((r) => setTimeout(r, 1200));
-    setTestingPlatform(null);
-    showStatus("success", `${platform} connection successful`);
+    try {
+      const result = await api.post<{ success?: boolean; error?: string }>(`/api/settings/platforms/${platform}/test`);
+      if (result?.success) {
+        showStatus("success", `${platform} connection successful`);
+      } else {
+        showStatus("error", result?.error ?? `${platform} connection failed`);
+      }
+    } catch (e) {
+      showStatus("error", e instanceof Error ? e.message : `${platform} connection failed`);
+    } finally {
+      setTestingPlatform(null);
+    }
   };
 
   if (loading) return <div className="space-y-2"><SkeletonBlock /><SkeletonBlock /><SkeletonBlock /></div>;

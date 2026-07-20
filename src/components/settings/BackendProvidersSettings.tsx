@@ -13,7 +13,7 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import {
   Eye, EyeOff, Check, X, Loader2, Server, Plug, Wifi, WifiOff,
   Save, Plus, Trash2, Info, Brain,
-  Sliders, Cpu,
+  Sliders,
 } from "lucide-react";
 import { useProviderStore, type ProviderConfig } from "@/stores/provider-store";
 
@@ -284,7 +284,7 @@ export function BackendProvidersSettings() {
                     <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                   </button>
                   <Switch checked={provider.enabled}
-                    onCheckedChange={(v) => setLocalProviders((prev) => prev.map((p) => ({ ...p, enabled: p.provider === provider.provider ? v : false })))} />
+                    onCheckedChange={(v) => { setLocalProviders((prev) => prev.map((p) => ({ ...p, enabled: p.provider === provider.provider ? v : false }))); setSaveStatus("idle"); }} />
                 </div>
               </div>
 

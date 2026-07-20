@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { api } from "@/lib/api/api-client";
 import { toast } from "sonner";
 import { type ElementType } from "react";
-import { Webhook, Puzzle, Clock, Plus, Trash2, ToggleLeft, ToggleRight, Loader2, Network, History } from "lucide-react";
+import { Webhook, Puzzle, Clock, Loader2, Network, History } from "lucide-react";
 import { SessionBrowser } from "@/components/settings/SessionBrowser";
 
 type AdminTab = "hooks" | "plugins" | "cron" | "swarm" | "sessions";

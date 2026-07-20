@@ -72,7 +72,7 @@ export function SearchProvidersSettings() {
       await api.post("/api/search/providers", providers.map((p) => ({
         provider: p.name,
         enabled: p.enabled,
-        config: { ...p.config, api_key: p.config.api_key || undefined },
+        config: { ...p.config },
       })));
       setSaveStatus("saved");
       setTimeout(() => setSaveStatus("idle"), 3000);

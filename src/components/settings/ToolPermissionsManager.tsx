@@ -50,7 +50,7 @@ export function ToolPermissionsManager() {
   });
 
   const tools = (data ?? []).filter((t) =>
-    !search || t.name.toLowerCase().includes(search.toLowerCase()) || t.description.toLowerCase().includes(search.toLowerCase())
+    !search || t.name.toLowerCase().includes(search.toLowerCase()) || (t.description || "").toLowerCase().includes(search.toLowerCase())
   );
 
   const nextLevel = (current: string) => current === "allow" ? "ask" : current === "ask" ? "deny" : "allow";
