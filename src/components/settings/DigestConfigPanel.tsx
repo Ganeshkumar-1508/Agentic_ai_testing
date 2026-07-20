@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlusIcon, TrashIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { api } from "@/lib/api/api-client";
+import { toast } from "sonner";
 
 interface DigestConfig {
   id: string;
@@ -25,7 +26,9 @@ export function DigestConfigPanel() {
     try {
       const d = await api.get<{ configs: DigestConfig[] }>("/api/digest/configs");
       setConfigs(d?.configs ?? []);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch {
+      toast.error("Failed to load digest configs");
+    } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -36,15 +39,30 @@ export function DigestConfigPanel() {
       await api.post("/api/digest/configs", form);
       setShowForm(false);
       setForm({ platform: "slack", channel_id: "", schedule: "0 8 * * 1-5" });
+      toast.success("Digest channel added");
       await load();
-    } catch { /* ignore */ }
+    } catch {
+      toast.error("Failed to add digest channel");
+    }
   };
 
   const deleteConfig = async (id: string) => {
     try {
       await api.delete(`/api/digest/configs/${id}`);
+      toast.success("Digest channel removed");
       await load();
-    } catch { /* ignore */ }
+    } catch {
+      toast.error("Failed to delete digest channel");
+    }
+  };
+
+  const toggleConfig = async (cfg: DigestConfig) => {
+    try {
+      await api.post("/api/digest/configs", { platform: cfg.platform, channel_id: cfg.channel_id, schedule: cfg.schedule, enabled: !cfg.enabled });
+      await load();
+    } catch {
+      toast.error("Failed to update digest channel");
+    }
   };
 
   const testDigest = async () => {
@@ -125,9 +143,10 @@ export function DigestConfigPanel() {
               <span className="text-zinc-300 font-medium w-16">{cfg.platform}</span>
               <span className="text-zinc-500 font-mono flex-1">{cfg.channel_id}</span>
               <span className="text-zinc-700 font-mono">{cfg.schedule}</span>
-              <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${cfg.enabled ? "bg-emerald-400/10 text-emerald-400" : "bg-zinc-800 text-zinc-600"}`}>
+              <button onClick={() => toggleConfig(cfg)}
+                className={`text-[9px] px-1.5 py-0.5 rounded-full transition-colors ${cfg.enabled ? "bg-emerald-400/10 text-emerald-400 hover:bg-emerald-400/20" : "bg-zinc-800 text-zinc-600 hover:text-zinc-400"}`}>
                 {cfg.enabled ? "active" : "disabled"}
-              </span>
+              </button>
               <button onClick={() => deleteConfig(cfg.id)} className="p-1 rounded text-zinc-700 hover:text-red-400 hover:bg-red-500/10 transition-colors">
                 <TrashIcon className="w-3 h-3" />
               </button>

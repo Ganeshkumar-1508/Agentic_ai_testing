@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, X, Edit3, Trash2, Save, Bot, Code2, BookOpen, Bug, Shield, Layers, Power, PowerOff } from "lucide-react";
+import { Plus, X, Edit3, Trash2, Save, Bot, Code2, BookOpen, Bug, Shield, Power, PowerOff } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
@@ -48,6 +48,7 @@ export function AgentsSettings() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<Agent | null>(null);
   const [isNew, setIsNew] = useState(false);
+  const [originalName, setOriginalName] = useState("");
 
   const { data: resp, isLoading, error } = useQuery<{ agents: Agent[] }>({
     queryKey: ["agents"],
@@ -56,7 +57,7 @@ export function AgentsSettings() {
 
   const saveMut = useMutation({
     mutationFn: async (agent: Agent) => {
-      const res = await api.put<unknown>(`/api/agents/${encodeURIComponent(agent.name)}`, agent);
+      const res = await api.put<unknown>(`/api/agents/${encodeURIComponent(originalName || agent.name)}`, agent);
       return res;
     },
     onSuccess: () => {
@@ -91,7 +92,7 @@ export function AgentsSettings() {
           <p className="text-sm text-zinc-500 mt-1">Subagents used by the orchestrator for fan-out work. Each one is a discrete role with its own toolset and system prompt.</p>
         </div>
         <motion.button whileTap={{ scale: 0.97 }}
-          onClick={() => { setEditing({ ...EMPTY, name: `agent-${agents.length + 1}` }); setIsNew(true); }}
+          onClick={() => { setEditing({ ...EMPTY, name: `agent-${agents.length + 1}` }); setIsNew(true); setOriginalName(""); }}
           className="h-9 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-semibold transition-colors flex items-center gap-1.5 shrink-0">
           <Plus className="w-3.5 h-3.5" strokeWidth={2} /> New Agent
         </motion.button>
@@ -169,12 +170,12 @@ export function AgentsSettings() {
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <motion.button whileTap={{ scale: 0.95 }}
-                      onClick={() => { setEditing({ ...a }); setIsNew(false); }}
+                      onClick={() => { setEditing({ ...a }); setIsNew(false); setOriginalName(a.name); }}
                       className="h-7 w-7 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition-colors flex items-center justify-center" title="Edit">
                       <Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} />
                     </motion.button>
                     <motion.button whileTap={{ scale: 0.95 }}
-                      onClick={() => deleteMut.mutate(a.name)}
+                      onClick={() => { if (confirm(`Delete agent "${a.name}"? This cannot be undone.`)) deleteMut.mutate(a.name); }}
                       className="h-7 w-7 rounded-lg text-zinc-500 hover:text-rose-300 hover:bg-rose-500/10 transition-colors flex items-center justify-center" title="Delete">
                       <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                     </motion.button>

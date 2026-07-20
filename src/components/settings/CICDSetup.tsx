@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -15,10 +15,8 @@ import {
   Copy,
   Globe,
   Github,
-  ExternalLink,
   ChevronDown,
   Terminal,
-  Loader2,
 } from "lucide-react";
 import {
   Collapsible,
@@ -26,6 +24,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { api } from "@/lib/api/api-client";
+import { toast } from "sonner";
 
 interface ApiKey {
   id: string;
@@ -68,7 +67,6 @@ export function CICDSetup() {
   const [newKeyName, setNewKeyName] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newKeyValue, setNewKeyValue] = useState<string | null>(null);
-  const [copiedKey, setCopiedKey] = useState(false);
   const [openConfig, setOpenConfig] = useState<string | null>(null);
   const [copiedConfig, setCopiedConfig] = useState<string | null>(null);
   const backendUrl = typeof window !== "undefined"
@@ -96,14 +94,18 @@ export function CICDSetup() {
       setNewKeyName("");
       setShowAddForm(false);
       fetchKeys();
-    } catch { /* ignore */ }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to create API key");
+    }
   };
 
   const deleteKey = async (id: string) => {
     try {
       await api.delete(`/api/settings/api-keys/${id}`);
       setKeys((prev) => prev.filter((k) => k.id !== id));
-    } catch { /* ignore */ }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete API key");
+    }
   };
 
   const copyToClipboard = async (text: string, id: string) => {
@@ -164,17 +166,6 @@ export function CICDSetup() {
                   )}
                 </div>
                 <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => copyToClipboard(key.prefix || "", key.id)}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors active:scale-[0.92]"
-                    title="Copy key prefix"
-                  >
-                    {copiedConfig === key.id ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400" strokeWidth={2} />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    )}
-                  </button>
                   <button
                     onClick={() => deleteKey(key.id)}
                     className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-colors active:scale-[0.92]"

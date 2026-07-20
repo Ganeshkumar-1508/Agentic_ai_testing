@@ -48,11 +48,13 @@ export function FeatureFlags() {
       await api.post(`/api/settings/feature-flags`, body);
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["feature-flags"] }); toast.success("Flag saved"); },
+    onError: (e: Error) => toast.error(e?.message ?? "Failed to save flag"),
   });
 
   const deleteMut = useMutation({
     mutationFn: async (key: string) => { await api.delete(`/api/settings/feature-flags/${key}`); },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["feature-flags"] }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["feature-flags"] }); toast.success("Flag deleted"); },
+    onError: (e: Error) => toast.error(e?.message ?? "Failed to delete flag"),
   });
 
   const flags = data ?? [];
@@ -165,15 +167,17 @@ export function FeatureFlags() {
               </div>
               {f.rollout_percent > 0 && (
                 <div className="flex items-center gap-1.5">
-                  <div className="w-12 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-emerald-400/50 rounded-full" style={{ width: `${f.rollout_percent}%` }} />
-                  </div>
-                  <span className="text-[9px] font-mono text-zinc-600">{f.rollout_percent}%</span>
+                  <input
+                    type="number" min={0} max={100} defaultValue={f.rollout_percent}
+                    onBlur={(e) => { const v = parseInt(e.target.value); if (!isNaN(v) && v >= 0 && v <= 100 && v !== f.rollout_percent) upsertMut.mutate({ flag_key: f.key ?? f.flag_key ?? "", label: f.label, description: f.description, enabled: f.enabled, rollout_percent: v }); }}
+                    className="w-12 bg-white/[0.04] border border-white/[0.06] rounded px-1 py-0.5 text-[9px] font-mono text-zinc-400 outline-none focus:border-emerald-500/40 text-center"
+                  />
+                  <span className="text-[9px] font-mono text-zinc-600">%</span>
                 </div>
               )}
               <button
                 onClick={() => upsertMut.mutate({
-                  flag_key: f.key ?? f.flag_key ?? "", label: f.label, description: f.description, enabled: !f.enabled, rollout_percent: f.enabled ? 0 : 100,
+                  flag_key: f.key ?? f.flag_key ?? "", label: f.label, description: f.description, enabled: !f.enabled, rollout_percent: f.enabled ? f.rollout_percent : 100,
                 })}
                 className="p-1 rounded transition-colors"
               >

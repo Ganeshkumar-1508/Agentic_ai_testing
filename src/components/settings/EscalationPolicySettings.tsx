@@ -9,7 +9,6 @@ import { toast } from "sonner";
 interface EscalationRule {
   id: string;
   trigger: string;
-  condition: string;
   action: "ask" | "escalate" | "auto-retry";
   target: string;
 }
@@ -86,7 +85,7 @@ export function EscalationPolicySettings() {
   };
 
   const addRule = () => {
-    setRules([...rules, { id: Date.now().toString(), trigger: "tool_failure", condition: "", action: "ask", target: "user" }]);
+    setRules([...rules, { id: Date.now().toString(), trigger: "tool_failure", action: "ask", target: "user" }]);
   };
 
   if (loading) return <div className="space-y-3">{[1,2].map(i => <div key={i} className="h-16 rounded-xl shimmer-bg" />)}</div>;

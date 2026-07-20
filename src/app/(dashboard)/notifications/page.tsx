@@ -4,10 +4,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { api } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { type ElementType } from "react";
 import {
-  Bell, CheckCheck, Mail, Slack, Globe,
-  Loader2, Clock, CheckCircle2, XCircle, AlertTriangle,
+  Bell, CheckCheck, Check, Trash2, Mail, Slack, Globe,
 } from "lucide-react";
 
 interface Notification {
@@ -45,6 +45,19 @@ export default function NotificationsPage() {
   const markAllRead = useMutation({
     mutationFn: () => api.post("/api/notifications/read-all", {}),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications-all"] }),
+    onError: () => toast.error("Failed to mark as read"),
+  });
+
+  const markRead = useMutation({
+    mutationFn: (id: string) => api.post(`/api/notifications/${id}/read`, {}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications-all"] }),
+    onError: () => toast.error("Failed to mark as read"),
+  });
+
+  const deleteNotification = useMutation({
+    mutationFn: (id: string) => api.delete(`/api/notifications/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications-all"] }),
+    onError: () => toast.error("Failed to delete notification"),
   });
 
   const notifications = data?.notifications ?? [];
@@ -97,7 +110,7 @@ export default function NotificationsPage() {
             return (
               <motion.div key={n.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ ...springProps, delay: i * 0.015 }}
-                className={cn("flex items-start gap-3 px-4 py-3 rounded-xl border transition-all",
+                className={cn("flex items-start gap-3 px-4 py-3 rounded-xl border transition-all group",
                   n.status === "pending"
                     ? "border-emerald-500/20 bg-emerald-500/3"
                     : n.error
@@ -128,6 +141,18 @@ export default function NotificationsPage() {
                     {n.run_id && <span>run: {n.run_id.slice(0, 8)}</span>}
                     {n.delivered_at && <span>delivered {formatTime(n.delivered_at)}</span>}
                   </div>
+                </div>
+                <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => markRead.mutate(n.id)} disabled={markRead.isPending}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-600 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors active:scale-[0.92]"
+                    title="Mark as read">
+                    <Check size={13} strokeWidth={2} />
+                  </button>
+                  <button onClick={() => { if (confirm("Delete this notification?")) deleteNotification.mutate(n.id); }} disabled={deleteNotification.isPending}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-colors active:scale-[0.92]"
+                    title="Delete">
+                    <Trash2 size={13} strokeWidth={1.5} />
+                  </button>
                 </div>
               </motion.div>
             );

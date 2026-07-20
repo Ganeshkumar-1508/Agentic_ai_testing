@@ -9,14 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { SkeletonBlock } from "@/components/shared/LoadingSkeleton";
 import { api } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   Webhook,
   Plus,
   Trash2,
   Check,
-  X,
-  Loader2,
-  Globe,
   Radio,
 } from "lucide-react";
 
@@ -47,7 +45,7 @@ export function WebhookConfig() {
       const json = await api.get<{ webhooks?: WebhookEntry[] }>(`/api/settings/webhooks`);
       setWebhooks((json?.webhooks ?? []).map((w: any) => ({ ...w, enabled: w.enabled ?? true })));
     } catch {
-      // Fallback
+      toast.error("Failed to load webhooks");
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +68,7 @@ export function WebhookConfig() {
         setShowAddForm(false);
       }
     } catch {
-      // Handle error
+      toast.error("Failed to add webhook");
     }
   };
 
@@ -88,7 +86,7 @@ export function WebhookConfig() {
       await api.delete(`/api/settings/webhooks/${id}`);
       setWebhooks((prev) => prev.filter((w) => w.id !== id));
     } catch {
-      // Handle error
+      toast.error("Failed to delete webhook");
     }
   };
 
