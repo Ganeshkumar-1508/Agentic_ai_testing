@@ -125,7 +125,7 @@ function GatesTab() {
     refetchInterval: 30_000,
   });
 
-  const [newGate, setNewGate] = useState({ name: "", metric: "pass_rate", threshold: 80, enabled: true, description: "" });
+  const [newGate, setNewGate] = useState({ name: "", metric: "pass_rate", warn_threshold: 80, fail_threshold: 60, enabled: true, description: "" });
   const [adding, setAdding] = useState(false);
 
   const gates = data?.gates ?? [];
@@ -134,7 +134,7 @@ function GatesTab() {
     if (!newGate.name.trim()) return;
     await api.post("/api/settings/gates", newGate);
     toast.success("Gate created");
-    setNewGate({ name: "", metric: "pass_rate", threshold: 80, enabled: true, description: "" });
+    setNewGate({ name: "", metric: "pass_rate", warn_threshold: 80, fail_threshold: 60, enabled: true, description: "" });
     setAdding(false);
     refetch();
   };
@@ -162,7 +162,7 @@ function GatesTab() {
 
       {adding && (
         <div className="bg-card border border-white/[0.06] rounded-xl p-4 space-y-3">
-          <div className="grid grid-cols-5 gap-3">
+          <div className="grid grid-cols-6 gap-3">
             <div className="col-span-2">
               <label className="text-[9px] text-zinc-600 uppercase tracking-wider">Name</label>
               <input value={newGate.name} onChange={(e) => setNewGate({ ...newGate, name: e.target.value })}
@@ -180,8 +180,13 @@ function GatesTab() {
               </select>
             </div>
             <div>
-              <label className="text-[9px] text-zinc-600 uppercase tracking-wider">Threshold</label>
-              <input type="number" value={newGate.threshold} onChange={(e) => setNewGate({ ...newGate, threshold: Number(e.target.value) })}
+              <label className="text-[9px] text-zinc-600 uppercase tracking-wider">Warn at</label>
+              <input type="number" value={newGate.warn_threshold} onChange={(e) => setNewGate({ ...newGate, warn_threshold: Number(e.target.value) })}
+                className="w-full bg-card border border-white/[0.06] rounded-lg px-3 py-1.5 text-[12px] text-zinc-300 outline-none focus:border-emerald-500/30 mt-1" />
+            </div>
+            <div>
+              <label className="text-[9px] text-zinc-600 uppercase tracking-wider">Fail at</label>
+              <input type="number" value={newGate.fail_threshold} onChange={(e) => setNewGate({ ...newGate, fail_threshold: Number(e.target.value) })}
                 className="w-full bg-card border border-white/[0.06] rounded-lg px-3 py-1.5 text-[12px] text-zinc-300 outline-none focus:border-emerald-500/30 mt-1" />
             </div>
             <div className="flex items-end">
@@ -190,6 +195,12 @@ function GatesTab() {
                 Save
               </button>
             </div>
+          </div>
+          <div>
+            <label className="text-[9px] text-zinc-600 uppercase tracking-wider">Description (optional)</label>
+            <input value={newGate.description} onChange={(e) => setNewGate({ ...newGate, description: e.target.value })}
+              placeholder="What this gate protects against"
+              className="w-full bg-card border border-white/[0.06] rounded-lg px-3 py-1.5 text-[12px] text-zinc-300 outline-none focus:border-emerald-500/30 mt-1" />
           </div>
         </div>
       )}
@@ -205,7 +216,8 @@ function GatesTab() {
               <tr className="border-b border-white/[0.06] text-zinc-600">
                 <th className="text-left px-4 py-2.5 font-medium">Gate</th>
                 <th className="text-left px-4 py-2.5 font-medium">Metric</th>
-                <th className="text-left px-4 py-2.5 font-medium">Threshold</th>
+                <th className="text-left px-4 py-2.5 font-medium">Warn</th>
+                <th className="text-left px-4 py-2.5 font-medium">Fail</th>
                 <th className="text-left px-4 py-2.5 font-medium">Status</th>
                 <th className="text-right px-4 py-2.5 font-medium">Actions</th>
               </tr>
@@ -218,7 +230,8 @@ function GatesTab() {
                     {g.description && <div className="text-[10px] text-zinc-600">{g.description}</div>}
                   </td>
                   <td className="px-4 py-3 font-mono text-zinc-500">{g.metric}</td>
-                  <td className="px-4 py-3 font-mono text-zinc-400">{g.threshold}</td>
+                  <td className="px-4 py-3 font-mono text-amber-400/80">{g.warn_threshold}</td>
+                  <td className="px-4 py-3 font-mono text-red-400/80">{g.fail_threshold}</td>
                   <td className="px-4 py-3">
                     <button onClick={() => toggleGate(g)}
                       className={`flex items-center gap-1.5 text-[10px] font-medium px-2 py-1 rounded-lg transition-colors ${
