@@ -51,12 +51,12 @@ class SettingsService:
     async def upsert_mcp_server(self, server_id: str | None, name: str, enabled: bool, config: str | None, server_url: str | None) -> None:
         if server_id:
             await self.db.execute(
-                "UPDATE mcp_configs SET name=$1, enabled=$2, config=$3, server_url=$4 WHERE id=$5",
+                "UPDATE mcp_configs SET name=$1, display_name=$1, enabled=$2, config=$3, server_url=$4 WHERE id=$5",
                 name, enabled, config or "", server_url or "", server_id,
             )
         else:
             await self.db.execute(
-                "INSERT INTO mcp_configs (name, enabled, config, server_url) VALUES ($1, $2, $3, $4)",
+                "INSERT INTO mcp_configs (name, display_name, enabled, config, server_url) VALUES ($1, $1, $2, $3, $4)",
                 name, enabled, config or "", server_url or "",
             )
 
@@ -182,11 +182,11 @@ class SettingsService:
         rows = await self.db.fetch("SELECT * FROM notification_preferences ORDER BY channel")
         return [dict(r) for r in rows]
 
-    async def upsert_notification_pref(self, channel: str, enabled: bool, events: list[str]) -> None:
+    async def upsert_notification_pref(self, channel: str, enabled: bool, events: list[str], target: str = "") -> None:
         await self.db.execute(
-            "INSERT INTO notification_preferences (channel, enabled, events) VALUES ($1, $2, $3) "
-            "ON CONFLICT (channel) DO UPDATE SET enabled=$2, events=$3",
-            channel, enabled, json.dumps(events),
+            "INSERT INTO notification_preferences (channel, enabled, events, target) VALUES ($1, $2, $3, $4) "
+            "ON CONFLICT (channel) DO UPDATE SET enabled=$2, events=$3, target=$4",
+            channel, enabled, json.dumps(events), target,
         )
 
     async def delete_notification_pref(self, pref_id: str) -> None:
@@ -214,11 +214,11 @@ class SettingsService:
         rows = await self.db.fetch("SELECT * FROM feature_flags ORDER BY key")
         return [dict(r) for r in rows]
 
-    async def upsert_feature_flag(self, flag_key: str, enabled: bool, description: str) -> None:
+    async def upsert_feature_flag(self, flag_key: str, enabled: bool, description: str, label: str = "", rollout_percent: int = 0) -> None:
         await self.db.execute(
-            "INSERT INTO feature_flags (key, enabled, description) VALUES ($1, $2, $3) "
-            "ON CONFLICT (key) DO UPDATE SET enabled=$2, description=$3",
-            flag_key, enabled, description or "",
+            "INSERT INTO feature_flags (key, label, enabled, description, rollout_percent) VALUES ($1, $2, $3, $4, $5) "
+            "ON CONFLICT (key) DO UPDATE SET label=$2, enabled=$3, description=$4, rollout_percent=$5",
+            flag_key, label or flag_key, enabled, description or "", rollout_percent,
         )
 
     async def delete_feature_flag(self, flag_key: str) -> None:
@@ -230,10 +230,10 @@ class SettingsService:
         rows = await self.db.fetch("SELECT * FROM quality_gates ORDER BY name")
         return [dict(r) for r in rows]
 
-    async def create_gate(self, name: str, metric: str, threshold: float, enabled: bool, description: str) -> None:
+    async def create_gate(self, name: str, metric: str, enabled: bool, description: str, warn_threshold: float = 80, fail_threshold: float = 60) -> None:
         await self.db.execute(
-            "INSERT INTO quality_gates (name, metric, threshold, enabled, description) VALUES ($1, $2, $3, $4, $5)",
-            name, metric, threshold, enabled, description or "",
+            "INSERT INTO quality_gates (name, metric, fail_threshold, warn_threshold, enabled, description) VALUES ($1, $2, $3, $4, $5, $6)",
+            name, metric, fail_threshold, warn_threshold, enabled, description or "",
         )
 
     async def update_gate(self, gate_id: str, name: str | None = None, threshold: float | None = None, enabled: bool | None = None) -> None:
@@ -245,7 +245,7 @@ class SettingsService:
             vals.append(name)
             idx += 1
         if threshold is not None:
-            sets.append(f"threshold=${idx}")
+            sets.append(f"fail_threshold=${idx}")
             vals.append(threshold)
             idx += 1
         if enabled is not None:
@@ -282,17 +282,21 @@ class SettingsService:
 
     async def create_alert(self, rule: dict[str, Any]) -> None:
         await self.db.execute(
-            "INSERT INTO alert_rules (name, metric, operator, threshold, channel, enabled) "
-            "VALUES ($1, $2, $3, $4, $5, $6)",
-            rule.get("name", ""), rule.get("metric", ""), rule.get("operator", "gt"),
-            float(rule.get("threshold", 0)), rule.get("channel", ""), rule.get("enabled", True),
+            "INSERT INTO alert_rules (name, condition_type, condition_value, condition_direction, action_type, action_config, enabled) "
+            "VALUES ($1, $2, $3, $4, $5, $6, $7)",
+            rule.get("name", ""), rule.get("metric", ""),
+            float(rule.get("threshold", 0)), rule.get("operator", "gt"),
+            rule.get("channel", ""), json.dumps(rule.get("action_config", {})),
+            rule.get("enabled", True),
         )
 
     async def update_alert(self, alert_id: str, rule: dict[str, Any]) -> None:
         await self.db.execute(
-            "UPDATE alert_rules SET name=$1, metric=$2, operator=$3, threshold=$4, channel=$5, enabled=$6 WHERE id=$7",
-            rule.get("name", ""), rule.get("metric", ""), rule.get("operator", "gt"),
-            float(rule.get("threshold", 0)), rule.get("channel", ""), rule.get("enabled", True), alert_id,
+            "UPDATE alert_rules SET name=$1, condition_type=$2, condition_value=$3, condition_direction=$4, action_type=$5, action_config=$6, enabled=$7 WHERE id=$8",
+            rule.get("name", ""), rule.get("metric", ""),
+            float(rule.get("threshold", 0)), rule.get("operator", "gt"),
+            rule.get("channel", ""), json.dumps(rule.get("action_config", {})),
+            rule.get("enabled", True), alert_id,
         )
 
     async def delete_alert(self, alert_id: str) -> None:
@@ -371,7 +375,7 @@ class SettingsService:
 
     async def create_experiment(self, name: str, description: str, config: dict[str, Any]) -> None:
         await self.db.execute(
-            "INSERT INTO experiments (name, description, config) VALUES ($1, $2, $3)",
+            "INSERT INTO experiments (name, description, control_config) VALUES ($1, $2, $3)",
             name, description or "", json.dumps(config),
         )
 
@@ -419,3 +423,18 @@ class SettingsService:
             "SELECT * FROM delivery_log ORDER BY created_at DESC LIMIT $1", limit,
         )
         return [dict(r) for r in rows]
+
+    # ── Generic Settings ──────────────────────────────────────
+
+    async def set_setting(self, key: str, value: str) -> None:
+        await self.db.execute(
+            "INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, NOW()) "
+            "ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()",
+            key, value,
+        )
+
+    async def get_setting(self, key: str) -> str | None:
+        row = await self.db.fetchrow(
+            "SELECT value FROM settings WHERE key = $1", key
+        )
+        return row["value"] if row else None

@@ -60,6 +60,7 @@ async def get_providers(request: Request):
     if not llm:
         return []
     stored = await settings_store.get_all_providers()
+    # Merge: start from LLM status, enrich from DB (for api_key, metadata)
     status = llm.get_status()
     merged = {s["provider"]: s for s in status}
 
@@ -73,19 +74,17 @@ async def get_providers(request: Request):
 
     for s in stored:
         provider_name = s["provider"]
-        # has_key reflects whether a key exists (DB or env), checked BEFORE stripping
         s["has_key"] = bool(s.get("api_key")) or bool(os.environ.get(get_provider_env_key(provider_name)))
-        s.pop("api_key", None)
         if meta := defs.get(provider_name):
             s["display_name"] = meta.get("display_name", provider_name)
             s["description"] = meta.get("description", "")
             s["signup_url"] = meta.get("signup_url", "")
             s["auth_type"] = meta.get("auth_type", "api_key")
             s["env_vars"] = meta.get("env_vars", "")
-            s["api_mode"] = meta.get("api_mode", "chat_completions")
+            s["api_mode"] = s.get("api_mode") or meta.get("api_mode", "chat_completions")
             s["base_url"] = s.get("base_url") or meta.get("base_url", "")
-        if provider_name not in merged:
-            merged[provider_name] = s
+        # Always use DB as source of truth (it has api_key)
+        merged[provider_name] = s
     return list(merged.values())
 
 
@@ -104,14 +103,22 @@ async def save_providers(request: Request, providers: list[ProviderSettingsReque
         # Preserve existing API key if not provided in the request
         existing = await settings_store.get_provider(provider_name)
         existing_key = (existing or {}).get("api_key", "")
+        resolved_key = p.api_key or existing_key or ""
         config = {
             "base_url": p.base_url,
             "model": p.model,
             "enabled": p.enabled,
             "options": p.options,
-            "api_key": p.api_key or existing_key or "",
+            "api_key": resolved_key,
         }
         await settings_store.upsert_provider(provider_name, config)
+        # Write API key to environment so has_key checks and env-based lookups work
+        if resolved_key:
+            from harness.env_loader import write_key as _write_key
+            try:
+                _write_key(get_provider_env_key(provider_name), resolved_key)
+            except Exception:
+                pass
         # Auto-create provider_definition for custom providers
         try:
             existing = await db.fetchrow("SELECT name FROM provider_definitions WHERE name=$1", provider_name)
@@ -449,6 +456,7 @@ class NotificationPrefRequest(BaseModel):
     channel: str
     enabled: bool = True
     events: list[str] = []
+    target: str = ""
 
 
 @router.get("/settings/notification-prefs")
@@ -460,7 +468,7 @@ async def get_notification_prefs(request: Request):
 @router.post("/settings/notification-prefs")
 async def upsert_notification_pref(request: Request, body: NotificationPrefRequest):
     svc = SettingsService(get_db(request))
-    await svc.upsert_notification_pref(body.channel, body.enabled, body.events)
+    await svc.upsert_notification_pref(body.channel, body.enabled, body.events, target=body.target)
     return {"status": "ok"}
 
 
@@ -498,8 +506,10 @@ async def delete_saved_filter(request: Request, filter_id: str):
 
 class FeatureFlagRequest(BaseModel):
     flag_key: str
+    label: str = ""
     enabled: bool = False
     description: str = ""
+    rollout_percent: int = 0
 
 
 @router.get("/settings/feature-flags")
@@ -511,7 +521,8 @@ async def get_feature_flags(request: Request):
 @router.post("/settings/feature-flags")
 async def upsert_feature_flag(request: Request, body: FeatureFlagRequest):
     svc = SettingsService(get_db(request))
-    await svc.upsert_feature_flag(body.flag_key, body.enabled, body.description)
+    await svc.upsert_feature_flag(body.flag_key, body.enabled, body.description,
+                                  label=body.label, rollout_percent=body.rollout_percent)
     return {"status": "ok"}
 
 
@@ -525,7 +536,8 @@ async def delete_feature_flag(request: Request, flag_key: str):
 class GateCreate(BaseModel):
     name: str
     metric: str
-    threshold: float = 0.8
+    warn_threshold: float = 80
+    fail_threshold: float = 60
     enabled: bool = True
     description: str = ""
 
@@ -539,7 +551,8 @@ async def get_gates(request: Request):
 @router.post("/settings/gates")
 async def create_gate(request: Request, body: GateCreate):
     svc = SettingsService(get_db(request))
-    await svc.create_gate(body.name, body.metric, body.threshold, body.enabled, body.description)
+    await svc.create_gate(body.name, body.metric, body.enabled, body.description,
+                          warn_threshold=body.warn_threshold, fail_threshold=body.fail_threshold)
     return {"status": "ok"}
 
 
@@ -821,27 +834,30 @@ async def save_escalation_policy(request: Request, body: dict):
 
 
 @router.get("/settings/otel")
-async def get_otel_settings():
-    """Get current OpenTelemetry configuration from env vars."""
+async def get_otel_settings(request: Request):
+    """Get current OpenTelemetry configuration from settings table, falling back to env vars."""
+    svc = SettingsService(get_db(request))
+    enabled = await svc.get_setting("otel_enabled")
+    endpoint = await svc.get_setting("otel_endpoint")
+    service_name = await svc.get_setting("otel_service_name")
+
     return {
-        "enabled": os.environ.get("OTEL_ENABLED", "false").lower() == "true",
-        "endpoint": os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"),
-        "service_name": os.environ.get("OTEL_SERVICE_NAME", "testai-harness"),
+        "enabled": enabled.lower() == "true" if enabled is not None else os.environ.get("OTEL_ENABLED", "false").lower() == "true",
+        "endpoint": endpoint or os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"),
+        "service_name": service_name or os.environ.get("OTEL_SERVICE_NAME", "testai-harness"),
         "protocol": os.environ.get("OTEL_EXPORTER_OTLP_PROTOCOL", "grpc"),
     }
 
 
 @router.post("/settings/otel")
-async def upsert_otel_settings(body: dict):
+async def upsert_otel_settings(request: Request, body: dict):
     """Save OpenTelemetry configuration.
 
     Persisted to the settings table via SettingsService.
     Values take effect on the next process restart (OTel is
     initialized at startup from env vars / settings store).
     """
-    import os as _os
-    from harness.services.settings_service import SettingsService
-    svc = SettingsService()
+    svc = SettingsService(get_db(request))
     await svc.set_setting("otel_enabled", str(body.get("enabled", False)))
     await svc.set_setting("otel_endpoint", body.get("endpoint", "http://localhost:4317"))
     await svc.set_setting("otel_service_name", body.get("service_name", "testai-harness"))

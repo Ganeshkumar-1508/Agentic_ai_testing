@@ -8,7 +8,15 @@ import os
 import time
 import warnings
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any, Callable
+
+from dotenv import load_dotenv
+
+# Load backend/.env BEFORE anything below reads os.environ (e.g. DATABASE_URL,
+# LLM provider keys). This must happen here because `uvicorn api.main:app`
+# imports this module directly and never runs backend/main.py.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 # Suppress non-fatal warnings during startup
 warnings.filterwarnings("ignore", message=".*RequestsDependencyWarning.*")
@@ -820,6 +828,3 @@ app.include_router(blueprints_router)
 
 from .routers.workflows import router as workflows_router
 app.include_router(workflows_router)
-
-
-
