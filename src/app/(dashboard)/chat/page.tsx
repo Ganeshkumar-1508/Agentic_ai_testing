@@ -57,10 +57,11 @@ function AgentPageFallback() {
 function AgentPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isConfigured, loadProviders } = useProviderStore();
+  const { isConfigured, isLoading, loadProviders } = useProviderStore();
+  const [mounted, setMounted] = useState(false);
 
-  // Load provider config on mount
-  useEffect(() => { loadProviders(); }, [loadProviders]);
+  // Load provider config on mount — force clear cache to ensure fresh state
+  useEffect(() => { loadProviders(); setMounted(true); }, [loadProviders]);
 
   // ── Core state ──────────────────────────────────────────────
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
@@ -398,24 +399,72 @@ function AgentPageInner() {
     startTimeRef.current = Date.now();
 
     try {
-      const { toJobSpecFromChatComposer } = await import("@/lib/adapters/job-spec");
-      const payload: Record<string, unknown> = {
-        prompt: text,
-        mode: "auto",
-        tier: currentTier,
-        repo_url: selectedRepo?.full_name ? `https://github.com/${selectedRepo.full_name}` : "",
-        branch: selectedBranch,
-      };
-      if (sessionId) payload.session_id = sessionId;
-      const spec = toJobSpecFromChatComposer(payload);
-      if (sessionId) spec.context = { ...(spec.context || {}), session_id: sessionId };
+      let threadId = sessionId;
 
-      const result = await api.post<{ run_id?: string; thread_id?: string; session_id?: string; error?: string }>("/api/jobs", spec);
-      const threadId = result.thread_id || result.run_id || result.session_id || "";
-      if (!threadId) throw new Error(result.error || "Failed to start agent run");
-      setSessionId(threadId);
+      // Create thread if none exists
+      if (!threadId) {
+        const thread = await api.post<{ id: string }>("/api/chat/threads", {
+          title: text.substring(0, 50),
+          source: "user",
+        });
+        threadId = thread.id;
+        setSessionId(threadId);
+      }
+
+      if (!threadId) throw new Error("Failed to create chat thread");
+
       setStreamingPhase("generating");
-      connectSSE(threadId);
+
+      // Send message via SSE — direct agent path (bypasses orchestrator)
+      const msgBody = JSON.stringify({ content: text });
+      const res = await fetch(`${typeof window !== "undefined" ? "http://localhost:8000" : "http://localhost:8000"}/api/chat/threads/${threadId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: msgBody,
+      });
+
+      if (!res.ok) throw new Error(`Chat error: HTTP ${res.status}`);
+
+      // Read SSE stream
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+      let buffer = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            try {
+              const event = JSON.parse(line.substring(6));
+              if (event.delta) {
+                fullText += event.delta;
+                setMessages((prev) => {
+                  const msgs = [...prev];
+                  const last = msgs[msgs.length - 1];
+                  if (last?.role === "assistant") {
+                    msgs[msgs.length - 1] = { ...last, content: fullText };
+                  } else {
+                    msgs.push({ id: `a-${Date.now()}`, role: "assistant", content: fullText, timestamp: Date.now() });
+                  }
+                  return msgs;
+                });
+              }
+              if (event.outcome) setWorkflowStatus("completed");
+            } catch {}
+          }
+        }
+      }
+
+      setStreamingPhase("");
+      setAgentStatus("idle");
+      setIsStreaming(false);
+      setWorkflowStatus("completed");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Connection failed";
       toast.error(msg);
@@ -423,7 +472,7 @@ function AgentPageInner() {
       setWorkflowStatus("failed");
       setStreamingPhase("");
     }
-  }, [input, isStreaming, sessionId, connectSSE]);
+  }, [input, isStreaming, sessionId]);
 
   // ── Approve / deny (POST /api/approve) ──────────────────────
   const handleApprove = useCallback(
@@ -559,6 +608,17 @@ function AgentPageInner() {
           sessions={sessionHistory.filter((s) => !sessionSearch || s.title.toLowerCase().includes(sessionSearch.toLowerCase()))}
           activeId={sessionId}
           onSelect={handleSelectSession}
+          onDelete={async (id) => {
+            if (!confirm("Delete this session?")) return;
+            try {
+              await api.delete(`/api/chat/threads/${id}`);
+              setSessionHistory((prev) => prev.filter((s) => s.id !== id));
+              if (sessionId === id) {
+                setSessionId(null);
+                setMessages([]);
+              }
+            } catch { /* ignore */ }
+          }}
           onNewChat={handleNewChat}
           onSearch={setSessionSearch}
           searchValue={sessionSearch}
@@ -566,14 +626,18 @@ function AgentPageInner() {
       )}
 
       <main className="chat-main">
-        {!isConfigured() && (
+        {mounted && isLoading ? (
+          <div className="mx-4 mt-4 px-4 py-3 rounded-xl border border-zinc-800/30 bg-zinc-900/50 text-zinc-500 text-xs flex items-center gap-3">
+            <span className="animate-pulse">Loading provider configuration...</span>
+          </div>
+        ) : mounted && !isConfigured() ? (
           <div className="mx-4 mt-4 px-4 py-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs flex items-center gap-3">
             <span className="font-medium">No LLM provider configured.</span>
             <button onClick={() => router.push("/settings")} className="underline hover:text-amber-200 transition-colors">
               Go to Settings → LLM Providers to add one.
             </button>
           </div>
-        )}
+        ) : null}
         {messages.length === 0 ? (
           <EmptyState
             onSuggestion={(s) => {
@@ -619,7 +683,7 @@ function AgentPageInner() {
           />
         )}
 
-        {sessionId && !isStreaming && (
+        {mounted && sessionId && !isStreaming && (
           <div className="px-4 py-3 border-t border-zinc-800/20">
             <SessionHealthPanel sessionId={sessionId} />
           </div>

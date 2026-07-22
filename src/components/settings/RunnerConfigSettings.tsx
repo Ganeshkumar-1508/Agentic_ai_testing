@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { SkeletonBlock } from "@/components/shared/LoadingSkeleton";
 import { ErrorState } from "@/components/shared/ErrorState";
 import {
-  Loader2, Save, Cpu, HardDrive, Globe, Terminal, Server,
+  Save, Cpu, HardDrive, Globe, Terminal, Server,
   Monitor, Wifi, Key, User, Network, Clock, Sliders,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -50,12 +50,16 @@ export function RunnerConfigSettings() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  const loadConfig = () => {
+    setLoading(true);
+    setError(null);
     api.get<{ config: SandboxConfig }>("/api/settings/sandbox")
       .then((d) => setConfig(d.config))
       .catch((e) => setError(e?.message || "Failed to load config"))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { loadConfig(); }, []);
 
   const updateConfig = async (updates: Partial<SandboxConfig>) => {
     setSaving(true);
@@ -79,7 +83,7 @@ export function RunnerConfigSettings() {
     </div>
   );
 
-  if (error) return <ErrorState message={error} onRetry={() => { setLoading(true); setError(null); }} />;
+  if (error) return <ErrorState message={error} onRetry={loadConfig} />;
 
   if (!config) return null;
 

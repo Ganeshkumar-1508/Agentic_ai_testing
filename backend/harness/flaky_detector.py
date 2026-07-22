@@ -22,7 +22,7 @@ HEAL_THRESHOLD = 0.15   # Auto-unquarantine below this score (test healed)
 LOOKBACK_RUNS = 20      # Number of recent runs to analyze
 
 
-async def update_flaky_score(db: Any, test_name: str, branch: str = "") -> dict[str, Any]:
+async def update_flaky_score(db: Any, test_name: str, branch: str = "", run_id: str = "") -> dict[str, Any]:
     """Recompute flaky score for a single test after a new run.
 
     Called after every test execution to keep flaky scores up to date.
@@ -64,15 +64,15 @@ async def update_flaky_score(db: Any, test_name: str, branch: str = "") -> dict[
 
         # Update flaky_tests table
         await db.execute(
-            """INSERT INTO flaky_tests (test_name, branch, total_runs, pass_count, fail_count,
+            """INSERT INTO flaky_tests (test_name, run_id, branch, total_runs, pass_count, fail_count,
                flaky_score, is_quarantined, last_healed, updated_at)
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
                ON CONFLICT (test_name, branch) DO UPDATE SET
-               total_runs = $3, pass_count = $4, fail_count = $5,
+               run_id = $2, total_runs = $4, pass_count = $5, fail_count = $6,
                flaky_score = $6, is_quarantined = $7,
                last_healed = CASE WHEN $7 = false AND flaky_tests.is_quarantined = true THEN true ELSE flaky_tests.last_healed END,
                updated_at = NOW()""",
-            test_name, branch, total, pass_count, fail_count,
+            test_name, run_id, branch, total, pass_count, fail_count,
             flaky_score, is_quarantined, is_quarantined == was_quarantined,
         )
 

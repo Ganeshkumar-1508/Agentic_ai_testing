@@ -49,6 +49,9 @@ class CoordinatorSpawnPhase(RunPhase):
         # Attach orchestrator session_id so the delegate_task tool
         # can parent subagent sessions in the sessions table.
         dt._session_id = ctx.session_id
+        # Propagate continue_on_failure to the delegate task tool so
+        # spawned subagents don't abort the entire batch on error.
+        dt._continue_on_failure = bool(ctx.test_config and ctx.test_config.get("continue_on_failure"))
 
         # Build the coordinator's goal string.
         memory_section = (
@@ -123,6 +126,12 @@ class CoordinatorSpawnPhase(RunPhase):
                 config_lines.append(f"- Auto-commit: YES (branch: {tc.get('commit_branch', 'main')})")
             if tc.get("tags"):
                 config_lines.append(f"- Tags: {', '.join(tc['tags'])}")
+            if tc.get("continue_on_failure"):
+                config_lines.append("- Continue on failure: YES (other agents continue if one fails)")
+            if tc.get("notification_channels"):
+                channels = tc["notification_channels"]
+                if isinstance(channels, list) and channels:
+                    config_lines.append(f"- Notifications: {', '.join(channels)}")
             coord_goal += "\n".join(config_lines)
 
         # Set up the per-run budget tracker and KG context (the

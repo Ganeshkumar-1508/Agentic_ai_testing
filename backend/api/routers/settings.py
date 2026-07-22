@@ -536,8 +536,9 @@ async def delete_feature_flag(request: Request, flag_key: str):
 class GateCreate(BaseModel):
     name: str
     metric: str
-    warn_threshold: float = 80
-    fail_threshold: float = 60
+    threshold: float = 0.8
+    warn_threshold: float = 0.8
+    fail_threshold: float = 0.6
     enabled: bool = True
     description: str = ""
 
@@ -551,7 +552,7 @@ async def get_gates(request: Request):
 @router.post("/settings/gates")
 async def create_gate(request: Request, body: GateCreate):
     svc = SettingsService(get_db(request))
-    await svc.create_gate(body.name, body.metric, body.enabled, body.description,
+    await svc.create_gate(body.name, body.metric, body.threshold, body.enabled, body.description,
                           warn_threshold=body.warn_threshold, fail_threshold=body.fail_threshold)
     return {"status": "ok"}
 

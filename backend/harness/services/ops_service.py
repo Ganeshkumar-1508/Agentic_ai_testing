@@ -61,6 +61,14 @@ class OpsService:
             "created_at": row["created_at"].isoformat() if row["created_at"] else None,
         }
 
+    async def get_active_session_id(self) -> str | None:
+        """Return the most recent active session ID, or None."""
+        row = await self.db.fetchrow(
+            "SELECT id FROM sessions WHERE status IN ('running', 'completed') "
+            "ORDER BY created_at DESC LIMIT 1"
+        )
+        return row["id"] if row else None
+
     async def get_tool_call_count(self) -> int:
         row = await self.db.fetchrow(
             "SELECT COUNT(*) AS count FROM trace_events "

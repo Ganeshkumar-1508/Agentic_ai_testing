@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { DollarSign, Plus, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { api } from "@/lib/api/api-client";
@@ -48,11 +47,13 @@ export function BudgetSettings() {
     mutationFn: (body: { scope: string; name: string; soft_usd: number; hard_usd: number; enabled: boolean }) =>
       api.post("/api/settings/budgets", body),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["budgets"] }); toast.success("Budget saved"); },
+    onError: (e: Error) => toast.error(e?.message ?? "Failed to save budget"),
   });
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => api.delete(`/api/settings/budgets/${id}`),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["budgets"] }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["budgets"] }); toast.success("Budget deleted"); },
+    onError: (e: Error) => toast.error(e?.message ?? "Failed to delete budget"),
   });
 
   const budgets = data ?? [];
@@ -104,8 +105,20 @@ export function BudgetSettings() {
                     <DollarSign className="w-4 h-4 text-emerald-400/60 shrink-0" strokeWidth={1.5} />
                     <div className="flex-1">
                       <div className="text-xs font-mono font-semibold text-zinc-200">{b.name}</div>
-                      <div className="text-[10px] text-zinc-600 font-mono">
-                        ${b.softUsd.toFixed(2)} soft · ${b.hardUsd.toFixed(2)} hard
+                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 font-mono mt-0.5">
+                        <span>$</span>
+                        <input
+                          type="number" step="0.01" min="0" defaultValue={b.softUsd}
+                          onBlur={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v) && v !== b.softUsd) upsertMut.mutate({ scope: b.scope, name: b.name, soft_usd: v, hard_usd: b.hardUsd, enabled: b.enabled }); }}
+                          className="w-16 bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-emerald-500/40 outline-none text-zinc-400"
+                        />
+                        <span>soft · $</span>
+                        <input
+                          type="number" step="0.01" min="0" defaultValue={b.hardUsd}
+                          onBlur={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v) && v !== b.hardUsd) upsertMut.mutate({ scope: b.scope, name: b.name, soft_usd: b.softUsd, hard_usd: v, enabled: b.enabled }); }}
+                          className="w-16 bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-emerald-500/40 outline-none text-zinc-400"
+                        />
+                        <span>hard</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">

@@ -166,12 +166,34 @@ class LLMRouter:
             out = getattr(usage, "completion_tokens", 0)
         if not inp and not out:
             return
+        # Calculate cost
+        cost = 0.0
+        try:
+            from harness.pricing_cache import get_pricing_cache
+            cache = get_pricing_cache()
+            rates = cache.get_rate_sync(model) if hasattr(cache, 'get_rate_sync') else None
+        except Exception:
+            rates = None
+        # Insert directly (non-blocking attempt)
         try:
             import asyncio
             loop = asyncio.get_running_loop()
             loop.create_task(self._save_usage(inp, out, model))
         except RuntimeError:
-            pass
+            # No event loop — try synchronous insert
+            try:
+                import asyncpg
+                async def _sync_insert():
+                    try:
+                        await db.execute(
+                            "INSERT INTO token_usage (session_id, model, input_tokens, output_tokens, estimated_cost_usd, timestamp) VALUES ($1,$2,$3,$4,$5,NOW())",
+                            "system", model, inp, out, round(cost, 6),
+                        )
+                    except Exception:
+                        pass
+                asyncio.get_event_loop().run_until_complete(_sync_insert())
+            except Exception:
+                pass
 
     async def _save_usage(self, inp: int, out: int, model: str) -> None:
         db = self._db_provider
@@ -379,6 +401,7 @@ class LLMRouter:
             {
                 "provider": name,
                 "configured": True,
+                "status": 1 if (p.api_key and p.model) else 0,
                 "model": p.model,
                 "has_key": bool(p.api_key),
                 "base_url": p.base_url,

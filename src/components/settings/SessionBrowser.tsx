@@ -9,12 +9,7 @@ import {
   History,
   CheckCircle2,
   XCircle,
-  Clock,
   Loader2,
-  ExternalLink,
-  Play,
-  DollarSign,
-  FileText,
   Trash2,
   Container,
 } from "lucide-react";
@@ -190,6 +185,9 @@ export function SessionBrowser() {
                       )}>
                         {session.status}
                       </span>
+                      {session.totalCost > 0 && (
+                        <span className="text-[10px] font-mono text-zinc-600">{formatCost(session.totalCost)}</span>
+                      )}
                     </div>
                   </div>
                 </div>

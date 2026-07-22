@@ -115,9 +115,11 @@ def _scoped_board_id(request: Request, board_id: str = "") -> str:
 
 
 @router.get("/boards")
-async def list_boards(request: Request):
+async def list_boards(request: Request, source: str = ""):
     svc = KanbanService(get_db(request))
     board_id = _scoped_board_id(request)
+    if source:
+        return {"boards": await svc.list_boards(source=source)}
     return {"boards": await svc.list_boards(board_id=board_id) if board_id else await svc.list_boards()}
 
 

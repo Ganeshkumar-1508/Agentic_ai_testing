@@ -15,6 +15,7 @@ settings_routers = [
     router,
     provider_defs_router,
     saved_filters_router,
+    sandbox_config_router,
     admin_api_router,
     agents_router,
     tools_mgmt_router,

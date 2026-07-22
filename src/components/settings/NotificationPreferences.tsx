@@ -43,7 +43,12 @@ export function NotificationPreferences() {
     queryKey: ["notification-prefs"],
     queryFn: async () => {
       const json = await api.get<{ preferences: NotificationPref[] }>(`/api/settings/notification-prefs`);
-      return json?.preferences ?? [];
+      const prefs = json?.preferences ?? [];
+      // Parse events from JSON string if needed
+      return prefs.map((p: any) => ({
+        ...p,
+        events: Array.isArray(p.events) ? p.events : typeof p.events === "string" ? JSON.parse(p.events) : [],
+      }));
     },
   });
 
@@ -127,8 +132,9 @@ export function NotificationPreferences() {
               </button>
             ))}
           </div>
-          <button onClick={() => upsertMut.mutate({ channel: newChannel, enabled: true, events: newEvents, target: newTarget })}
-            className="px-3 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold hover:bg-emerald-500/25 transition-colors">
+          <button onClick={() => { if (!newTarget.trim()) { toast.error("Target is required"); return; } upsertMut.mutate({ channel: newChannel, enabled: true, events: newEvents, target: newTarget }); }}
+            disabled={!newTarget.trim() || newEvents.length === 0}
+            className="px-3 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold hover:bg-emerald-500/25 transition-colors disabled:opacity-40">
             Save
           </button>
         </motion.div>

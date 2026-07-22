@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -15,10 +15,8 @@ import {
   Copy,
   Globe,
   Github,
-  ExternalLink,
   ChevronDown,
   Terminal,
-  Loader2,
 } from "lucide-react";
 import {
   Collapsible,
@@ -26,12 +24,15 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { api } from "@/lib/api/api-client";
+import { toast } from "sonner";
 
 interface ApiKey {
   id: string;
-  name: string;
+  label: string;
+  prefix: string;
   enabled: boolean;
-  createdAt: string;
+  created_at: string;
+  last_used_at?: string;
 }
 
 const D = "$";
@@ -66,7 +67,6 @@ export function CICDSetup() {
   const [newKeyName, setNewKeyName] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newKeyValue, setNewKeyValue] = useState<string | null>(null);
-  const [copiedKey, setCopiedKey] = useState(false);
   const [openConfig, setOpenConfig] = useState<string | null>(null);
   const [copiedConfig, setCopiedConfig] = useState<string | null>(null);
   const backendUrl = typeof window !== "undefined"
@@ -89,19 +89,23 @@ export function CICDSetup() {
   const createKey = async () => {
     if (!newKeyName.trim()) return;
     try {
-      const json = await api.post<{ key?: string }>(`/api/settings/api-keys`, { name: newKeyName.trim() });
+      const json = await api.post<{ key?: string }>(`/api/settings/api-keys`, { label: newKeyName.trim() });
       setNewKeyValue(json?.key ?? null);
       setNewKeyName("");
       setShowAddForm(false);
       fetchKeys();
-    } catch { /* ignore */ }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to create API key");
+    }
   };
 
   const deleteKey = async (id: string) => {
     try {
       await api.delete(`/api/settings/api-keys/${id}`);
       setKeys((prev) => prev.filter((k) => k.id !== id));
-    } catch { /* ignore */ }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete API key");
+    }
   };
 
   const copyToClipboard = async (text: string, id: string) => {
@@ -148,17 +152,27 @@ export function CICDSetup() {
               >
                 <div className="flex items-center gap-3">
                   <Key className="w-4 h-4 text-neutral-500" strokeWidth={1.5} />
-                  <span className="text-xs font-medium text-neutral-300">{key.name}</span>
+                  <span className="text-xs font-medium text-neutral-300">{key.label}</span>
                   <span className="text-[10px] text-neutral-600 font-mono">
-                    Created {key.createdAt ? new Date(key.createdAt).toLocaleDateString() : ""}
+                    {key.prefix ? `${key.prefix}...` : ""}
                   </span>
+                  <span className="text-[10px] text-neutral-600 font-mono">
+                    Created {key.created_at ? new Date(key.created_at).toLocaleDateString() : ""}
+                  </span>
+                  {key.last_used_at && (
+                    <span className="text-[10px] text-emerald-600 font-mono">
+                      Last used {new Date(key.last_used_at).toLocaleDateString()}
+                    </span>
+                  )}
                 </div>
-                <button
-                  onClick={() => deleteKey(key.id)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-colors active:scale-[0.92]"
-                >
-                  <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => deleteKey(key.id)}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-colors active:scale-[0.92]"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  </button>
+                </div>
               </div>
             ))}
 

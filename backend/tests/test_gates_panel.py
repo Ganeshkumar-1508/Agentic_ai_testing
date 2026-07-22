@@ -36,12 +36,12 @@ async def test_create_gate_default_thresholds():
             "metric": "coverage",
         })
         assert r.status_code == 200
-        # Should use defaults: warn=80, fail=60
+        # Should use defaults: warn=0.8, fail=0.6
         gates = await client.get(f"{BASE}/api/settings/gates")
         gate = next((g for g in gates.json().get("gates", []) if g["name"] == "Coverage Gate"), None)
         assert gate is not None
-        assert gate["warn_threshold"] == 80
-        assert gate["fail_threshold"] == 60
+        assert gate["warn_threshold"] == 0.8
+        assert gate["fail_threshold"] == 0.6
 
 
 @pytest.mark.asyncio

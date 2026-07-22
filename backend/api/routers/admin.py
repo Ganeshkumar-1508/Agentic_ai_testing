@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import re
@@ -111,8 +112,17 @@ async def run_cron_job_now(request: Request, job_id: str):
 @router.get("/skills")
 async def list_skills(request: Request):
     from harness.tools.skill_tools import _scan_skills
-    skills = _scan_skills()
-    return {"skills": skills}
+    try:
+        loop = asyncio.get_event_loop()
+        skills = await asyncio.wait_for(
+            loop.run_in_executor(None, _scan_skills),
+            timeout=5.0,
+        )
+        return {"skills": skills}
+    except asyncio.TimeoutError:
+        return {"skills": [], "error": "timeout"}
+    except Exception as e:
+        return {"skills": [], "error": str(e)}
 
 
 @router.get("/skills/hub")
@@ -187,6 +197,13 @@ async def import_skills(request: Request, body: dict):
         return {"status": "ok", "imported": imported, "count": len(imported)}
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+@router.get("/skills/curator-status")
+async def skills_curator_status(request: Request):
+    """Alias for /api/ops/skills/curator-status accessible under /api/skills/."""
+    from .ops import get_curator_status
+    return await get_curator_status(request)
 
 
 @router.get("/skills/categories")
@@ -297,7 +314,7 @@ async def delete_skill(request: Request, name: str):
     return {"status": "deleted", "name": name}
 
 
-@router.post("/api/ci/run")
+@router.post("/ci/run")
 async def ci_run(request: Request, req: CIRunRequest):
     from harness.ci.git_providers import get_provider_from_url, get_provider
 
@@ -413,7 +430,7 @@ async def ci_run(request: Request, req: CIRunRequest):
 class TemplateCreate(BaseModel):
     name: str
     description: str = ""
-    requirements: str
+    requirements: str = ""
     mode: str = "auto"
     language: str = ""
     framework: str = ""
@@ -502,7 +519,7 @@ async def export_all_data(request: Request):
     }
 
 
-@router.post("/api/webhooks/github")
+@router.post("/webhooks/github")
 async def github_webhook(request: Request, req: WebhookPayload):
     # Q1+Q2+Q3: extend the GitHub webhook to fire TestAI runs.
     # The original handler (pre-Q1) only fired the CI runner on

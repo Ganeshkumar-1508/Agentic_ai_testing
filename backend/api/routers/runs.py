@@ -438,58 +438,68 @@ async def get_session_health(request: Request, session_id: str):
     db = get_db(request)
     result: dict[str, Any] = {}
 
-    # Compression stats
-    comp = await db.fetchrow(
-        "SELECT COUNT(*) as count, COALESCE(SUM(before_tokens), 0) as before_total, "
-        "COALESCE(SUM(after_tokens), 0) as after_total "
-        "FROM compressions WHERE session_id = $1", session_id,
-    )
-    if comp:
-        before = comp["before_total"] or 0
-        after = comp["after_total"] or 0
-        result["compressions"] = {
-            "count": comp["count"] or 0,
-            "tokens_before": before,
-            "tokens_after": after,
-            "tokens_saved": before - after,
-            "ratio": round((before - after) / before * 100, 1) if before > 0 else 0,
+    try:
+        # Compression stats
+        comp = await db.fetchrow(
+            "SELECT COUNT(*) as count, COALESCE(SUM(before_tokens), 0) as before_total, "
+            "COALESCE(SUM(after_tokens), 0) as after_total "
+            "FROM compressions WHERE session_id = $1", session_id,
+        )
+        if comp:
+            before = comp["before_total"] or 0
+            after = comp["after_total"] or 0
+            result["compressions"] = {
+                "count": comp["count"] or 0,
+                "tokens_before": before,
+                "tokens_after": after,
+                "tokens_saved": before - after,
+                "ratio": round((before - after) / before * 100, 1) if before > 0 else 0,
+            }
+        else:
+            result["compressions"] = {"count": 0, "tokens_saved": 0, "ratio": 0}
+
+        # L0 artifacts
+        l0 = await db.fetchval(
+            "SELECT COUNT(*) FROM agent_artifacts WHERE session_id = $1", session_id,
+        )
+        result["artifacts"] = {"l0_count": l0 or 0}
+
+        # Checkpoints
+        ckpt = await db.fetchrow(
+            "SELECT COUNT(*) as count, MAX(created_at) as latest "
+            "FROM checkpoints WHERE session_id = $1", session_id,
+        )
+        ckpt_types = await db.fetch(
+            "SELECT checkpoint_type, COUNT(*) as cnt FROM checkpoints "
+            "WHERE session_id = $1 GROUP BY checkpoint_type ORDER BY cnt DESC",
+            session_id,
+        )
+        latest_str = None
+        if ckpt and ckpt["latest"]:
+            try:
+                latest_str = ckpt["latest"].isoformat()
+            except Exception:
+                latest_str = str(ckpt["latest"])
+        result["checkpoints"] = {
+            "count": ckpt["count"] if ckpt else 0,
+            "latest": latest_str,
+            "types": {r["checkpoint_type"]: r["cnt"] for r in ckpt_types} if ckpt_types else {},
         }
-    else:
-        result["compressions"] = {"count": 0, "tokens_saved": 0, "ratio": 0}
 
-    # L0 artifacts
-    l0 = await db.fetchval(
-        "SELECT COUNT(*) FROM agent_artifacts WHERE session_id = $1", session_id,
-    )
-    result["artifacts"] = {"l0_count": l0 or 0}
-
-    # Checkpoints
-    ckpt = await db.fetchrow(
-        "SELECT COUNT(*) as count, MAX(created_at) as latest "
-        "FROM checkpoints WHERE session_id = $1", session_id,
-    )
-    ckpt_types = await db.fetch(
-        "SELECT checkpoint_type, COUNT(*) as cnt FROM checkpoints "
-        "WHERE session_id = $1 GROUP BY checkpoint_type ORDER BY cnt DESC",
-        session_id,
-    )
-    result["checkpoints"] = {
-        "count": ckpt["count"] if ckpt else 0,
-        "latest": ckpt["latest"].isoformat() if ckpt and ckpt["latest"] else None,
-        "types": {r["checkpoint_type"]: r["cnt"] for r in ckpt_types} if ckpt_types else {},
-    }
-
-    # Token usage summary
-    tok = await db.fetchrow(
-        "SELECT COUNT(*) as count, COALESCE(SUM(input_tokens + output_tokens), 0) as total_tokens, "
-        "COALESCE(SUM(estimated_cost_usd), 0) as total_cost "
-        "FROM token_usage WHERE session_id = $1", session_id,
-    )
-    result["token_usage"] = {
-        "records": tok["count"] if tok else 0,
-        "total_tokens": tok["total_tokens"] if tok else 0,
-        "total_cost": round(tok["total_cost"], 6) if tok else 0,
-    }
+        # Token usage summary
+        tok = await db.fetchrow(
+            "SELECT COUNT(*) as count, COALESCE(SUM(input_tokens + output_tokens), 0) as total_tokens, "
+            "COALESCE(SUM(estimated_cost_usd), 0) as total_cost "
+            "FROM token_usage WHERE session_id = $1", session_id,
+        )
+        result["token_usage"] = {
+            "records": tok["count"] if tok else 0,
+            "total_tokens": tok["total_tokens"] if tok else 0,
+            "total_cost": round(tok["total_cost"], 6) if tok else 0,
+        }
+    except Exception as exc:
+        logger.warning("get_session_health failed for %s: %s", session_id, exc)
+        result["error"] = str(exc)
 
     return result
 
@@ -899,3 +909,30 @@ async def get_run_forensics(request: Request, run_id: str) -> dict:
             "summary_available": False,
             "error": str(exc),
         }
+
+
+@router.get("/cost/session/{session_id}")
+async def get_session_cost(request: Request, session_id: str):
+    """Return token usage breakdown per model for a session."""
+    db = get_db(request)
+    rows = await db.fetch(
+        "SELECT model, "
+        "SUM(input_tokens) as input_tokens, "
+        "SUM(output_tokens) as output_tokens, "
+        "SUM(COALESCE(cache_read_tokens, 0)) as cache_read_tokens, "
+        "SUM(estimated_cost_usd) as cost "
+        "FROM token_usage WHERE session_id = $1 "
+        "GROUP BY model ORDER BY cost DESC",
+        session_id,
+    )
+    models = [
+        {
+            "input_tokens": int(r["input_tokens"] or 0),
+            "output_tokens": int(r["output_tokens"] or 0),
+            "cache_read_tokens": int(r["cache_read_tokens"] or 0),
+            "cost": float(r["cost"] or 0),
+        }
+        for r in rows
+    ]
+    total_cost = sum(m["cost"] for m in models)
+    return {"models": models, "total_cost": total_cost}
